@@ -31,6 +31,8 @@ test: main
 	cat add_remove_report.txt >> report2.txt
 	rm -v *_report.txt
 
+	make cleanall
+
 
 main.o: main.c
 	gcc $(CFLAGS) $< -o $@
