@@ -46,12 +46,25 @@ val: main
 
 test_static: static
 	make test
-	make cleanall
+	rm -v *.a *.o
 
 test_shared: shared
 	make test
-	make cleanall
+	rm -v *.so *.o
 
+test_all: 
+	make test_static
+	cp report3.txt report3_static.txt
+
+	make test_shared
+	cp report3.txt report3_shared.txt
+
+	echo '--------------------STATIC TEST---------------------' > report3.txt
+	cat report3_static.txt >> report3.txt
+
+	echo '\n\n--------------------SHARED TEST---------------------' >> report3.txt
+	cat report3_shared.txt >> report3.txt
+	
 
 # merge <liczba przypadków testowych> <liczba par w przyp. 1> <dł. wiersza w przyp. 1> <liczba wierszy w przyp. 1> ... ... <nazwa pliku z raportem>
 # save <liczba przypadków testowych> <liczba bloków 1> <dł. wiersza, przyp. 1> <liczba wierszy, przyp. 1> ... ... <nazwa pliku z raportem>
@@ -92,7 +105,7 @@ valtest: main
 	cat save_report.txt >> report3.txt
 	cat remove_report.txt >> report3.txt
 	cat add_remove_report.txt >> report3.txt
-	rm -v *_report.txt
+	rm -v *_report.txt 
 
 
 .PHONY: clean
@@ -102,6 +115,6 @@ clean:
 
 .PHONY: cleanall
 cleanall:
-	rm -v *.o main *.a *.so
+	rm -v *.o main *.a *.so *report3*.txt
 
 
