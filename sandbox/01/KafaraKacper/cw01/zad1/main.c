@@ -1,3 +1,5 @@
+// Program do testowania wybranych funkcjonalności biblioteki
+
 #include "zad1.h"
 #include <stdio.h>
 #include <string.h>

@@ -29,3 +29,14 @@ W celu przeprowadzenia testów tylko na wybranej wersji progrmu:
 
 W razie potrzeby konfiguracji parametrów testu, należy zmodyfikować zwartość makefile targetu `test`. 
 Składnia komend do przeprowadzania testu jest tam opisana. 
+
+## Komentarz do otrzymanych wyników (znajduje się takżę w pliku report3.txt)
+
+
+
+
+
+
+## Uwaga
+
+Ponowne uruchomienie testów usunie komentarz zawarty w pliku report3.txt (jednakowy z powyższym).

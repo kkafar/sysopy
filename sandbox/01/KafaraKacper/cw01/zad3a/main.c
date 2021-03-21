@@ -442,12 +442,12 @@ void make_report(   const char * pathname,
     for (size_t i = 0; i < ncases; ++i)
     {
         printf("case %ld: pairs: %ld, lwidth: %ld, nlines: %ld, ", i+1, test_cases[i][0], test_cases[i][1], test_cases[i][2]);
-        printf("\trealtime: %.5lf\tusertime: %.5lf\tsystime: %.5lf\n", 
+        printf("\t\trealtime: %.5lf\tusertime: %.5lf\tsystime: %.5lf\n", 
             computetime(clock_ticks[i]), 
             computetime_diff(tstart[i].tms_utime, tstop[i].tms_utime), 
             computetime_diff(tstart[i].tms_stime, tstop[i].tms_stime));
         fprintf(report, "case %ld: pairs: %ld, lwidth: %ld, nlines: %ld, ", i+1, test_cases[i][0], test_cases[i][1], test_cases[i][2]);
-        fprintf(report, "\trealtime: %.5lf\tusertime: %.5lf\tsystime: %.5lf\n", 
+        fprintf(report, "\t\trealtime: %.5lf\tusertime: %.5lf\tsystime: %.5lf\n", 
             computetime(clock_ticks[i]), 
             computetime_diff(tstart[i].tms_utime, tstop[i].tms_utime), 
             computetime_diff(tstart[i].tms_stime, tstop[i].tms_stime));

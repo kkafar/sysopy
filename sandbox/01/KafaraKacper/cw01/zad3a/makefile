@@ -92,13 +92,13 @@ test_all:
 # add_remove <liczba przpadków testowych> <liczba bloków 1> <dł. wiersza, przp 1> <liczba wierszy, przyp. 1> ... ... <nazwa pliku z raportem> 
 test:
 	# Testowanie operacji mergowania...
-	./main test merge 9  10 100 300  10 100 900  10 100 2700  100 100 300  100 100 900  100 100 2700  500 100 300  500 100 900  500 100 2700 merge_report.txt
+	./main test merge 9  50 100 300  50 100 900  500 100 2700  500 100 300  500 100 900  500 100 2700  1000 100 300  1000 100 900  1000 100 2700 merge_report.txt
 	# Testowanie operacji zapisu bloków w pamięci...
-	./main test save 9  10 100 600  10 100 1800  10 100 5400  100 100 600  100 100 1800  100 100 5400  500 100 600  500 100 1800  500 100 5400  save_report.txt
+	./main test save 9  50 100 600  50 100 1800  50 100 5400  500 100 600  500 100 1800  500 100 5400  1000 100 600  1000 100 1800  1000 100 5400  save_report.txt
 	# Testowanie usuwania bloków...
-	./main test remove 9  10 100 600  10 100 1800  10 100 5400  100 100 600  100 100 1800  100 100 5400  500 100 600  500 100 1800  500 100 5400  remove_report.txt
-	# Testowanie dodawania / usuwania bloków...
-	./main test add_remove 9 10 100 600  10 100 1800  10 100 5400  100 100 600  100 100 1800  100 100 5400  500 100 600  500 100 1800  500 100 5400 add_remove_report.txt
+	./main test remove 9  50 100 600  50 100 1800  50 100 5400  500 100 600  500 100 1800  500 100 5400  1000 100 600  1000 100 1800  1000 100 5400  remove_report.txt
+	# Testowanie dodawania / usuwania bloków
+	./main test add_remove 9 50 100 600  50 100 1800  50 100 5400  500 100 600  500 100 1800  500 100 5400  1000 100 600  1000 100 1800  1000 100 5400 add_remove_report.txt
 	
 	cat merge_report.txt > report3.txt
 	cat save_report.txt >> report3.txt

@@ -570,15 +570,15 @@ void test_block_add_remove(size_t ncases, size_t test_cases[][3], const char *re
         tstop);
 }
 
-void make_report(const char *pathname,
-                 const char *test,
-                 size_t ncases,
-                 clock_t clock_ticks[],
-                 size_t test_cases[][3],
-                 struct tms tstart[],
-                 struct tms tstop[])
+void make_report(   const char * pathname, 
+                    const char * test, 
+                    size_t ncases, 
+                    clock_t clock_ticks[], 
+                    size_t test_cases[][3], 
+                    struct tms tstart[], 
+                    struct tms tstop[])
 {
-    FILE *report = fopen(pathname, "w");
+    FILE * report = fopen(pathname, "w");
     if (!report)
     {
         printf("Could not create/open the file %s for write!\n", pathname);
@@ -588,16 +588,16 @@ void make_report(const char *pathname,
     fprintf(report, "====================  %s REPORT ======================\n", test);
     for (size_t i = 0; i < ncases; ++i)
     {
-        printf("case %ld: pairs: %ld, lwidth: %ld, nlines: %ld, ", i + 1, test_cases[i][0], test_cases[i][1], test_cases[i][2]);
-        printf("\trealtime: %.5lf\tusertime: %.5lf\tsystime: %.5lf\n",
-               computetime(clock_ticks[i]),
-               computetime_diff(tstart[i].tms_utime, tstop[i].tms_utime),
-               computetime_diff(tstart[i].tms_stime, tstop[i].tms_stime));
-        fprintf(report, "case %ld: pairs: %ld, lwidth: %ld, nlines: %ld, ", i + 1, test_cases[i][0], test_cases[i][1], test_cases[i][2]);
-        fprintf(report, "\trealtime: %.5lf\tusertime: %.5lf\tsystime: %.5lf\n",
-                computetime(clock_ticks[i]),
-                computetime_diff(tstart[i].tms_utime, tstop[i].tms_utime),
-                computetime_diff(tstart[i].tms_stime, tstop[i].tms_stime));
+        printf("case %ld: pairs: %ld, lwidth: %ld, nlines: %ld, ", i+1, test_cases[i][0], test_cases[i][1], test_cases[i][2]);
+        printf("\t\trealtime: %.5lf\tusertime: %.5lf\tsystime: %.5lf\n", 
+            computetime(clock_ticks[i]), 
+            computetime_diff(tstart[i].tms_utime, tstop[i].tms_utime), 
+            computetime_diff(tstart[i].tms_stime, tstop[i].tms_stime));
+        fprintf(report, "case %ld: pairs: %ld, lwidth: %ld, nlines: %ld, ", i+1, test_cases[i][0], test_cases[i][1], test_cases[i][2]);
+        fprintf(report, "\t\trealtime: %.5lf\tusertime: %.5lf\tsystime: %.5lf\n", 
+            computetime(clock_ticks[i]), 
+            computetime_diff(tstart[i].tms_utime, tstop[i].tms_utime), 
+            computetime_diff(tstart[i].tms_stime, tstop[i].tms_stime));
     }
     fprintf(report, "================== END %s REPORT =====================\n", test);
     printf("================== END %s REPORT =====================\n", test);
