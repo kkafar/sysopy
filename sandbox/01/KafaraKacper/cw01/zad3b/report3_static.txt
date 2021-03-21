@@ -1,0 +1,80 @@
+===================  MERGE REPORT ======================
+case 1: pairs: 10, lwidth: 100, nlines: 300
+	realtime: 0.00000	usertime: 0.00000	systime: 0.00000
+case 2: pairs: 10, lwidth: 100, nlines: 900
+	realtime: 0.01000	usertime: 0.00000	systime: 0.01000
+case 3: pairs: 10, lwidth: 100, nlines: 2700
+	realtime: 0.02000	usertime: 0.02000	systime: 0.00000
+case 4: pairs: 100, lwidth: 100, nlines: 300
+	realtime: 0.03000	usertime: 0.01000	systime: 0.01000
+case 5: pairs: 100, lwidth: 100, nlines: 900
+	realtime: 0.09000	usertime: 0.08000	systime: 0.01000
+case 6: pairs: 100, lwidth: 100, nlines: 2700
+	realtime: 0.28000	usertime: 0.24000	systime: 0.04000
+case 7: pairs: 500, lwidth: 100, nlines: 300
+	realtime: 0.18000	usertime: 0.15000	systime: 0.03000
+case 8: pairs: 500, lwidth: 100, nlines: 900
+	realtime: 0.48000	usertime: 0.43000	systime: 0.04000
+case 9: pairs: 500, lwidth: 100, nlines: 2700
+	realtime: 1.48000	usertime: 1.30000	systime: 0.19000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case 1: pairs: 10, lwidth: 100, nlines: 600
+	realtime: 0.01000	usertime: 0.00000	systime: 0.00000
+case 2: pairs: 10, lwidth: 100, nlines: 1800
+	realtime: 0.00000	usertime: 0.00000	systime: 0.01000
+case 3: pairs: 10, lwidth: 100, nlines: 5400
+	realtime: 0.02000	usertime: 0.00000	systime: 0.01000
+case 4: pairs: 100, lwidth: 100, nlines: 600
+	realtime: 0.02000	usertime: 0.00000	systime: 0.01000
+case 5: pairs: 100, lwidth: 100, nlines: 1800
+	realtime: 0.08000	usertime: 0.01000	systime: 0.02000
+case 6: pairs: 100, lwidth: 100, nlines: 5400
+	realtime: 0.24000	usertime: 0.04000	systime: 0.09000
+case 7: pairs: 500, lwidth: 100, nlines: 600
+	realtime: 0.18000	usertime: 0.01000	systime: 0.10000
+case 8: pairs: 500, lwidth: 100, nlines: 1800
+	realtime: 0.34000	usertime: 0.05000	systime: 0.10000
+case 9: pairs: 500, lwidth: 100, nlines: 5400
+	realtime: 1.07000	usertime: 0.15000	systime: 0.37000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case 1: pairs: 10, lwidth: 100, nlines: 600
+	realtime: 0.00000	usertime: 0.00000	systime: 0.00000
+case 2: pairs: 10, lwidth: 100, nlines: 1800
+	realtime: 0.00000	usertime: 0.00000	systime: 0.00000
+case 3: pairs: 10, lwidth: 100, nlines: 5400
+	realtime: 0.00000	usertime: 0.00000	systime: 0.00000
+case 4: pairs: 100, lwidth: 100, nlines: 600
+	realtime: 0.00000	usertime: 0.00000	systime: 0.00000
+case 5: pairs: 100, lwidth: 100, nlines: 1800
+	realtime: 0.00000	usertime: 0.01000	systime: 0.00000
+case 6: pairs: 100, lwidth: 100, nlines: 5400
+	realtime: 0.01000	usertime: 0.01000	systime: 0.00000
+case 7: pairs: 500, lwidth: 100, nlines: 600
+	realtime: 0.00000	usertime: 0.01000	systime: 0.00000
+case 8: pairs: 500, lwidth: 100, nlines: 1800
+	realtime: 0.02000	usertime: 0.01000	systime: 0.00000
+case 9: pairs: 500, lwidth: 100, nlines: 5400
+	realtime: 0.07000	usertime: 0.07000	systime: 0.00000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case 1: pairs: 10, lwidth: 100, nlines: 600
+	realtime: 0.03000	usertime: 0.03000	systime: 0.00000
+case 2: pairs: 10, lwidth: 100, nlines: 1800
+	realtime: 0.06000	usertime: 0.07000	systime: 0.00000
+case 3: pairs: 10, lwidth: 100, nlines: 5400
+	realtime: 0.18000	usertime: 0.17000	systime: 0.02000
+case 4: pairs: 100, lwidth: 100, nlines: 600
+	realtime: 0.21000	usertime: 0.16000	systime: 0.06000
+case 5: pairs: 100, lwidth: 100, nlines: 1800
+	realtime: 0.56000	usertime: 0.52000	systime: 0.05000
+case 6: pairs: 100, lwidth: 100, nlines: 5400
+	realtime: 1.04000	usertime: 0.88000	systime: 0.17000
+case 7: pairs: 500, lwidth: 100, nlines: 600
+	realtime: 0.56000	usertime: 0.49000	systime: 0.08000
+case 8: pairs: 500, lwidth: 100, nlines: 1800
+	realtime: 2.22000	usertime: 1.94000	systime: 0.28000
+case 9: pairs: 500, lwidth: 100, nlines: 5400
+	realtime: 5.80000	usertime: 5.02000	systime: 0.78000
+================== END ADD/REMOVE x4 REPORT =====================

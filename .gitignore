@@ -1,4 +1,9 @@
 # organizacja.md
 organizacja.md
+*.o
+*.so
+*.a
+# *.md
+!readme.md
 # .vscode/
 

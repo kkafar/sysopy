@@ -19,13 +19,7 @@ W trybie standardowym (nietestowym) dostępne są komendy:
 
 # Przeprowadzenie testów
 
-W tym celu należy wykonać polecenie `make test_all`.
-
-W celu przeprowadzenia testów tylko na wybranej wersji progrmu:
-
-1. `make test_static`
-2. `make test_shared`
-3. `make test_dynamic`
+W tym celu należy wykonać polecenie `make test`.
 
 W razie potrzeby konfiguracji parametrów testu, należy zmodyfikować zwartość makefile targetu `test`. 
 Składnia komend do przeprowadzania testu jest tam opisana. 

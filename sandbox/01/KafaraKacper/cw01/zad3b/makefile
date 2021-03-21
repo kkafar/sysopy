@@ -28,7 +28,6 @@ libzad1.so: zad1.c
 
 main: main.o zad1.o
 	gcc $(LFLAGS) $^ -o $@
-	
 
 main.o: main.c
 	gcc $(CFLAGS) $< -o $@
@@ -41,14 +40,7 @@ zad1.o: zad1.c zad1.h
 	gcc $(CFLAGS) $< -o $@
 	
 
-.PHONY: run
-run: main
-	./main
 
-
-.PHONY: val
-val: main
-	valgrind --leak-check=full --show-leak-kinds=all ./main
 
 
 test_static: static
@@ -107,9 +99,6 @@ test:
 	rm -v *_report.txt
 
 
-
-
-
 .PHONY: valtest
 valtest: main
 	# Testowanie operacji mergowania...
@@ -127,6 +116,14 @@ valtest: main
 	cat add_remove_report.txt >> report3.txt
 	rm -v *_report.txt 
 
+.PHONY: run
+run: main
+	./main
+
+
+.PHONY: val
+val: main
+	valgrind --leak-check=full --show-leak-kinds=all ./main
 
 .PHONY: clean
 clean: 
