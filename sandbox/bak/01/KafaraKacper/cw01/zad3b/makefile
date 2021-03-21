@@ -176,34 +176,35 @@ test_shared: shared
 
 test_shared_o1: shared_o1
 	make test
-	rm -v *.so *.o
+	rm -v *.a *.o
 test_shared_o2: shared_o2
 	make test
-	rm -v *.so *.o
+	rm -v *.a *.o
 
 test_shared_o3: shared_o3
 	make test
-	rm -v *.so *.o
+	rm -v *.a *.o
 test_shared_os: shared_os
 	make test
-	rm -v *.so *.o
+	rm -v *.a *.o
 test_dynamic: dynamic
 	make test
 	rm -v *.so *.o
 
 test_dynamic_o1: dynamic_o1
 	make test
-	rm -v *.so *.o
+	rm -v *.a *.o
 test_dynamic_o2: dynamic_o2
 	make test
-	rm -v *.so *.o
+	rm -v *.a *.o
 
 test_dynamic_o3: dynamic_o3
 	make test
-	rm -v *.so *.o
+	rm -v *.a *.o
 test_dynamic_os: dynamic_os
 	make test
-	rm -v *.so *.o
+	rm -v *.a *.o
+
 test_all: 
 	make test_static
 	mv report3.txt report3_static.txt
