@@ -97,7 +97,7 @@ test:
 	./main test save 9  10 100 600  10 100 1800  10 100 5400  100 100 600  100 100 1800  100 100 5400  500 100 600  500 100 1800  500 100 5400  save_report.txt
 	# Testowanie usuwania bloków...
 	./main test remove 9  10 100 600  10 100 1800  10 100 5400  100 100 600  100 100 1800  100 100 5400  500 100 600  500 100 1800  500 100 5400  remove_report.txt
-	# Testowanie dodawania / usuwania bloków
+	# Testowanie dodawania / usuwania bloków...
 	./main test add_remove 9 10 100 600  10 100 1800  10 100 5400  100 100 600  100 100 1800  100 100 5400  500 100 600  500 100 1800  500 100 5400 add_remove_report.txt
 	
 	cat merge_report.txt > report3.txt

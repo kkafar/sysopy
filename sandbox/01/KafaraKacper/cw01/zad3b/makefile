@@ -9,22 +9,124 @@ all: main clean
 static: main.o libzad1.a
 	gcc $(LFLAGS) $^ -o main
 
+static_o1: maino1.o libzad1o1.a
+	gcc -Wall -O1 $^ -o main
+
+
+static_o2: maino2.o libzad1o2.a
+	gcc -Wall -O2 $^ -o main
+
+static_o3: maino3.o libzad1o3.a
+	gcc -Wall -O3 $^ -o main
+
+static_os: mainos.o libzad1os.a
+	gcc -Wall -OS $^ -o main
 
 libzad1.a: zad1.o
 	ar rcs $@ $<
 
+libzad1o1.a: zad1o1.o
+	ar rcs $@ $<
+
+libzad1o2.a: zad1o2.o
+	ar rcs $@ $<
+
+libzad1o3.a: zad1o3.o	
+	ar rcs $@ $<
+
+libzad1os.a: zad1os.o
+	ar rcs $@ $<
+
 shared: main.o libzad1.so
-	gcc main.o -lzad1 -L . -o main -Wl,-rpath,./
+	gcc -Wall main.o -lzad1 -L . -o main -Wl,-rpath,./
+
+shared_o1: maino1.o libzad1o1.so
+	gcc -Wall -O1 $< -lzad1o1 -L . -o main -Wl,-rpath,./
+
+shared_o2: maino2.o libzad1o2.so
+	gcc -Wall -O2 $< -lzad1o2 -L . -o main -Wl,-rpath,./
+
+shared_o3: maino3.o libzad1o3.so
+	gcc -Wall -O3 $< -lzad1o3 -L . -o main -Wl,-rpath,./
+
+shared_os: mainos.o libzad1os.so
+	gcc -Wall -Os $< -lzad1os -L . -o main -Wl,-rpath,./
+
 
 
 dynamic: main_dynamic.o libzad1.so
-	gcc main_dynamic.o -lzad1 -ldl -L . -o main -Wl,-rpath,./
+	gcc -Wall main_dynamic.o -lzad1 -ldl -L . -o main -Wl,-rpath,./
 
 
+dynamic_o1: main_dynamico1.o lizad1o1.so
+	gcc -Wall -O1 $< -lzad1o1 -ldl -L . -o main -Wl,-rpath,./
+
+dynamic_o2: main_dynamico2.o lizad1o2.so
+	gcc -Wall -O2 $< -lzad1o2 -ldl -L . -o main -Wl,-rpath,./
+
+dynamic_o3: main_dynamico3.o lizad1o3.so
+	gcc -Wall -O3 $< -lzad1o3 -ldl -L . -o main -Wl,-rpath,./
+
+dynamic_os: main_dynamicos.o lizad1os.so
+	gcc -Wall -Os $< -lzad1os -ldl -L . -o main -Wl,-rpath,./
 libzad1.so: zad1.c
-	gcc -fPIC -c $< 
-	gcc -shared zad1.o -o $@
+	gcc -Wall -fPIC -c $< 
+	gcc -Wall -shared zad1.o -o $@
 
+libzad1o1.so: zad1.c
+	gcc -Wall -fPIC -O1 -c $<
+	gcc -Wall -shared -O1 zad1.o -o $@
+
+libzad1o2.so: zad1.c
+	gcc -Wall -fPIC -O2 -c $<
+	gcc -Wall -shared -O2 zad1.o -o $@
+
+libzad1o3.so: zad1.c
+	gcc -Wall -fPIC -O3 -c $<
+	gcc -Wall -shared -O3 zad1.o -o $@
+
+libzad1os.so: zad1.c
+	gcc -Wall -fPIC -Os -c $<
+	gcc -Wall -shared -Os zad1.o -o $@
+
+maino1: maino1.o zad1o1.o
+	gcc -Wall -c -O1 $^ -o $@
+
+
+maino1.o: main.c 
+	gcc -Wall -c -O1 $^ -o $@
+
+zad1o1.o: zad1.c zad1.h
+	gcc -Wall -c -O1 $< -o $@
+
+maino2: maino2.o zad1o2.o
+	gcc $(LFLAGS) $^ -o $@
+
+maino2.o: main.c 
+	gcc -Wall -c -O2 $^ -o $@
+
+zad1o2.o: zad1.c zad1.h
+	gcc -Wall -c -O2 $< -o $@
+
+maino3: maino3.o zad1o3.o
+	gcc -Wall -c -O3 $^ -o $@
+
+
+maino3.o: main.c 
+	gcc -Wall -c -O3 $^ -o $@
+
+zad1o3.o: zad1.c zad1.h
+	gcc -Wall -c -O3 $< -o $@
+
+mainos: mainos.o zad1os.o
+	gcc -Wall -c -Os $^ -o $@
+
+
+mainos.o: main.c 
+	gcc -Wall -c -Os $^ -o $@
+
+zad1os.o: zad1.c zad1.h
+	gcc -Wall -c -Os $< -o $@
 
 main: main.o zad1.o
 	gcc $(LFLAGS) $^ -o $@
@@ -36,45 +138,152 @@ main.o: main.c
 main_dynamic.o: main_dynamic.c
 	gcc $(CFLAGS) $< -o $@
 
+main_dynamico1.o: main_dynamic.c
+	gcc -Wall -O1 -c $< -o $@
+
+main_dynamico2.o: main_dynamic.c
+	gcc -Wall -O2 -c $< -o $@
+
+main_dynamico3.o: main_dynamic.c
+	gcc -Wall -O3 -c $< -o $@
+
+main_dynamicos.o: main_dynamic.c
+	gcc -Wall -Os -c $< -o $@
+
 zad1.o: zad1.c zad1.h
 	gcc $(CFLAGS) $< -o $@
-	
-
-
-
 
 test_static: static
 	make test
 	rm -v *.a *.o
 
+test_static_o1: static_o1
+	make test
+	rm -v *.a *.o
+test_static_o2: static_o2
+	make test
+	rm -v *.a *.o
+
+test_static_o3: static_o3
+	make test
+	rm -v *.a *.o
+test_static_os: static_os
+	make test
+	rm -v *.a *.o
 test_shared: shared
 	make test
 	rm -v *.so *.o
 
+test_shared_o1: shared_o1
+	make test
+	rm -v *.a *.o
+test_shared_o2: shared_o2
+	make test
+	rm -v *.a *.o
 
+test_shared_o3: shared_o3
+	make test
+	rm -v *.a *.o
+test_shared_os: shared_os
+	make test
+	rm -v *.a *.o
 test_dynamic: dynamic
 	make test
 	rm -v *.so *.o
 
+test_dynamic_o1: dynamic_o1
+	make test
+	rm -v *.a *.o
+test_dynamic_o2: dynamic_o2
+	make test
+	rm -v *.a *.o
+
+test_dynamic_o3: dynamic_o3
+	make test
+	rm -v *.a *.o
+test_dynamic_os: dynamic_os
+	make test
+	rm -v *.a *.o
 
 test_all: 
 	make test_static
-	cp report3.txt report3_static.txt
+	mv report3.txt report3_static.txt
+
+	make test_static_o1 
+	mv report3.txt report3_static_o1.txt
+
+	make test_static_o2
+	mv report3.txt report3_static_o2.txt
+
+	make test_static_o3
+	mv report3.txt report3_static_o3.txt
+
+	make test_static_os
+	mv report3.txt report3_static_os.txt
 
 	make test_shared
-	cp report3.txt report3_shared.txt
+	mv report3.txt report3_shared.txt
+
+	make test_shared_o1 
+	mv report3.txt report3_shared_o1.txt
+
+	make test_shared_o2
+	mv report3.txt report3_shared_o2.txt
+
+	make test_shared_o3
+	mv report3.txt report3_shared_o3.txt
+
+	make test_shared_os
+	mv report3.txt report3_shared_os.txt
 
 	make test_dynamic
-	cp report3.txt report3_dynamic.txt
+	mv report3.txt report3_dynamic.txt
+
+	make test_dynamic_o1 
+	mv report3.txt report3_dynamic_o1.txt
+
+	make test_dynamic_o2
+	mv report3.txt report3_dynamic_o2.txt
+
+	make test_dynamic_o3
+	mv report3.txt report3_dynamic_o3.txt
+
+	make test_dynamic_os
+	mv report3.txt report3_dynamic_os.txt
 
 	echo '--------------------STATIC TEST---------------------' > report3.txt
 	cat report3_static.txt >> report3.txt
+	echo '\n\n--------------------STATIC -O1 TEST---------------------' >> report3.txt
+	cat report3_static_o1.txt >> report3.txt
+	echo '\n\n--------------------STATIC -O2 TEST---------------------' >> report3.txt
+	cat report3_static_o2.txt >> report3.txt
+	echo '\n\n--------------------STATIC -O3 TEST---------------------' >> report3.txt
+	cat report3_static_o3.txt >> report3.txt
+	echo '\n\n--------------------STATIC -Os TEST---------------------' >> report3.txt
+	cat report3_static_os.txt >> report3.txt
+
 
 	echo '\n\n--------------------SHARED TEST---------------------' >> report3.txt
 	cat report3_shared.txt >> report3.txt
+	echo '\n\n--------------------SHARED -O1 TEST---------------------' >> report3.txt
+	cat report3_shared_o1.txt >> report3.txt
+	echo '\n\n--------------------SHARED -O2 TEST---------------------' >> report3.txt
+	cat report3_shared_o2.txt >> report3.txt
+	echo '\n\n--------------------SHARED -O3 TEST---------------------' >> report3.txt
+	cat report3_shared_o3.txt >> report3.txt
+	echo '\n\n--------------------SHARED -Os TEST---------------------' >> report3.txt
+	cat report3_shared_os.txt >> report3.txt	
 
 	echo '\n\n--------------------DYNAMIC TEST---------------------' >> report3.txt
 	cat report3_dynamic.txt >> report3.txt
+	echo '\n\n--------------------DYNAMIC -O1 TEST---------------------' >> report3.txt
+	cat report3_dynamic_o1.txt >> report3.txt
+	echo '\n\n--------------------DYNAMIC -O2 TEST---------------------' >> report3.txt
+	cat report3_dynamic_o2.txt >> report3.txt
+	echo '\n\n--------------------DYNAMIC -O3 TEST---------------------' >> report3.txt
+	cat report3_dynamic_o3.txt >> report3.txt
+	echo '\n\n--------------------DYNAMIC -Os TEST---------------------' >> report3.txt
+	cat report3_dynamic_os.txt >> report3.txt
 
 	
 
