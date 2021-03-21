@@ -5,58 +5,69 @@
 #include <time.h>
 #include <stdlib.h>
 #include <sys/times.h>
-
+#include <dlfcn.h>
 
 void clear(void) { system("clear"); }
 
 void prompt(void) { printf("Enter command:\n$ "); }
 
-void printmssg(const char * mssg) { printf("%s\n", mssg); }
+void printmssg(const char *mssg) { printf("%s\n", mssg); }
 
-void promptmssg(const char * mssg) { printf("%s:\n$ ", mssg); }
+void promptmssg(const char *mssg) { printf("%s:\n$ ", mssg); }
 
-void clear_input_buffer(void) { while (getc(stdin) != '\n'); }
+void clear_input_buffer(void)
+{
+    while (getc(stdin) != '\n')
+        ;
+}
 
 double computetime_diff(clock_t start, clock_t stop);
 
 double computetime(clock_t elapsed);
 
-block * fill_files(size_t nfiles, int nlines, int linewidth);
+block *fill_files(size_t nfiles, int nlines, int linewidth);
 
-void test_merge(size_t ncases, size_t test_cases[][3], const char * report_pathname);
+void test_merge(size_t ncases, size_t test_cases[][3], const char *report_pathname);
 
-void test_block_save(size_t ncases, size_t test_cases[][3], const char * report_pathname);
+void test_block_save(size_t ncases, size_t test_cases[][3], const char *report_pathname);
 
-void test_block_remove(size_t ncases, size_t test_cases[][3], const char * report_pathname);
+void test_block_remove(size_t ncases, size_t test_cases[][3], const char *report_pathname);
 
-void test_block_add_remove(size_t ncases, size_t test_cases[][3], const char * report_pathname);
+void test_block_add_remove(size_t ncases, size_t test_cases[][3], const char *report_pathname);
 
-void make_report(   const char * pathname, 
-                    const char * test, 
-                    size_t ncases, 
-                    clock_t clock_ticks[], 
-                    size_t test_cases[][3], 
-                    struct tms tstart[], 
-                    struct tms tstop[]);
+void make_report(const char *pathname,
+                 const char *test,
+                 size_t ncases,
+                 clock_t clock_ticks[],
+                 size_t test_cases[][3],
+                 struct tms tstart[],
+                 struct tms tstop[]);
 
+void *handle;
 
-
-int main(int argc, char * argv[]) 
+int main(int argc, char *argv[])
 {
+    handle = dlopen("libzad1.so", RTLD_LAZY);
+
+    if (!handle)
+    {
+        printf("Failed to open library!\n");
+        exit(2);
+    }
+
     if (argc > 2)
     {
-        if (argv[1][strlen(argv[1]) - 1] == '\n') argv[1][strlen(argv[1]) - 1] = 0;
+        if (argv[1][strlen(argv[1]) - 1] == '\n')
+            argv[1][strlen(argv[1]) - 1] = 0;
 
         if (strcmp("test", argv[1]) == 0)
         {
-            if ((   
-                    strcmp("merge", argv[2]) == 0 || 
-                    strcmp("save", argv[2]) == 0 || 
+            if ((
+                    strcmp("merge", argv[2]) == 0 ||
+                    strcmp("save", argv[2]) == 0 ||
                     strcmp("remove", argv[2]) == 0 ||
-                    strcmp("add_remove", argv[2]) == 0
-                ) && 
-                argc > 4
-               )
+                    strcmp("add_remove", argv[2]) == 0) &&
+                argc > 4)
             {
                 size_t ncases = strtol(argv[3], NULL, 10);
 
@@ -74,14 +85,18 @@ int main(int argc, char * argv[])
                     test_cases[j][2] = strtol(argv[i + 2], NULL, 10);
                 }
 
-                char * report_pathname = argv[4 + ncases * 3];
+                char *report_pathname = argv[4 + ncases * 3];
 
-                if (strcmp("merge", argv[2]) == 0)        test_merge(ncases, test_cases, report_pathname);
-                else if (strcmp("save", argv[2]) == 0)    test_block_save(ncases, test_cases, report_pathname);
-                else if (strcmp("remove", argv[2]) == 0)  test_block_remove(ncases, test_cases, report_pathname);
-                else                                      test_block_add_remove(ncases, test_cases, report_pathname);
+                if (strcmp("merge", argv[2]) == 0)
+                    test_merge(ncases, test_cases, report_pathname);
+                else if (strcmp("save", argv[2]) == 0)
+                    test_block_save(ncases, test_cases, report_pathname);
+                else if (strcmp("remove", argv[2]) == 0)
+                    test_block_remove(ncases, test_cases, report_pathname);
+                else
+                    test_block_add_remove(ncases, test_cases, report_pathname);
             }
-            else 
+            else
             {
                 printf("Invalid parameter or number of parameters\n");
                 exit(1);
@@ -99,18 +114,19 @@ int main(int argc, char * argv[])
         printf("Invalid number of parameters: %d\n", argc);
         exit(2);
     }
-    else 
+    else
     {
-        blockch * blkc = NULL;
+        blockch *blkc = NULL;
         char buf[LINE_WIDTH];
 
         clear();
         prompt();
         while (fgets(buf, LINE_WIDTH, stdin) != NULL)
         {
-            if (buf[strlen(buf) - 1] == '\n') buf[strlen(buf) - 1] = 0;
+            if (buf[strlen(buf) - 1] == '\n')
+                buf[strlen(buf) - 1] = 0;
 
-            if (strcmp("create_table", buf) == 0) 
+            if (strcmp("create_table", buf) == 0)
             {
                 clear();
                 promptmssg("Enter number of blocks (number of pairs of files to merge)");
@@ -118,12 +134,28 @@ int main(int argc, char * argv[])
                 size_t blkcsize;
                 scanf("%ld", &blkcsize);
                 clear_input_buffer();
-                
-                if (blkc) blockch_delete_all(blkc);
 
-                blkc = blockch_create(blkcsize);
+                if (blkc)
+                {
+                    void (*func)(blockch *) = (void (*)(blockch *))dlsym(handle, "blockch_delete_all");
+                    if (!func)
+                    {
+                        printf("Failed to load function!\n");
+                        exit(3);
+                    }
+                    func(blkc);
+                }
 
-                if (!blkc) 
+                blockch *(*func)(size_t) = (blockch * (*)(size_t)) dlsym(handle, "blockch_create");
+                if (!func)
+                {
+                    printf("Failed to load function!\n");
+                    exit(3);
+                }
+                blkc = func(blkcsize);
+                // blkc = blockch_create(blkcsize);
+
+                if (!blkc)
                 {
                     printmssg("Failed to allocate blockchain!");
                     break;
@@ -133,12 +165,25 @@ int main(int argc, char * argv[])
             else if (strcmp("merge_files", buf) == 0)
             {
                 clear();
-                if (!blkc) printmssg("You must create blockchain first!");
+                if (!blkc)
+                    printmssg("You must create blockchain first!");
                 else
                 {
-                    block * fileseq = block_create(2 * blkc->size);
-                    
-                    if (!fileseq) 
+                    block *(*func_block_create)(size_t) = (block * (*)(size_t)) dlsym(handle, "block_create");
+                    void (*func_block_insert_at)(block *, size_t, char *) = (void (*)(block *, size_t, char *))dlsym(handle, "block_insert_at");
+                    void (*func_merge_files)(block *, blockch *, int) = (void (*)(block *, blockch *, int))dlsym(handle, "merge_files");
+                    void (*func_block_delete)(block *) = (void (*)(block *))dlsym(handle, "block_delete");
+
+                    if (!func_block_create || !func_block_insert_at || !func_merge_files || !func_block_delete)
+                    {
+                        printf("Failed to load function!\n");
+                        exit(3);
+                    }
+
+                    block *fileseq = func_block_create(2 * blkc->size);
+                    // block * fileseq = block_create(2 * blkc->size);
+
+                    if (!fileseq)
                     {
                         printmssg("Failed to allocate file sequence!");
                         // break;
@@ -146,102 +191,148 @@ int main(int argc, char * argv[])
                     }
 
                     printf("Insert %ld files to merge!\n", 2 * blkc->size);
-                    for (size_t i = 0; i < 2 * blkc->size; ++i) 
+
+                    for (size_t i = 0; i < 2 * blkc->size; ++i)
                     {
                         printf("Pair:%ld, File: %ld:$ ", i >> 1, i & 1);
                         scanf("%s", buf);
                         clear_input_buffer();
-                        block_insert_at(fileseq, i, buf);
+                        // block_insert_at(fileseq, i, buf);
+                        func_block_insert_at(fileseq, i, buf);
                     }
 
-                    merge_files(fileseq, blkc, 1);
-                    block_delete(fileseq);
+                    // merge_files(fileseq, blkc, 1);
+                    func_merge_files(fileseq, blkc, 1);
+                    // block_delete(fileseq);
+                    func_block_delete(fileseq);
                 }
-            }               
+            }
 
             else if (strcmp("remove_block", buf) == 0)
             {
                 clear();
-                if (!blkc) printmssg("You must create blockchain first!");
-                else 
+                if (!blkc)
+                    printmssg("You must create blockchain first!");
+                else
                 {
-                    size_t index; 
+                    void (*func_block_clear)(block *) = (void (*)(block *))dlsym(handle, "block_clear");
+                    if (!func_block_clear)
+                    {
+                        printf("Failed to load function!\n");
+                        exit(3);
+                    }
+                    size_t index;
                     promptmssg("Insert index");
                     scanf("%ld", &index);
                     clear_input_buffer();
                     clear();
-                    block_clear(blkc->blkarr + index);
+                    // block_clear(blkc->blkarr + index);
+                    func_block_clear(blkc->blkarr + index);
                 }
             }
 
             else if (strcmp("remove_row", buf) == 0)
             {
                 clear();
-                if (!blkc) printmssg("You must create blockchain first!");
+                if (!blkc)
+                    printmssg("You must create blockchain first!");
                 else
                 {
+                    void (*func_block_remove_from)(block *, size_t) = (void (*)(block *, size_t))dlsym(handle, "block_remove_from");
+                    if (!func_block_remove_from)
+                    {
+                        printf("Failed to load function!\n");
+                        exit(3);
+                    }
                     size_t blk_idx, r_idx;
                     promptmssg("Insert block_index row_index");
                     scanf("%ld %ld", &blk_idx, &r_idx);
                     clear_input_buffer();
                     clear();
-                    block_remove_from(blkc->blkarr + blk_idx, r_idx);
+                    // block_remove_from(blkc->blkarr + blk_idx, r_idx);
+                    func_block_remove_from(blkc->blkarr + blk_idx, r_idx);
                 }
             }
 
             else if (strcmp("print_blocks", buf) == 0)
             {
                 clear();
-                blockch_print(blkc);
+                void (*func_blockch_print)(blockch *) = (void (*)(blockch *))dlsym(handle, "blockch_print");
+                if (!func_blockch_print)
+                {
+                    printf("Failed to load function!\n");
+                    exit(3);
+                }
+                func_blockch_print(blkc);
             }
 
             else if (strcmp("exit", buf) == 0)
                 break;
 
-
-            else 
+            else
             {
                 clear();
                 printmssg("Unknown command");
             }
-
             prompt();
         }
 
-        if (blkc) blockch_delete_all(blkc);
+        if (blkc)
+        {
+            // blockch_delete_all(blkc);
+            void (*func_blockch_delete_all)(blockch *) = (void (*)(blockch *))dlsym(handle, "blockch_delete_all");
+            if (!func_blockch_delete_all)
+            {
+                printf("Failed to load function!\n");
+                exit(3);
+            }
+            func_blockch_delete_all(blkc);
+        }
     }
+
+    dlclose(handle);
+
     return 0;
 }
 
-
 /* Jeden bajt przeznaczony na nulla! Długość zwróconej linii to leng - 1! */
-char * get_rand_str(int leng)
+char *get_rand_str(int leng)
 {
-    if (leng < 2) return NULL;
+    if (leng < 2)
+        return NULL;
 
-    static char * sigma = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm";
+    static char *sigma = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm";
     static int sigmalen = 52;
 
-    char * str = (char *) malloc(sizeof(char) * (leng+1));
+    char *str = (char *)malloc(sizeof(char) * (leng + 1));
 
-    if (!str) return NULL;
+    if (!str)
+        return NULL;
 
-    for (int i = 0; i < leng - 1; ++i) str[i] = sigma[rand() % sigmalen];
+    for (int i = 0; i < leng - 1; ++i)
+        str[i] = sigma[rand() % sigmalen];
 
     str[leng - 1] = '\0';
 
     return str;
 }
 
-block * fill_files(size_t nfiles, int nlines, int linewidth)
+block *fill_files(size_t nfiles, int nlines, int linewidth)
 {
-    block * fileseq = block_create(nfiles);
-    FILE * f;
-    char * pathname;
-    char * str;
+    block *(*func_block_create)(size_t) = (block * (*)(size_t)) dlsym(handle, "block_create");
+    if (!func_block_create)
+    {
+        printf("Failed to load function!\n");
+        exit(3);
+    }
+    // block * fileseq = block_create(nfiles);
+    block *fileseq = func_block_create(nfiles);
 
+    FILE *f;
+    char *pathname;
+    char *str;
 
-    for (size_t j = 0; j < nfiles; ++j) 
+    for (size_t j = 0; j < nfiles; ++j)
     {
         pathname = get_rand_str(15);
 
@@ -267,28 +358,42 @@ block * fill_files(size_t nfiles, int nlines, int linewidth)
     return fileseq;
 }
 
-void test_merge(size_t ncases, size_t test_cases[][3], const char * report_pathname)
+void test_merge(size_t ncases, size_t test_cases[][3], const char *report_pathname)
 {
-    blockch * blkc;
-    block * fileseq;
+    blockch *blkc;
+    block *fileseq;
 
     struct tms tstart[ncases], tstop[ncases];
     clock_t start;
     clock_t clock_ticks[ncases];
 
+    blockch *(*func_blockch_create)(size_t) = (block * (*)(size_t)) dlsym(handle, "blockch_create");
+    void (*func_merge_files)(block *, blockch *, int) = (void (*)(block *, blockch *, int))dlsym(handle, "merge_files");
+    void (*func_block_delete)(block *) = (void (*)(block *))dlsym(handle, "block_delete");
+    void (*func_blockch_delete_all)(blockch *) = (void (*)(blockch *))dlsym(handle, "blockch_delete_all");
+
+    if (!func_block_delete || !func_merge_files || !func_blockch_create || !func_blockch_delete_all)
+    {
+        printf("Failed to load function!\n");
+        exit(3);
+    }
 
     for (size_t i = 0; i < ncases; ++i)
     {
         fileseq = fill_files(2 * test_cases[i][0], test_cases[i][2], test_cases[i][1]);
 
-        start = times(&tstart[i]);        
-        blkc = blockch_create(test_cases[i][0]);
-        merge_files(fileseq, blkc, 0);
-        blockch_delete_all(blkc);
+        start = times(&tstart[i]);
+        // blkc = blockch_create(test_cases[i][0]);
+        blkc = func_blockch_create(test_cases[i][0]);
+        // merge_files(fileseq, blkc, 0);
+        func_merge_files(fileseq, blkc, 0);
+        // blockch_delete_all(blkc);
+        func_blockch_delete_all(blkc);
         clock_ticks[i] = times(&tstop[i]) - start;
 
         rm_tmp_files(fileseq);
-        block_delete(fileseq);
+        // block_delete(fileseq);
+        func_block_delete(fileseq);
     }
     make_report(
         report_pathname,
@@ -297,42 +402,58 @@ void test_merge(size_t ncases, size_t test_cases[][3], const char * report_pathn
         clock_ticks,
         test_cases,
         tstart,
-        tstop        
-    );
+        tstop);
 }
 
-void test_block_save(size_t ncases, size_t test_cases[][3], const char * report_pathname)
+void test_block_save(size_t ncases, size_t test_cases[][3], const char *report_pathname)
 {
-    blockch * blkc;
-    block * fileseq;
+    blockch *blkc;
+    block *fileseq;
     struct tms tstart[ncases], tstop[ncases];
     clock_t start;
-    clock_t clock_ticks[ncases]; 
+    clock_t clock_ticks[ncases];
+
+    blockch *(*func_blockch_create)(size_t) = (block * (*)(size_t)) dlsym(handle, "blockch_create");
+    void (*func_block_delete)(block *) = (void (*)(block *))dlsym(handle, "block_delete");
+    void (*func_block_save)(block *, const char *) = (void (*)(block *, const char *)) dlsym(handle, "block_save");
+    size_t (*func_blockch_read_block)(blockch *, const char *) = (size_t(*)(blockch *, const char *))dlsym(handle, "blockch_read_block");
+    void (*func_blockch_delete_all)(blockch *) = (void (*)(blockch *)) dlsym(handle, "blockch_delete_all");
+
+    if (!func_block_delete || !func_block_save || !func_blockch_create || !func_blockch_read_block || !func_blockch_delete_all)
+    {
+        printf("Failed to load function!\n");
+        exit(3);
+    }
 
     for (size_t i = 0; i < ncases; ++i)
     {
         // potrzebuje funkcji ładującej blok z pamięci
         fileseq = fill_files(test_cases[i][0], test_cases[i][2], test_cases[i][1]);
-        
-        blkc = blockch_create(test_cases[i][0]);
+
+        // blkc = blockch_create(test_cases[i][0]);
+        blkc = func_blockch_create(test_cases[i][0]);
 
         for (size_t j = 0; j < test_cases[i][0]; ++j)
-            blockch_read_block(blkc, fileseq->fline[j]);
-    
+            func_blockch_read_block(blkc, fileseq->fline[j]);
+        // blockch_read_block(blkc, fileseq->fline[j]);
+
         rm_tmp_files(fileseq);
 
         start = times(&tstart[i]);
 
         for (size_t j = 0; j < test_cases[i][0]; ++j)
         {
-            block_save(blkc->blkarr + j, fileseq->fline[i]);
+            // block_save(blkc->blkarr + j, fileseq->fline[i]);
+            func_block_save(blkc->blkarr + j, fileseq->fline[i]);
         }
 
         clock_ticks[i] = times(&tstop[i]) - start;
-        
+
         rm_tmp_files(fileseq);
-        block_delete(fileseq);
-        blockch_delete_all(blkc);
+        // block_delete(fileseq);
+        func_block_delete(fileseq);
+        // blockch_delete_all(blkc);
+        func_blockch_delete_all(blkc);
     }
 
     make_report(
@@ -342,33 +463,46 @@ void test_block_save(size_t ncases, size_t test_cases[][3], const char * report_
         clock_ticks,
         test_cases,
         tstart,
-        tstop        
-    );
-
+        tstop);
 }
 
-void test_block_remove(size_t ncases, size_t test_cases[][3], const char * report_pathname)
+void test_block_remove(size_t ncases, size_t test_cases[][3], const char *report_pathname)
 {
-    blockch * blkc;
-    block * fileseq;
+    blockch *blkc;
+    block *fileseq;
     struct tms tstart[ncases], tstop[ncases];
     clock_t start;
-    clock_t clock_ticks[ncases]; 
+    clock_t clock_ticks[ncases];
+
+    blockch *(*func_blockch_create)(size_t) = (block * (*)(size_t)) dlsym(handle, "blockch_create");
+    void (*func_block_delete)(block *) = (void (*)(block *)) dlsym(handle, "block_delete");
+    size_t (*func_blockch_read_block)(blockch *, const char *) = (size_t (*)(blockch *, const char *)) dlsym(handle, "blockch_read_block");
+    void (*func_blockch_delete_all)(blockch *) = (void (*)(blockch *)) dlsym(handle, "blockch_delete_all");
+
+    if (!func_block_delete || !func_blockch_create || !func_blockch_read_block || !func_blockch_delete_all)
+    {
+        printf("Failed to load function!\n");
+        exit(3);
+    }
 
     for (size_t i = 0; i < ncases; ++i)
     {
         fileseq = fill_files(test_cases[i][0], test_cases[i][2], test_cases[i][1]);
-        
-        blkc = blockch_create(test_cases[i][0]);
+
+        // blkc = blockch_create(test_cases[i][0]);
+        blkc = func_blockch_create(test_cases[i][0]);
 
         for (size_t j = 0; j < test_cases[i][0]; ++j)
-            blockch_read_block(blkc, fileseq->fline[j]);
-            
+            func_blockch_read_block(blkc, fileseq->fline[j]);
+            // blockch_read_block(blkc, fileseq->fline[j]);
+
         rm_tmp_files(fileseq);
-        block_delete(fileseq);
+        // block_delete(fileseq);
+        func_block_delete(fileseq);
 
         start = times(&tstart[i]);
-        blockch_delete_all(blkc);
+        // blockch_delete_all(blkc);
+        func_blockch_delete_all(blkc);
         clock_ticks[i] = times(&tstop[i]) - start;
     }
 
@@ -379,59 +513,72 @@ void test_block_remove(size_t ncases, size_t test_cases[][3], const char * repor
         clock_ticks,
         test_cases,
         tstart,
-        tstop
-    );
+        tstop);
 }
 
-void test_block_add_remove(size_t ncases, size_t test_cases[][3], const char * report_pathname)
+void test_block_add_remove(size_t ncases, size_t test_cases[][3], const char *report_pathname)
 {
-    blockch * blkc;
-    block * fileseq;
+    blockch *blkc;
+    block *fileseq;
     struct tms tstart[ncases], tstop[ncases];
     clock_t start;
-    clock_t clock_ticks[ncases]; 
+    clock_t clock_ticks[ncases];
     int noperations = 4;
+
+    blockch *(*func_blockch_create)(size_t) = (block * (*)(size_t)) dlsym(handle, "blockch_create");
+    void (*func_block_delete)(block *) = (void (*)(block *)) dlsym(handle, "block_delete");
+    size_t (*func_blockch_read_block)(blockch *, const char *) = (size_t (*)(blockch *, const char *)) dlsym(handle, "blockch_read_block");
+    void (*func_blockch_delete_all)(blockch *) = (void (*)(blockch *)) dlsym(handle, "blockch_delete_all");
+
+    if (!func_block_delete || !func_blockch_create || !func_blockch_read_block || !func_blockch_delete_all)
+    {
+        printf("Failed to load function!\n");
+        exit(3);
+    }
 
     for (size_t i = 0; i < ncases; ++i)
     {
         fileseq = fill_files(test_cases[i][0], test_cases[i][2], test_cases[i][1]);
 
         start = times(&tstart[i]);
-        for (int k = 0; k < noperations; ++k) 
+        for (int k = 0; k < noperations; ++k)
         {
-            blkc = blockch_create(test_cases[i][0]);
+            // blkc = blockch_create(test_cases[i][0]);
+            blkc = func_blockch_create(test_cases[i][0]);
 
             for (size_t j = 0; j < test_cases[i][0]; ++j)
-                blockch_read_block(blkc, fileseq->fline[j]);
+                func_blockch_read_block(blkc, fileseq->fline[j]);
+                // blockch_read_block(blkc, fileseq->fline[j]);
 
-            blockch_delete_all(blkc);
+            // blockch_delete_all(blkc);
+            func_blockch_delete_all(blkc);
         }
         clock_ticks[i] = times(&tstop[i]) - start;
 
         rm_tmp_files(fileseq);
-        block_delete(fileseq);
+        // block_delete(fileseq);
+        func_block_delete(fileseq);
     }
 
     make_report(
-        report_pathname, 
+        report_pathname,
         "ADD/REMOVE x4",
         ncases,
         clock_ticks,
         test_cases,
         tstart,
-        tstop
-    );
+        tstop);
 }
 
-void make_report(   const char * pathname, 
-                    const char * test, 
-                    size_t ncases, 
-                    clock_t clock_ticks[], 
-                    size_t test_cases[][3], 
-                    struct tms tstart[], 
-                    struct tms tstop[])
+void make_report(const char *pathname,
+                 const char *test,
+                 size_t ncases,
+                 clock_t clock_ticks[],
+                 size_t test_cases[][3],
+                 struct tms tstart[],
+                 struct tms tstop[])
 {
-    FILE * report = fopen(pathname, "w");
+    FILE *report = fopen(pathname, "w");
     if (!report)
     {
         printf("Could not create/open the file %s for write!\n", pathname);
@@ -441,29 +588,28 @@ void make_report(   const char * pathname,
     fprintf(report, "====================  %s REPORT ======================\n", test);
     for (size_t i = 0; i < ncases; ++i)
     {
-        printf("case %ld: pairs: %ld, lwidth: %ld, nlines: %ld\n", i+1, test_cases[i][0], test_cases[i][1], test_cases[i][2]);
-        printf("\trealtime: %.5lf\tusertime: %.5lf\tsystime: %.5lf\n", 
-            computetime(clock_ticks[i]), 
-            computetime_diff(tstart[i].tms_utime, tstop[i].tms_utime), 
-            computetime_diff(tstart[i].tms_stime, tstop[i].tms_stime));
-        fprintf(report, "case %ld: pairs: %ld, lwidth: %ld, nlines: %ld\n", i+1, test_cases[i][0], test_cases[i][1], test_cases[i][2]);
-        fprintf(report, "\trealtime: %.5lf\tusertime: %.5lf\tsystime: %.5lf\n", 
-            computetime(clock_ticks[i]), 
-            computetime_diff(tstart[i].tms_utime, tstop[i].tms_utime), 
-            computetime_diff(tstart[i].tms_stime, tstop[i].tms_stime));
+        printf("case %ld: pairs: %ld, lwidth: %ld, nlines: %ld\n", i + 1, test_cases[i][0], test_cases[i][1], test_cases[i][2]);
+        printf("\trealtime: %.5lf\tusertime: %.5lf\tsystime: %.5lf\n",
+               computetime(clock_ticks[i]),
+               computetime_diff(tstart[i].tms_utime, tstop[i].tms_utime),
+               computetime_diff(tstart[i].tms_stime, tstop[i].tms_stime));
+        fprintf(report, "case %ld: pairs: %ld, lwidth: %ld, nlines: %ld\n", i + 1, test_cases[i][0], test_cases[i][1], test_cases[i][2]);
+        fprintf(report, "\trealtime: %.5lf\tusertime: %.5lf\tsystime: %.5lf\n",
+                computetime(clock_ticks[i]),
+                computetime_diff(tstart[i].tms_utime, tstop[i].tms_utime),
+                computetime_diff(tstart[i].tms_stime, tstop[i].tms_stime));
     }
     fprintf(report, "================== END %s REPORT =====================\n", test);
     printf("================== END %s REPORT =====================\n", test);
     fclose(report);
 }
 
-double computetime_diff(clock_t start, clock_t stop) 
+double computetime_diff(clock_t start, clock_t stop)
 {
-    return (double) (stop - start) / sysconf(_SC_CLK_TCK);
+    return (double)(stop - start) / sysconf(_SC_CLK_TCK);
 }
-
 
 double computetime(clock_t elapsed)
 {
-    return (double) elapsed / sysconf(_SC_CLK_TCK);
+    return (double)elapsed / sysconf(_SC_CLK_TCK);
 }

@@ -17,6 +17,10 @@ shared: main.o libzad1.so
 	gcc main.o -lzad1 -L . -o main -Wl,-rpath,./
 
 
+dynamic: 
+	make shared
+
+
 libzad1.so: zad1.c
 	gcc -fPIC -c $< 
 	gcc -shared zad1.o -o $@
