@@ -1,0 +1,712 @@
+Niezgodnie z oczekiwaniami najlepsze rezultaty daje flaga -O2 (spodziewałem się -O3, gdyż flagi przez nią stosowane są nadzbiorem -O2), 
+dla każdego rodzaju biblioteki (statyczna, współdzielona, dynamiczna). 
+
+W przypadku flagi -Os ograniczenie rozmiaru programu było nieznaczące - ok. 2kB (z 24kB) -- prawdopodobnie dla większych programów (większej ilości kodu) 
+efekt byłby bardziej znaczący. Czas wykonania testów jest jednak dłuższy niż dla flagi -O2.
+
+Generalnie flagi -O1 i -O3 dawały rezultaty porównywalne z -O0 (opcją domyślną) lub były gorsze! (Wpływ na takie zachowanie może mieć duża ilość operacji 
+zapisu i odczytu z dysku twardego wykonywana przez moj program (operacja kosztowna i obarczona różnymi kosztami czasowymi)). ==> rezultaty mogą być zaburzone (duża ilość procesów w tle).
+
+--------------------STATIC TEST---------------------
+====================  MERGE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:    500, 		realtime: 0.15000	usertime: 0.14000	systime: 0.01000
+case   2: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.31000	usertime: 0.24000	systime: 0.08000
+case   3: pairs:   250, lwidth:   150, nlines:   3000, 		realtime: 0.95000	usertime: 0.81000	systime: 0.14000
+case   4: pairs:   500, lwidth:   150, nlines:    500, 		realtime: 0.28000	usertime: 0.24000	systime: 0.04000
+case   5: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.58000	usertime: 0.49000	systime: 0.09000
+case   6: pairs:   500, lwidth:   150, nlines:   3000, 		realtime: 1.68000	usertime: 1.38000	systime: 0.29000
+case   7: pairs:  1000, lwidth:   150, nlines:    500, 		realtime: 0.64000	usertime: 0.50000	systime: 0.12000
+case   8: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.23000	usertime: 0.97000	systime: 0.25000
+case   9: pairs:  1000, lwidth:   150, nlines:   3000, 		realtime: 3.41000	usertime: 2.81000	systime: 0.60000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.34000	usertime: 0.03000	systime: 0.02000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.01000	usertime: 0.05000	systime: 0.14000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 2.65000	usertime: 0.10000	systime: 0.37000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.85000	usertime: 0.04000	systime: 0.08000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 1.75000	usertime: 0.05000	systime: 0.31000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 5.33000	usertime: 0.27000	systime: 0.77000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.66000	usertime: 0.10000	systime: 0.23000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 3.42000	usertime: 0.13000	systime: 0.51000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 10.94000	usertime: 0.54000	systime: 1.43000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.01000	systime: 0.00000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.00000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 0.05000	usertime: 0.04000	systime: 0.02000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.02000	usertime: 0.02000	systime: 0.00000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 0.05000	usertime: 0.04000	systime: 0.01000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 0.09000	usertime: 0.07000	systime: 0.02000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 0.03000	usertime: 0.02000	systime: 0.01000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 0.07000	usertime: 0.07000	systime: 0.01000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 0.19000	usertime: 0.17000	systime: 0.03000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.56000	usertime: 0.49000	systime: 0.07000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.22000	usertime: 1.01000	systime: 0.20000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 3.30000	usertime: 2.70000	systime: 0.60000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 1.26000	usertime: 0.99000	systime: 0.26000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 2.36000	usertime: 1.98000	systime: 0.39000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 6.61000	usertime: 5.48000	systime: 1.13000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 2.28000	usertime: 1.91000	systime: 0.38000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 4.20000	usertime: 3.47000	systime: 0.73000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 13.20000	usertime: 11.08000	systime: 2.12000
+================== END ADD/REMOVE x4 REPORT =====================
+
+
+--------------------STATIC -O1 TEST---------------------
+====================  MERGE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:    500, 		realtime: 0.17000	usertime: 0.15000	systime: 0.01000
+case   2: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.34000	usertime: 0.31000	systime: 0.03000
+case   3: pairs:   250, lwidth:   150, nlines:   3000, 		realtime: 0.92000	usertime: 0.77000	systime: 0.15000
+case   4: pairs:   500, lwidth:   150, nlines:    500, 		realtime: 0.34000	usertime: 0.29000	systime: 0.04000
+case   5: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.65000	usertime: 0.54000	systime: 0.11000
+case   6: pairs:   500, lwidth:   150, nlines:   3000, 		realtime: 1.88000	usertime: 1.65000	systime: 0.23000
+case   7: pairs:  1000, lwidth:   150, nlines:    500, 		realtime: 0.90000	usertime: 0.72000	systime: 0.18000
+case   8: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.28000	usertime: 1.04000	systime: 0.24000
+case   9: pairs:  1000, lwidth:   150, nlines:   3000, 		realtime: 3.63000	usertime: 3.06000	systime: 0.58000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.39000	usertime: 0.03000	systime: 0.02000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.73000	usertime: 0.01000	systime: 0.13000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 2.59000	usertime: 0.11000	systime: 0.34000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.73000	usertime: 0.04000	systime: 0.09000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 1.64000	usertime: 0.06000	systime: 0.24000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 5.42000	usertime: 0.25000	systime: 0.70000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.68000	usertime: 0.06000	systime: 0.21000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 3.45000	usertime: 0.15000	systime: 0.45000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 10.59000	usertime: 0.53000	systime: 1.49000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.01000	systime: 0.00000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.01000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 0.06000	usertime: 0.05000	systime: 0.01000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.02000	systime: 0.01000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 0.04000	usertime: 0.02000	systime: 0.00000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 0.10000	usertime: 0.08000	systime: 0.02000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 0.04000	usertime: 0.03000	systime: 0.01000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 0.07000	usertime: 0.06000	systime: 0.01000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 0.18000	usertime: 0.16000	systime: 0.03000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.80000	usertime: 0.67000	systime: 0.13000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.27000	usertime: 1.06000	systime: 0.20000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 3.63000	usertime: 3.08000	systime: 0.55000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 1.27000	usertime: 1.13000	systime: 0.14000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 2.52000	usertime: 2.20000	systime: 0.32000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 7.28000	usertime: 6.21000	systime: 1.06000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 2.56000	usertime: 2.17000	systime: 0.38000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 5.02000	usertime: 4.33000	systime: 0.68000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 14.52000	usertime: 12.31000	systime: 2.21000
+================== END ADD/REMOVE x4 REPORT =====================
+
+
+--------------------STATIC -O2 TEST---------------------
+====================  MERGE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:    500, 		realtime: 0.16000	usertime: 0.11000	systime: 0.05000
+case   2: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.30000	usertime: 0.22000	systime: 0.08000
+case   3: pairs:   250, lwidth:   150, nlines:   3000, 		realtime: 0.86000	usertime: 0.67000	systime: 0.18000
+case   4: pairs:   500, lwidth:   150, nlines:    500, 		realtime: 0.29000	usertime: 0.22000	systime: 0.05000
+case   5: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.63000	usertime: 0.49000	systime: 0.13000
+case   6: pairs:   500, lwidth:   150, nlines:   3000, 		realtime: 1.65000	usertime: 1.37000	systime: 0.28000
+case   7: pairs:  1000, lwidth:   150, nlines:    500, 		realtime: 0.67000	usertime: 0.55000	systime: 0.12000
+case   8: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.21000	usertime: 1.00000	systime: 0.20000
+case   9: pairs:  1000, lwidth:   150, nlines:   3000, 		realtime: 3.20000	usertime: 2.64000	systime: 0.56000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.31000	usertime: 0.02000	systime: 0.03000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.69000	usertime: 0.05000	systime: 0.09000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 2.69000	usertime: 0.12000	systime: 0.35000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.70000	usertime: 0.01000	systime: 0.13000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 1.69000	usertime: 0.04000	systime: 0.25000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 5.24000	usertime: 0.22000	systime: 0.70000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.76000	usertime: 0.06000	systime: 0.22000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 3.49000	usertime: 0.17000	systime: 0.45000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 10.71000	usertime: 0.49000	systime: 1.39000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.01000	systime: 0.00000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.00000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 0.05000	usertime: 0.04000	systime: 0.00000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.01000	systime: 0.01000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 0.03000	usertime: 0.02000	systime: 0.01000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 0.10000	usertime: 0.08000	systime: 0.02000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 0.04000	usertime: 0.03000	systime: 0.00000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 0.07000	usertime: 0.05000	systime: 0.02000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 0.19000	usertime: 0.16000	systime: 0.03000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.51000	usertime: 0.40000	systime: 0.11000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.08000	usertime: 0.85000	systime: 0.24000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 3.10000	usertime: 2.54000	systime: 0.56000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 1.06000	usertime: 0.92000	systime: 0.15000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 2.13000	usertime: 1.81000	systime: 0.32000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 6.23000	usertime: 5.16000	systime: 1.07000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 2.11000	usertime: 1.72000	systime: 0.40000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 4.11000	usertime: 3.41000	systime: 0.71000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 12.26000	usertime: 10.21000	systime: 2.05000
+================== END ADD/REMOVE x4 REPORT =====================
+
+
+--------------------STATIC -O3 TEST---------------------
+====================  MERGE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:    500, 		realtime: 0.19000	usertime: 0.16000	systime: 0.04000
+case   2: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.32000	usertime: 0.29000	systime: 0.03000
+case   3: pairs:   250, lwidth:   150, nlines:   3000, 		realtime: 0.90000	usertime: 0.76000	systime: 0.13000
+case   4: pairs:   500, lwidth:   150, nlines:    500, 		realtime: 0.31000	usertime: 0.28000	systime: 0.04000
+case   5: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.64000	usertime: 0.52000	systime: 0.13000
+case   6: pairs:   500, lwidth:   150, nlines:   3000, 		realtime: 1.84000	usertime: 1.53000	systime: 0.30000
+case   7: pairs:  1000, lwidth:   150, nlines:    500, 		realtime: 0.77000	usertime: 0.66000	systime: 0.10000
+case   8: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.30000	usertime: 1.13000	systime: 0.17000
+case   9: pairs:  1000, lwidth:   150, nlines:   3000, 		realtime: 3.46000	usertime: 2.88000	systime: 0.58000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.35000	usertime: 0.02000	systime: 0.03000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.73000	usertime: 0.03000	systime: 0.14000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 2.72000	usertime: 0.07000	systime: 0.32000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.76000	usertime: 0.03000	systime: 0.12000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 1.59000	usertime: 0.06000	systime: 0.20000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 5.46000	usertime: 0.24000	systime: 0.70000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.62000	usertime: 0.04000	systime: 0.19000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 3.46000	usertime: 0.18000	systime: 0.43000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 10.73000	usertime: 0.50000	systime: 1.44000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.01000	systime: 0.00000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.01000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 0.05000	usertime: 0.04000	systime: 0.01000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.02000	systime: 0.00000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 0.04000	usertime: 0.04000	systime: 0.01000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 0.10000	usertime: 0.08000	systime: 0.01000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 0.04000	usertime: 0.03000	systime: 0.01000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 0.07000	usertime: 0.06000	systime: 0.01000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 0.18000	usertime: 0.15000	systime: 0.03000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.58000	usertime: 0.52000	systime: 0.06000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.22000	usertime: 1.04000	systime: 0.18000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 3.64000	usertime: 3.14000	systime: 0.50000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 1.25000	usertime: 1.09000	systime: 0.15000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 2.45000	usertime: 2.10000	systime: 0.35000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 7.08000	usertime: 5.98000	systime: 1.11000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 2.41000	usertime: 2.11000	systime: 0.31000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 4.75000	usertime: 4.08000	systime: 0.67000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 14.11000	usertime: 12.07000	systime: 2.05000
+================== END ADD/REMOVE x4 REPORT =====================
+
+
+--------------------STATIC -Os TEST---------------------
+====================  MERGE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:    500, 		realtime: 0.16000	usertime: 0.14000	systime: 0.03000
+case   2: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.34000	usertime: 0.27000	systime: 0.07000
+case   3: pairs:   250, lwidth:   150, nlines:   3000, 		realtime: 0.96000	usertime: 0.77000	systime: 0.19000
+case   4: pairs:   500, lwidth:   150, nlines:    500, 		realtime: 0.34000	usertime: 0.27000	systime: 0.07000
+case   5: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.72000	usertime: 0.61000	systime: 0.10000
+case   6: pairs:   500, lwidth:   150, nlines:   3000, 		realtime: 1.90000	usertime: 1.65000	systime: 0.24000
+case   7: pairs:  1000, lwidth:   150, nlines:    500, 		realtime: 0.70000	usertime: 0.63000	systime: 0.08000
+case   8: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.36000	usertime: 1.17000	systime: 0.18000
+case   9: pairs:  1000, lwidth:   150, nlines:   3000, 		realtime: 3.73000	usertime: 3.20000	systime: 0.52000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.32000	usertime: 0.02000	systime: 0.03000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.73000	usertime: 0.04000	systime: 0.10000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 2.56000	usertime: 0.15000	systime: 0.35000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.76000	usertime: 0.02000	systime: 0.11000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 1.87000	usertime: 0.07000	systime: 0.21000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 5.37000	usertime: 0.26000	systime: 0.64000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.74000	usertime: 0.08000	systime: 0.18000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 3.59000	usertime: 0.13000	systime: 0.50000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 10.70000	usertime: 0.51000	systime: 1.54000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.00000	systime: 0.00000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.00000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 0.05000	usertime: 0.05000	systime: 0.01000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.02000	systime: 0.00000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 0.04000	usertime: 0.03000	systime: 0.01000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 0.09000	usertime: 0.08000	systime: 0.01000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 0.04000	usertime: 0.04000	systime: 0.00000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 0.07000	usertime: 0.05000	systime: 0.01000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 0.19000	usertime: 0.16000	systime: 0.03000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.63000	usertime: 0.51000	systime: 0.12000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.24000	usertime: 1.08000	systime: 0.16000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 3.63000	usertime: 3.07000	systime: 0.56000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 1.28000	usertime: 1.12000	systime: 0.16000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 2.46000	usertime: 2.13000	systime: 0.33000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 7.21000	usertime: 6.11000	systime: 1.09000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 2.46000	usertime: 2.01000	systime: 0.44000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 4.81000	usertime: 4.06000	systime: 0.75000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 14.44000	usertime: 12.49000	systime: 1.95000
+================== END ADD/REMOVE x4 REPORT =====================
+
+
+--------------------SHARED TEST---------------------
+====================  MERGE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:    500, 		realtime: 0.14000	usertime: 0.13000	systime: 0.03000
+case   2: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.30000	usertime: 0.23000	systime: 0.07000
+case   3: pairs:   250, lwidth:   150, nlines:   3000, 		realtime: 0.86000	usertime: 0.71000	systime: 0.15000
+case   4: pairs:   500, lwidth:   150, nlines:    500, 		realtime: 0.31000	usertime: 0.27000	systime: 0.04000
+case   5: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.65000	usertime: 0.56000	systime: 0.09000
+case   6: pairs:   500, lwidth:   150, nlines:   3000, 		realtime: 1.74000	usertime: 1.44000	systime: 0.30000
+case   7: pairs:  1000, lwidth:   150, nlines:    500, 		realtime: 0.72000	usertime: 0.56000	systime: 0.17000
+case   8: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.31000	usertime: 1.14000	systime: 0.15000
+case   9: pairs:  1000, lwidth:   150, nlines:   3000, 		realtime: 3.54000	usertime: 3.02000	systime: 0.51000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.38000	usertime: 0.02000	systime: 0.03000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.73000	usertime: 0.02000	systime: 0.11000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 2.40000	usertime: 0.14000	systime: 0.32000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.78000	usertime: 0.04000	systime: 0.09000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 1.67000	usertime: 0.09000	systime: 0.21000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 5.31000	usertime: 0.19000	systime: 0.76000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.79000	usertime: 0.05000	systime: 0.23000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 3.38000	usertime: 0.11000	systime: 0.50000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 10.72000	usertime: 0.42000	systime: 1.54000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.01000	systime: 0.00000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.00000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 0.05000	usertime: 0.04000	systime: 0.01000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.02000	usertime: 0.02000	systime: 0.00000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 0.04000	usertime: 0.03000	systime: 0.00000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 0.10000	usertime: 0.08000	systime: 0.02000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 0.04000	usertime: 0.03000	systime: 0.00000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 0.07000	usertime: 0.06000	systime: 0.01000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 0.18000	usertime: 0.17000	systime: 0.02000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.57000	usertime: 0.46000	systime: 0.12000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.19000	usertime: 1.01000	systime: 0.17000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 3.37000	usertime: 2.85000	systime: 0.51000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 1.14000	usertime: 0.94000	systime: 0.21000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 2.27000	usertime: 1.87000	systime: 0.39000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 6.91000	usertime: 5.84000	systime: 1.06000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 2.41000	usertime: 2.01000	systime: 0.38000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 4.70000	usertime: 4.06000	systime: 0.65000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 13.76000	usertime: 11.57000	systime: 2.18000
+================== END ADD/REMOVE x4 REPORT =====================
+
+
+--------------------SHARED -O1 TEST---------------------
+====================  MERGE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:    500, 		realtime: 0.16000	usertime: 0.14000	systime: 0.02000
+case   2: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.33000	usertime: 0.28000	systime: 0.04000
+case   3: pairs:   250, lwidth:   150, nlines:   3000, 		realtime: 0.93000	usertime: 0.79000	systime: 0.14000
+case   4: pairs:   500, lwidth:   150, nlines:    500, 		realtime: 0.35000	usertime: 0.31000	systime: 0.04000
+case   5: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.66000	usertime: 0.52000	systime: 0.15000
+case   6: pairs:   500, lwidth:   150, nlines:   3000, 		realtime: 1.91000	usertime: 1.59000	systime: 0.32000
+case   7: pairs:  1000, lwidth:   150, nlines:    500, 		realtime: 0.74000	usertime: 0.65000	systime: 0.09000
+case   8: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.40000	usertime: 1.19000	systime: 0.22000
+case   9: pairs:  1000, lwidth:   150, nlines:   3000, 		realtime: 3.68000	usertime: 3.14000	systime: 0.54000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.50000	usertime: 0.03000	systime: 0.02000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.77000	usertime: 0.02000	systime: 0.11000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 2.65000	usertime: 0.12000	systime: 0.38000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.74000	usertime: 0.03000	systime: 0.09000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 1.65000	usertime: 0.07000	systime: 0.19000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 5.27000	usertime: 0.23000	systime: 0.74000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.76000	usertime: 0.05000	systime: 0.25000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 3.59000	usertime: 0.15000	systime: 0.44000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 10.81000	usertime: 0.49000	systime: 1.51000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.01000	systime: 0.00000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.01000	usertime: 0.01000	systime: 0.00000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 0.05000	usertime: 0.04000	systime: 0.00000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.02000	usertime: 0.02000	systime: 0.00000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 0.03000	usertime: 0.03000	systime: 0.01000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 0.09000	usertime: 0.08000	systime: 0.01000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 0.04000	usertime: 0.03000	systime: 0.00000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 0.06000	usertime: 0.06000	systime: 0.01000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 0.19000	usertime: 0.16000	systime: 0.03000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.61000	usertime: 0.51000	systime: 0.10000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.23000	usertime: 1.05000	systime: 0.18000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 3.56000	usertime: 3.08000	systime: 0.48000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 1.21000	usertime: 1.06000	systime: 0.15000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 2.41000	usertime: 1.98000	systime: 0.43000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 7.10000	usertime: 5.99000	systime: 1.10000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 2.45000	usertime: 2.00000	systime: 0.45000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 4.81000	usertime: 4.07000	systime: 0.74000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 14.43000	usertime: 12.53000	systime: 1.87000
+================== END ADD/REMOVE x4 REPORT =====================
+
+
+--------------------SHARED -O2 TEST---------------------
+====================  MERGE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:    500, 		realtime: 0.15000	usertime: 0.10000	systime: 0.04000
+case   2: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.28000	usertime: 0.23000	systime: 0.05000
+case   3: pairs:   250, lwidth:   150, nlines:   3000, 		realtime: 0.80000	usertime: 0.68000	systime: 0.13000
+case   4: pairs:   500, lwidth:   150, nlines:    500, 		realtime: 0.30000	usertime: 0.24000	systime: 0.07000
+case   5: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.55000	usertime: 0.45000	systime: 0.10000
+case   6: pairs:   500, lwidth:   150, nlines:   3000, 		realtime: 1.63000	usertime: 1.32000	systime: 0.31000
+case   7: pairs:  1000, lwidth:   150, nlines:    500, 		realtime: 0.63000	usertime: 0.53000	systime: 0.11000
+case   8: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.15000	usertime: 0.94000	systime: 0.19000
+case   9: pairs:  1000, lwidth:   150, nlines:   3000, 		realtime: 3.17000	usertime: 2.60000	systime: 0.57000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.34000	usertime: 0.01000	systime: 0.04000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.75000	usertime: 0.06000	systime: 0.09000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 2.62000	usertime: 0.12000	systime: 0.32000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.96000	usertime: 0.02000	systime: 0.10000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 1.55000	usertime: 0.07000	systime: 0.20000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 5.30000	usertime: 0.22000	systime: 0.70000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.61000	usertime: 0.10000	systime: 0.16000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 3.49000	usertime: 0.14000	systime: 0.42000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 10.89000	usertime: 0.49000	systime: 1.34000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.00000	systime: 0.00000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.01000	usertime: 0.02000	systime: 0.00000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 0.05000	usertime: 0.04000	systime: 0.01000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.01000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 0.03000	usertime: 0.03000	systime: 0.01000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 0.09000	usertime: 0.08000	systime: 0.02000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 0.03000	usertime: 0.03000	systime: 0.01000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 0.09000	usertime: 0.07000	systime: 0.02000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 0.18000	usertime: 0.16000	systime: 0.02000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.54000	usertime: 0.46000	systime: 0.09000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.07000	usertime: 0.90000	systime: 0.16000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 3.15000	usertime: 2.53000	systime: 0.62000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 1.09000	usertime: 0.92000	systime: 0.17000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 2.11000	usertime: 1.75000	systime: 0.37000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 6.26000	usertime: 5.11000	systime: 1.14000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 2.13000	usertime: 1.75000	systime: 0.38000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 4.26000	usertime: 3.57000	systime: 0.70000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 12.20000	usertime: 10.06000	systime: 2.13000
+================== END ADD/REMOVE x4 REPORT =====================
+
+
+--------------------SHARED -O3 TEST---------------------
+====================  MERGE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:    500, 		realtime: 0.16000	usertime: 0.13000	systime: 0.03000
+case   2: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.27000	usertime: 0.23000	systime: 0.03000
+case   3: pairs:   250, lwidth:   150, nlines:   3000, 		realtime: 0.81000	usertime: 0.66000	systime: 0.15000
+case   4: pairs:   500, lwidth:   150, nlines:    500, 		realtime: 0.27000	usertime: 0.22000	systime: 0.05000
+case   5: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.56000	usertime: 0.44000	systime: 0.12000
+case   6: pairs:   500, lwidth:   150, nlines:   3000, 		realtime: 1.62000	usertime: 1.26000	systime: 0.34000
+case   7: pairs:  1000, lwidth:   150, nlines:    500, 		realtime: 0.59000	usertime: 0.46000	systime: 0.13000
+case   8: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.11000	usertime: 0.88000	systime: 0.23000
+case   9: pairs:  1000, lwidth:   150, nlines:   3000, 		realtime: 3.13000	usertime: 2.58000	systime: 0.56000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.33000	usertime: 0.00000	systime: 0.04000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.67000	usertime: 0.02000	systime: 0.09000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 2.60000	usertime: 0.16000	systime: 0.30000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.87000	usertime: 0.01000	systime: 0.15000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 1.65000	usertime: 0.04000	systime: 0.24000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 5.34000	usertime: 0.18000	systime: 0.68000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.59000	usertime: 0.08000	systime: 0.17000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 3.55000	usertime: 0.15000	systime: 0.45000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 10.86000	usertime: 0.52000	systime: 1.51000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.01000	systime: 0.00000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.02000	usertime: 0.02000	systime: 0.01000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 0.05000	usertime: 0.04000	systime: 0.01000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.02000	usertime: 0.02000	systime: 0.00000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 0.04000	usertime: 0.03000	systime: 0.01000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 0.09000	usertime: 0.08000	systime: 0.02000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 0.03000	usertime: 0.02000	systime: 0.01000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 0.08000	usertime: 0.06000	systime: 0.02000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 0.18000	usertime: 0.16000	systime: 0.02000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.55000	usertime: 0.42000	systime: 0.13000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.10000	usertime: 0.90000	systime: 0.19000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 3.12000	usertime: 2.56000	systime: 0.56000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 1.15000	usertime: 0.93000	systime: 0.21000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 2.07000	usertime: 1.68000	systime: 0.38000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 6.20000	usertime: 5.17000	systime: 1.02000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 2.06000	usertime: 1.62000	systime: 0.44000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 4.10000	usertime: 3.27000	systime: 0.82000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 12.20000	usertime: 10.15000	systime: 2.05000
+================== END ADD/REMOVE x4 REPORT =====================
+
+
+--------------------SHARED -Os TEST---------------------
+====================  MERGE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:    500, 		realtime: 0.16000	usertime: 0.13000	systime: 0.04000
+case   2: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.34000	usertime: 0.29000	systime: 0.06000
+case   3: pairs:   250, lwidth:   150, nlines:   3000, 		realtime: 0.95000	usertime: 0.79000	systime: 0.17000
+case   4: pairs:   500, lwidth:   150, nlines:    500, 		realtime: 0.32000	usertime: 0.28000	systime: 0.04000
+case   5: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.70000	usertime: 0.60000	systime: 0.10000
+case   6: pairs:   500, lwidth:   150, nlines:   3000, 		realtime: 1.92000	usertime: 1.58000	systime: 0.32000
+case   7: pairs:  1000, lwidth:   150, nlines:    500, 		realtime: 0.69000	usertime: 0.58000	systime: 0.11000
+case   8: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.35000	usertime: 1.11000	systime: 0.24000
+case   9: pairs:  1000, lwidth:   150, nlines:   3000, 		realtime: 3.69000	usertime: 3.10000	systime: 0.59000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.38000	usertime: 0.03000	systime: 0.03000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.74000	usertime: 0.04000	systime: 0.09000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 2.58000	usertime: 0.06000	systime: 0.41000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.73000	usertime: 0.02000	systime: 0.10000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 1.62000	usertime: 0.06000	systime: 0.18000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 5.30000	usertime: 0.18000	systime: 0.66000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.71000	usertime: 0.09000	systime: 0.19000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 3.39000	usertime: 0.17000	systime: 0.39000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 10.61000	usertime: 0.46000	systime: 1.48000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.01000	systime: 0.01000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.02000	usertime: 0.02000	systime: 0.01000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 0.05000	usertime: 0.04000	systime: 0.01000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.01000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 0.04000	usertime: 0.03000	systime: 0.00000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 0.10000	usertime: 0.08000	systime: 0.02000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 0.03000	usertime: 0.03000	systime: 0.01000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 0.06000	usertime: 0.06000	systime: 0.01000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 0.18000	usertime: 0.16000	systime: 0.02000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.62000	usertime: 0.52000	systime: 0.09000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.25000	usertime: 1.08000	systime: 0.16000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 3.64000	usertime: 3.11000	systime: 0.52000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 1.22000	usertime: 1.02000	systime: 0.20000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 2.44000	usertime: 2.10000	systime: 0.34000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 7.18000	usertime: 6.17000	systime: 1.02000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 2.46000	usertime: 2.11000	systime: 0.36000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 4.85000	usertime: 4.16000	systime: 0.69000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 14.32000	usertime: 12.31000	systime: 2.01000
+================== END ADD/REMOVE x4 REPORT =====================
+
+
+--------------------DYNAMIC TEST---------------------
+====================  MERGE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:    500, 		realtime: 0.15000	usertime: 0.14000	systime: 0.01000
+case   2: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.30000	usertime: 0.25000	systime: 0.04000
+case   3: pairs:   250, lwidth:   150, nlines:   3000, 		realtime: 0.87000	usertime: 0.72000	systime: 0.14000
+case   4: pairs:   500, lwidth:   150, nlines:    500, 		realtime: 0.30000	usertime: 0.27000	systime: 0.04000
+case   5: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.67000	usertime: 0.55000	systime: 0.11000
+case   6: pairs:   500, lwidth:   150, nlines:   3000, 		realtime: 1.79000	usertime: 1.54000	systime: 0.25000
+case   7: pairs:  1000, lwidth:   150, nlines:    500, 		realtime: 0.68000	usertime: 0.54000	systime: 0.15000
+case   8: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.32000	usertime: 1.04000	systime: 0.27000
+case   9: pairs:  1000, lwidth:   150, nlines:   3000, 		realtime: 3.41000	usertime: 2.81000	systime: 0.59000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.32000	usertime: 0.02000	systime: 0.02000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.76000	usertime: 0.03000	systime: 0.08000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 2.59000	usertime: 0.15000	systime: 0.33000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.75000	usertime: 0.03000	systime: 0.08000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 1.71000	usertime: 0.03000	systime: 0.23000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 5.15000	usertime: 0.23000	systime: 0.73000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.79000	usertime: 0.13000	systime: 0.16000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 3.41000	usertime: 0.15000	systime: 0.40000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 10.90000	usertime: 0.53000	systime: 1.35000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.00000	systime: 0.00000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.00000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 0.05000	usertime: 0.04000	systime: 0.00000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.00000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 0.04000	usertime: 0.03000	systime: 0.01000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 0.09000	usertime: 0.09000	systime: 0.01000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 0.04000	usertime: 0.03000	systime: 0.00000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 0.07000	usertime: 0.06000	systime: 0.01000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 0.19000	usertime: 0.17000	systime: 0.02000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.58000	usertime: 0.51000	systime: 0.06000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.17000	usertime: 0.99000	systime: 0.18000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 3.40000	usertime: 2.81000	systime: 0.59000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 1.16000	usertime: 1.01000	systime: 0.15000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 2.24000	usertime: 1.89000	systime: 0.36000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 6.66000	usertime: 5.60000	systime: 1.05000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 2.26000	usertime: 1.91000	systime: 0.36000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 4.54000	usertime: 3.83000	systime: 0.71000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 13.32000	usertime: 11.30000	systime: 2.02000
+================== END ADD/REMOVE x4 REPORT =====================
+
+
+--------------------DYNAMIC -O1 TEST---------------------
+====================  MERGE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:    500, 		realtime: 0.16000	usertime: 0.15000	systime: 0.01000
+case   2: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.32000	usertime: 0.27000	systime: 0.05000
+case   3: pairs:   250, lwidth:   150, nlines:   3000, 		realtime: 0.95000	usertime: 0.76000	systime: 0.18000
+case   4: pairs:   500, lwidth:   150, nlines:    500, 		realtime: 0.36000	usertime: 0.31000	systime: 0.06000
+case   5: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.64000	usertime: 0.53000	systime: 0.11000
+case   6: pairs:   500, lwidth:   150, nlines:   3000, 		realtime: 1.94000	usertime: 1.70000	systime: 0.24000
+case   7: pairs:  1000, lwidth:   150, nlines:    500, 		realtime: 0.66000	usertime: 0.53000	systime: 0.13000
+case   8: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.28000	usertime: 1.08000	systime: 0.21000
+case   9: pairs:  1000, lwidth:   150, nlines:   3000, 		realtime: 3.72000	usertime: 3.11000	systime: 0.57000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.29000	usertime: 0.02000	systime: 0.03000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.74000	usertime: 0.02000	systime: 0.11000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 2.71000	usertime: 0.15000	systime: 0.26000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.78000	usertime: 0.03000	systime: 0.08000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 1.58000	usertime: 0.04000	systime: 0.21000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 5.23000	usertime: 0.23000	systime: 0.64000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.63000	usertime: 0.06000	systime: 0.19000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 3.64000	usertime: 0.20000	systime: 0.38000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 10.63000	usertime: 0.37000	systime: 1.43000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.01000	systime: 0.00000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.00000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 0.04000	usertime: 0.04000	systime: 0.01000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.00000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 0.04000	usertime: 0.02000	systime: 0.00000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 0.10000	usertime: 0.08000	systime: 0.01000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 0.04000	usertime: 0.03000	systime: 0.00000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 0.07000	usertime: 0.06000	systime: 0.01000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 0.20000	usertime: 0.17000	systime: 0.03000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.62000	usertime: 0.51000	systime: 0.10000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.29000	usertime: 1.10000	systime: 0.20000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 3.58000	usertime: 3.10000	systime: 0.48000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 1.23000	usertime: 1.03000	systime: 0.19000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 2.48000	usertime: 2.08000	systime: 0.40000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 7.23000	usertime: 6.02000	systime: 1.20000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 2.47000	usertime: 2.14000	systime: 0.33000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 4.79000	usertime: 4.08000	systime: 0.70000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 14.38000	usertime: 12.26000	systime: 2.12000
+================== END ADD/REMOVE x4 REPORT =====================
+
+
+--------------------DYNAMIC -O2 TEST---------------------
+====================  MERGE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:    500, 		realtime: 0.20000	usertime: 0.16000	systime: 0.04000
+case   2: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.28000	usertime: 0.20000	systime: 0.06000
+case   3: pairs:   250, lwidth:   150, nlines:   3000, 		realtime: 0.80000	usertime: 0.70000	systime: 0.09000
+case   4: pairs:   500, lwidth:   150, nlines:    500, 		realtime: 0.32000	usertime: 0.25000	systime: 0.07000
+case   5: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.55000	usertime: 0.46000	systime: 0.09000
+case   6: pairs:   500, lwidth:   150, nlines:   3000, 		realtime: 1.63000	usertime: 1.39000	systime: 0.24000
+case   7: pairs:  1000, lwidth:   150, nlines:    500, 		realtime: 0.65000	usertime: 0.53000	systime: 0.12000
+case   8: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.21000	usertime: 0.98000	systime: 0.21000
+case   9: pairs:  1000, lwidth:   150, nlines:   3000, 		realtime: 3.12000	usertime: 2.61000	systime: 0.51000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.39000	usertime: 0.02000	systime: 0.03000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.68000	usertime: 0.04000	systime: 0.08000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 2.56000	usertime: 0.13000	systime: 0.28000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.75000	usertime: 0.05000	systime: 0.09000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 1.71000	usertime: 0.05000	systime: 0.17000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 5.24000	usertime: 0.25000	systime: 0.65000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.60000	usertime: 0.02000	systime: 0.22000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 3.67000	usertime: 0.08000	systime: 0.50000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 10.66000	usertime: 0.57000	systime: 1.34000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.00000	systime: 0.00000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.01000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 0.05000	usertime: 0.04000	systime: 0.01000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.01000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 0.03000	usertime: 0.03000	systime: 0.01000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 0.09000	usertime: 0.09000	systime: 0.02000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 0.03000	usertime: 0.03000	systime: 0.01000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 0.07000	usertime: 0.06000	systime: 0.02000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 0.18000	usertime: 0.16000	systime: 0.02000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.52000	usertime: 0.41000	systime: 0.10000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.04000	usertime: 0.82000	systime: 0.21000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 3.15000	usertime: 2.59000	systime: 0.56000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 1.07000	usertime: 0.88000	systime: 0.19000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 2.15000	usertime: 1.75000	systime: 0.39000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 6.20000	usertime: 5.02000	systime: 1.19000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 2.10000	usertime: 1.74000	systime: 0.36000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 4.06000	usertime: 3.29000	systime: 0.76000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 12.38000	usertime: 10.34000	systime: 2.04000
+================== END ADD/REMOVE x4 REPORT =====================
+
+
+--------------------DYNAMIC -O3 TEST---------------------
+====================  MERGE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:    500, 		realtime: 0.15000	usertime: 0.10000	systime: 0.04000
+case   2: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.30000	usertime: 0.24000	systime: 0.05000
+case   3: pairs:   250, lwidth:   150, nlines:   3000, 		realtime: 0.79000	usertime: 0.64000	systime: 0.15000
+case   4: pairs:   500, lwidth:   150, nlines:    500, 		realtime: 0.28000	usertime: 0.21000	systime: 0.07000
+case   5: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.56000	usertime: 0.48000	systime: 0.08000
+case   6: pairs:   500, lwidth:   150, nlines:   3000, 		realtime: 1.60000	usertime: 1.27000	systime: 0.32000
+case   7: pairs:  1000, lwidth:   150, nlines:    500, 		realtime: 0.57000	usertime: 0.44000	systime: 0.13000
+case   8: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.26000	usertime: 1.04000	systime: 0.22000
+case   9: pairs:  1000, lwidth:   150, nlines:   3000, 		realtime: 3.06000	usertime: 2.47000	systime: 0.59000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.32000	usertime: 0.03000	systime: 0.02000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.85000	usertime: 0.04000	systime: 0.09000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 2.47000	usertime: 0.11000	systime: 0.33000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.73000	usertime: 0.04000	systime: 0.07000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 1.71000	usertime: 0.08000	systime: 0.19000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 5.27000	usertime: 0.22000	systime: 0.69000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.67000	usertime: 0.09000	systime: 0.21000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 3.52000	usertime: 0.10000	systime: 0.45000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 10.79000	usertime: 0.47000	systime: 1.48000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.01000	systime: 0.00000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.01000	usertime: 0.02000	systime: 0.00000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 0.05000	usertime: 0.05000	systime: 0.00000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.01000	usertime: 0.02000	systime: 0.00000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 0.03000	usertime: 0.02000	systime: 0.00000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 0.10000	usertime: 0.08000	systime: 0.01000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 0.04000	usertime: 0.03000	systime: 0.01000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 0.06000	usertime: 0.06000	systime: 0.01000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 0.19000	usertime: 0.16000	systime: 0.03000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.55000	usertime: 0.46000	systime: 0.09000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.09000	usertime: 0.90000	systime: 0.18000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 3.11000	usertime: 2.54000	systime: 0.56000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 1.06000	usertime: 0.88000	systime: 0.18000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 2.08000	usertime: 1.71000	systime: 0.36000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 6.15000	usertime: 5.04000	systime: 1.12000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 2.10000	usertime: 1.70000	systime: 0.39000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 4.14000	usertime: 3.42000	systime: 0.71000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 12.42000	usertime: 10.22000	systime: 2.11000
+================== END ADD/REMOVE x4 REPORT =====================
+
+
+--------------------DYNAMIC -Os TEST---------------------
+====================  MERGE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:    500, 		realtime: 0.17000	usertime: 0.15000	systime: 0.02000
+case   2: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.34000	usertime: 0.27000	systime: 0.07000
+case   3: pairs:   250, lwidth:   150, nlines:   3000, 		realtime: 0.98000	usertime: 0.85000	systime: 0.13000
+case   4: pairs:   500, lwidth:   150, nlines:    500, 		realtime: 0.34000	usertime: 0.30000	systime: 0.04000
+case   5: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.66000	usertime: 0.56000	systime: 0.10000
+case   6: pairs:   500, lwidth:   150, nlines:   3000, 		realtime: 1.97000	usertime: 1.72000	systime: 0.25000
+case   7: pairs:  1000, lwidth:   150, nlines:    500, 		realtime: 0.76000	usertime: 0.64000	systime: 0.12000
+case   8: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.39000	usertime: 1.21000	systime: 0.18000
+case   9: pairs:  1000, lwidth:   150, nlines:   3000, 		realtime: 3.82000	usertime: 3.30000	systime: 0.52000
+================== END MERGE REPORT =====================
+====================  BLOCK SAVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.31000	usertime: 0.00000	systime: 0.05000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.82000	usertime: 0.00000	systime: 0.09000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 2.63000	usertime: 0.09000	systime: 0.35000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.76000	usertime: 0.03000	systime: 0.09000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 1.53000	usertime: 0.03000	systime: 0.21000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 5.38000	usertime: 0.21000	systime: 0.70000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 1.63000	usertime: 0.07000	systime: 0.16000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 3.56000	usertime: 0.11000	systime: 0.44000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 10.61000	usertime: 0.42000	systime: 1.47000
+================== END BLOCK SAVE REPORT =====================
+====================  BLOCK REMOVE REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.02000	usertime: 0.00000	systime: 0.00000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.00000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 0.05000	usertime: 0.04000	systime: 0.01000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 0.02000	usertime: 0.01000	systime: 0.01000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 0.04000	usertime: 0.03000	systime: 0.00000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 0.10000	usertime: 0.08000	systime: 0.02000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 0.03000	usertime: 0.03000	systime: 0.00000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 0.07000	usertime: 0.06000	systime: 0.01000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 0.20000	usertime: 0.17000	systime: 0.03000
+================== END BLOCK REMOVE REPORT =====================
+====================  ADD/REMOVE x4 REPORT ======================
+case   1: pairs:   250, lwidth:   150, nlines:   1000, 		realtime: 0.62000	usertime: 0.55000	systime: 0.07000
+case   2: pairs:   250, lwidth:   150, nlines:   2000, 		realtime: 1.24000	usertime: 1.03000	systime: 0.21000
+case   3: pairs:   250, lwidth:   150, nlines:   6000, 		realtime: 3.65000	usertime: 3.07000	systime: 0.58000
+case   4: pairs:   500, lwidth:   150, nlines:   1000, 		realtime: 1.25000	usertime: 1.06000	systime: 0.20000
+case   5: pairs:   500, lwidth:   150, nlines:   2000, 		realtime: 2.49000	usertime: 2.15000	systime: 0.34000
+case   6: pairs:   500, lwidth:   150, nlines:   6000, 		realtime: 7.27000	usertime: 6.18000	systime: 1.08000
+case   7: pairs:  1000, lwidth:   150, nlines:   1000, 		realtime: 2.46000	usertime: 2.11000	systime: 0.34000
+case   8: pairs:  1000, lwidth:   150, nlines:   2000, 		realtime: 4.92000	usertime: 4.22000	systime: 0.69000
+case   9: pairs:  1000, lwidth:   150, nlines:   6000, 		realtime: 14.71000	usertime: 12.57000	systime: 2.14000
+================== END ADD/REMOVE x4 REPORT =====================
