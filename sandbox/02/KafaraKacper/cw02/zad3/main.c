@@ -28,6 +28,7 @@ int main(void) {
     int i = 0, even_count = 0;
     long number; 
 
+#ifdef LIB
     FILE * file = fopen(data, "r");
     FILE * afile = fopen(a_out, "w");
     FILE * bfile = fopen(b_out, "w");
@@ -63,10 +64,10 @@ int main(void) {
     }
 
     if (feof(file)) {
+        // printf("Liczb parzystych: %d\n", even_count);
         int n = sprintf(num, "%d", even_count);
-        printf("liczba: %s, liczba znakow: %d\n", num, n);
         char line[] = "Liczb parzystych jest ";
-        fwrite(line, sizeof(char), 23, afile);
+        fwrite(line, sizeof(char), 22, afile);
         fwrite(num, sizeof(char), n, afile);
         fwrite("\n", sizeof(char), 1, afile);
     } else if (ferror(file)) {
@@ -77,6 +78,74 @@ int main(void) {
         fclose(cfile);
         exit(2);
     }
+
+    fclose(file);
+    fclose(afile);
+    fclose(bfile);
+    fclose(cfile);
+#endif
+
+#ifdef SYS
+    int fddata = -1, fda, fdb, fdc;
+
+    fddata  = open(data, O_RDONLY);
+    fda     = open(a_out, O_WRONLY | O_CREAT, S_IRWXU);
+    fdb     = open(b_out, O_WRONLY | O_CREAT, S_IRWXU);
+    fdc     = open(c_out, O_WRONLY | O_CREAT, S_IRWXU);
+
+    if (fddata == -1 || fda == -1 || fdb == -1 || fdc == -1) {
+        fprintf(stderr, "errno: %d, %s\n", errno, strerror(errno));
+        close(fddata);
+        close(fda);
+        close(fdb);
+        close(fdc);
+        exit(3);
+    }
+
+    int retcode;
+
+    while ((retcode = read(fddata, num + i, sizeof(char))) > 0) {
+        if (num[i] == '\n') {
+            num[i + 1] = 'X';
+            number = strtol(num, NULL, 10);
+
+            if (!(number & 1)) 
+                ++even_count;
+
+            if (i > 2 && (num[i - 2] == '7' || num[i - 2] == '0')) { 
+                write(fdb, num, i * sizeof(char));
+                write(fdb, "\n", sizeof(char));
+            }
+            if (is_perfect_square(number)) { 
+                write(fdc, num, sizeof(char) * i);
+                write(fdc, "\n", sizeof(char));
+            }
+            i = -1;
+        }
+        ++i;
+    }
+
+    if (retcode == 0) {
+        int n = sprintf(num, "%d", even_count);
+        char line[] = "Liczb parzystych jest ";
+        write(fda, line, 22 * sizeof(char));
+        write(fda, num, n * sizeof(char));
+        write(fda, "\n", sizeof(char));
+    } else if (retcode == -1) {
+        fprintf(stderr, "errno: %d, %s\n", errno, strerror(errno));
+        close(fda);
+        close(fdb);
+        close(fdc);
+        close(fddata);
+        exit(4);
+    }
+
+    close(fda);
+    close(fdb);
+    close(fdc);
+    close(fddata);
+#endif
+    
     return 0;
 }
 

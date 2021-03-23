@@ -29,6 +29,10 @@ run: main
 	./main
 
 
+
+
+
+
 valgrun: 
 	valgrind --leak-check=full --show-leak-kinds=all ./main
 
@@ -36,4 +40,4 @@ clean:
 	rm -v *.o
 
 clean_all:
-	rm -v *.o main a.txt b.txt c.txt
+	rm -v *.o main out.txt
