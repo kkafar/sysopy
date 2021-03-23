@@ -1,1 +1,1 @@
-Liczb parzystych jest 50
+Liczb parzystych jest 4989

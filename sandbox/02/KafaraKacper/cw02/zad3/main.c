@@ -33,7 +33,7 @@ int main(void) {
     const char * b_out = "b.txt";
     const char * c_out = "c.txt";
 
-    // generate_random_numbers(100, data);
+    // generate_random_numbers(10000, data);
 
     char num[MAX_NUM];
     int i = 0, even_count = 0;
