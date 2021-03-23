@@ -10,11 +10,22 @@
 
 #define MAX_NUM 32
 
+#ifdef LIB
+const char * TYPE = "LIB";
+#endif
+
+#ifdef SYS
+const char * TYPE = "SYS";
+#endif
 
 int generate_random_numbers(size_t n, const char * pathname);
 
 bool is_perfect_square(long n);
 
+#ifdef BENCHMARK
+void compute_elapsed_time(struct timespec * start, struct timespec * stop, struct timespec * elapsed);
+void make_report(struct timespec * start, struct timespec * stop);
+#endif 
 
 int main(void) {
     const char * data = "dane.txt";
@@ -27,6 +38,11 @@ int main(void) {
     char num[MAX_NUM];
     int i = 0, even_count = 0;
     long number; 
+
+#ifdef BENCHMARK
+    struct timespec tp_start, tp_stop;
+    clock_gettime(CLOCK_REALTIME, &tp_start);
+#endif
 
 #ifdef LIB
     FILE * file = fopen(data, "r");
@@ -145,6 +161,11 @@ int main(void) {
     close(fdc);
     close(fddata);
 #endif
+
+#ifdef BENCHMARK
+    clock_gettime(CLOCK_REALTIME, &tp_stop);
+    make_report(&tp_start, &tp_stop);
+#endif
     
     return 0;
 }
@@ -174,3 +195,37 @@ bool is_perfect_square(long n) {
     long sqn = (long)(ceil(sqrt(n)));
     return sqn * sqn == n;
 }
+
+
+#ifdef BENCHMARK
+void compute_elapsed_time(struct timespec * start, struct timespec * stop, struct timespec * elapsed) {
+    elapsed->tv_sec = stop->tv_sec - start->tv_sec;
+    
+    elapsed->tv_nsec = stop->tv_nsec - start->tv_nsec;
+
+    if (elapsed->tv_nsec < 0) {
+        --elapsed->tv_sec;
+        elapsed->tv_nsec += (long)(1E9);
+    }
+}
+#endif
+
+
+#ifdef BENCHMARK
+void make_report(struct timespec * start, struct timespec * stop) {
+    struct timespec elapsed;
+    compute_elapsed_time(start, stop, &elapsed);
+
+    FILE * report = fopen("pomiar_zad_3.txt", "w");
+
+    if (!report) {
+        fprintf(stderr, "%d: errno: %d, %s\n", __LINE__, errno, strerror(errno));
+        fclose(report);
+        exit(1);
+    }
+
+    fprintf(report, "Type: %s, realtime: %ld.%5lds\n", TYPE, elapsed.tv_sec, elapsed.tv_nsec);
+
+    fclose(report);
+}
+#endif

@@ -5,32 +5,50 @@ LFLAGS := -Wall
 CFLAGS := -Wall -c 
 
 
-main: main.o
-	gcc $(LFLAGS) main.o -o main -lm
+# main: main.o
+# 	gcc $(LFLAGS) main.o -o main -lm
 
+main: 
+	make main_lib
 
 main.o: main.c
 	gcc $(CFLAGS) main.c -o main.o
 
 
 main_lib: main_lib.o
-	gcc -D LIB $(LFLAGS) $< -o main -lm
+	gcc -D LIB $(LFLAGS) $< -o main
 main_lib.o: main.c
 	gcc -D LIB $(CFLAGS) $< -o $@ 
 
 
-main_sys: main_sys.o
-	gcc -D SYS $(LFLAGS) $< -o main -lm
+-main_sys: main_sys.o
+	gcc -D SYS $(LFLAGS) $< -o main
 
 main_sys.o: main.c
 	gcc -D SYS $(CFLAGS) $< -o $@
 
 run: main
-	./main
+	./main testcase.txt out.txt
+
+test_lib:
+	gcc -D LIB -D BENCHMARK $(CFLAGS) main.c -o main.o
+	gcc -D LIB -D BENCHMARK $(LFLAGS) main.o -o main
+	./main testcase.txt out.txt
+	rm -v *.o out.txt
+
+test_sys:
+	gcc -D SYS -D BENCHMARK $(CFLAGS) main.c -o main.o
+	gcc -D SYS -D BENCHMARK $(LFLAGS) main.o -o main
+	./main testcase.txt out.txt
+	rm -v *.o out.txt
 
 
-
-
+test: 
+	make test_lib
+	mv pomiar_zad_5.txt pomiar_zad_5_lib.txt
+	make test_sys
+	cat pomiar_zad_5_lib.txt >> pomiar_zad_5.txt
+	rm -v *.o out.txt pomiar_zad_5_lib.txt
 
 
 valgrun: 
