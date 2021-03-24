@@ -40,8 +40,11 @@ int main(int argc, char * argv[]) {
     FILE * output_file = fopen(argv[2], "w");
 
     if (!input_file || !output_file) {
-        fprintf(stderr, "%d: errno: %d, %s\n", __LINE__, errno, strerror(errno));
-        exit(1);
+        int errnum = errno;
+        fprintf(stderr, "%d: errno: %d, %s\n", __LINE__, errnum, strerror(errnum));
+        if (input_file) fclose(input_file);
+        if (output_file) fclose(output_file);
+        exit(errnum);
     }
 
     while (fread(&ch, sizeof(char), 1, input_file)) {
@@ -75,8 +78,11 @@ int main(int argc, char * argv[]) {
     outputfd = open(argv[2], O_WRONLY | O_CREAT, S_IRWXU);
 
     if (inputfd == -1 || outputfd == -1) {
-        fprintf(stderr, "%d: errno: %d, %s\n", __LINE__, errno, strerror(errno));
-        exit(1);
+        int errnum = errno;
+        fprintf(stderr, "%d: errno: %d, %s\n", __LINE__, errnum, strerror(errnum));
+        if (inputfd != -1) close(inputfd);
+        if (outputfd != -1) close(outputfd);
+        exit(errnum);
     }
 
     while ((retcode = read(inputfd, &ch, sizeof(char))) > 0) {
@@ -132,9 +138,10 @@ void make_report(struct timespec * start, struct timespec * stop) {
     FILE * report = fopen("pomiar_zad_5.txt", "w");
 
     if (!report) {
-        fprintf(stderr, "%d: errno: %d, %s\n", __LINE__, errno, strerror(errno));
-        fclose(report);
-        exit(1);
+        int errnum = errno;
+        fprintf(stderr, "%d: errno: %d, %s\n", __LINE__, errnum, strerror(errnum));
+        // fclose(report);
+        exit(errnum);
     }
 
     fprintf(report, "Type: %s, realtime: %ld.%5lds\n", TYPE, elapsed.tv_sec, elapsed.tv_nsec);

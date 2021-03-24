@@ -51,12 +51,13 @@ int main(void) {
     FILE * cfile = fopen(c_out, "w");
 
     if (!file || !afile || !bfile || !cfile) {
-        fprintf(stderr, "errno: %d, %s\n", errno, strerror(errno));
-        fclose(file);
-        fclose(afile);
-        fclose(bfile);
-        fclose(cfile);
-        exit(1);
+        int errnum = errno;
+        fprintf(stderr, "errno: %d, %s\n", errnum, strerror(errnum));
+        if (file)   fclose(file);
+        if (afile)  fclose(afile);
+        if (bfile)  fclose(bfile);
+        if (cfile)  fclose(cfile);
+        exit(errnum);
     }
  
     while (fread(num + i, sizeof(char), 1, file)) {
@@ -110,12 +111,13 @@ int main(void) {
     fdc     = open(c_out, O_WRONLY | O_CREAT, S_IRWXU);
 
     if (fddata == -1 || fda == -1 || fdb == -1 || fdc == -1) {
-        fprintf(stderr, "errno: %d, %s\n", errno, strerror(errno));
-        close(fddata);
-        close(fda);
-        close(fdb);
-        close(fdc);
-        exit(3);
+        int errnum = errno;
+        fprintf(stderr, "errno: %d, %s\n", errnum, strerror(errnum));
+        if (fddata != -1)   close(fddata);
+        if (fda != -1)      close(fda);
+        if (fdb != -1)      close(fdb);
+        if (fdc != -1)      close(fdc);
+        exit(errnum);
     }
 
     int retcode;

@@ -49,7 +49,7 @@ test:
 	mv pomiar_zad_5.txt pomiar_zad_5_lib.txt
 	make test_sys
 	cat pomiar_zad_5_lib.txt >> pomiar_zad_5.txt
-	rm -v *.o out.txt pomiar_zad_5_lib.txt
+	rm -v pomiar_zad_5_lib.txt
 
 
 valgrun: 
@@ -59,4 +59,4 @@ clean:
 	rm -v *.o
 
 clean_all:
-	rm -v *.o main_lib main_sys out.txt
+	rm -v *.o main_lib main_sys out.txt main

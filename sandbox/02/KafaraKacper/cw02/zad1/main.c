@@ -48,7 +48,7 @@ int main(int argc, char * argv[]) {
             exit(3);
         } 
 
-        falloc = !falloc;
+        falloc = true;
 
         printf("Insert file 1 pathname: ");
         scanf("%s", file1);
@@ -67,12 +67,16 @@ int main(int argc, char * argv[]) {
     FILE * fp2 = fopen(file2, "r");
 
     if (!fp1 || !fp2) {
-        printf("Failed to open file!\n");
+        int errnum = errno;
+        fprintf(stderr, "%d: errno: %d, %s\n", __LINE__, errnum, strerror(errnum));
+        if (fp1) fclose(fp1);
+        if (fp2) fclose(fp2);
+
         if (falloc) {
             free(file1);
             free(file2);
         } 
-        exit(2);
+        exit(errnum);
     }
 
     FILE * cfp = fp1;
@@ -104,12 +108,15 @@ int main(int argc, char * argv[]) {
     fd2 = open(file2, O_RDONLY);
 
     if (fd1 == -1 || fd2 == -1) {
-        fprintf(stderr, "errno: %d, %s\n", errno, strerror(errno));
+        int errnum = errno;
+        fprintf(stderr, "errno: %d, %s\n", errnum, strerror(errnum));
+        if (fd1 != -1) close(fd1);
+        if (fd2 != -1) close(fd2);
         if (falloc) {
             free(file1);
             free(file2);
         }
-        exit(2);
+        exit(errnum);
     }
 
     int cfd = fd1;

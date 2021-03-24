@@ -46,9 +46,10 @@ int main(int argc, char * argv[]) {
     FILE * fp  = fopen(pathname, "r");
 
     if (!fp) {
-        fprintf(stderr, "errno: %d, %s\n", errno, strerror(errno));
-        fclose(fp);
-        exit(1);
+        int errnum = errno;
+        fprintf(stderr, "errno: %d, %s\n", errnum, strerror(errnum));
+        // fclose(fp);
+        exit(errnum);
     }
 
     while (fread(buf + i, sizeof(char), 1, fp)) {
@@ -78,8 +79,9 @@ int main(int argc, char * argv[]) {
     int fd = open(pathname, O_RDONLY);
 
     if (fd == -1) {
-        fprintf(stderr, "errno: %d, %s\n", errno, strerror(errno));
-        exit(2);
+        int errnum = errno;
+        fprintf(stderr, "errno: %d, %s\n", errnum, strerror(errnum));
+        exit(errnum);
     }
 
     int read_ret;
