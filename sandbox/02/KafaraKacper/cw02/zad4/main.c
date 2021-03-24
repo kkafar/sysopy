@@ -6,6 +6,93 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+struct block 
+{
+    char ** fline;
+    size_t size;
+}; typedef struct block block;
+
+void block_init(block * blk, size_t size) 
+{
+    if (size <= 0 || blk == NULL) return;
+
+    blk->fline = (char **) calloc(size, sizeof(char *));
+
+    if (blk->fline == NULL) return;
+
+    blk->size = size;    
+}
+
+
+block * block_create(size_t size)
+{
+    block * blk = calloc(1, sizeof(block));
+    block_init(blk, size);
+    return blk;
+}
+
+void block_delete(block * blk)
+{
+    if (!blk) return;
+
+    block * blkcopy = blk;
+    block_clear(blkcopy);
+
+    free(blk);
+}
+
+
+void block_read(block * blk, const char * pathname)
+{
+    if (!blk || !pathname) return;
+
+    FILE * file = fopen(pathname, "r");
+
+    if (!file) return;
+
+    size_t lcount = file_line_count(pathname);
+
+    block_init(blk, lcount);
+
+    char buf[FILENAME_MAX];
+
+    for (size_t i = 0; i < blk->size; ++i)
+    {
+        fgets(buf, FILENAME_MAX, file);
+        block_insert_at(blk, i, buf);
+    }
+    fclose(file);
+}
+
+size_t file_line_count(const char * pathname) 
+{
+    FILE * f = fopen(pathname, "r");
+
+    if (!f) return 0;
+
+    char c;
+    int count = 0;
+    while ((c = fgetc(f)) != EOF)
+        if (c == '\n') ++count;
+
+    fclose(f);
+    return count;
+}
+
+void block_save(block * blk, const char * pathname)
+{
+    FILE * f = fopen(pathname, "w");
+
+    if (!f) return;
+
+    for (size_t i = 0; i < blk->size; ++i) 
+        if (*(blk->fline + i)) fputs(*(blk->fline + i), f);
+
+    fclose(f);
+}
+
+
+
 int main(int argc, char * argv[]) {
     if (argc != 5) {
         fprintf(stderr, "Invalid number of arguments: %d. Expectd 4.\n", argc);
@@ -35,37 +122,9 @@ int main(int argc, char * argv[]) {
         exit(errnum);
     }
 
-
-    while (fread(&ch, sizeof(char), 1, input_file)) {
-        matched = false;
-        if (ch == str1[0]) {
-            fread(buf, sizeof(char), str1_len - 1, input_file);
-            matched = true;
-            for (int i = 1; i < str1_len; ++i) {
-                if (str1[i] != buf[i - 1]) {
-                    int retcode = fseek(input_file, 1 - i, SEEK_CUR);
-                    matched = false;
-                    if (retcode == -1) {
-                        int errnum = errno;
-                        fprintf(stderr, "%d: errno: %d, %s\n", __LINE__, errnum, strerror(errnum));
-                        exit(errnum);
-                    }
-                    break;
-                }
-            }            
-            if (matched) {
-                
-            }
-        }
+    size_t nlines = file_line_count(input_file);
 
 
-    if (ferror(input_file)) {
-        int errnum = errno;
-        fprintf(stderr, "%d, errno: %d, %s\n", __LINE__, errnum, strerror(errnum));
-        if (input_file) fclose(input_file);
-        if (output_file) fclose(output_file);
-        exit(errnum);
-    }
     
     fclose(input_file);
     fclose(output_file);

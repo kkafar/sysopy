@@ -4,7 +4,6 @@
 LFLAGS := -Wall 
 CFLAGS := -Wall -c 
 
-
 # main: main.o
 # 	gcc $(LFLAGS) main.o -o main -lm
 
@@ -15,12 +14,11 @@ main:
 main.o: main.c
 	gcc $(CFLAGS) main.c -o main.o
 
-
 main_lib: main_lib.o
 	gcc -D LIB $(LFLAGS) $< -o main_lib
+
 main_lib.o: main.c
 	gcc -D LIB $(CFLAGS) $< -o $@ 
-
 
 main_sys: main_sys.o
 	gcc -D SYS $(LFLAGS) $< -o main_sys
@@ -50,7 +48,6 @@ test:
 	make test_sys
 	cat pomiar_zad_5_lib.txt >> pomiar_zad_5.txt
 	rm -v pomiar_zad_5_lib.txt
-
 
 valgrun: 
 	valgrind --leak-check=full --show-leak-kinds=all ./main
