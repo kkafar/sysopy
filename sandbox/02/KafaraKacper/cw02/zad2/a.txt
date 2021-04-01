@@ -2,3 +2,6 @@ Pierwsza linia
 Druga linia
 Trzecia linia
 Czwarta linia
+ccc
+abacama
+nie ma C
