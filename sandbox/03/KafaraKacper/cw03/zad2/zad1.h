@@ -1,14 +1,11 @@
 #ifndef __ZAD1_H__
 #define __ZAD1_H__
 
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-
 #define LINE_WIDTH 2048
-
 
 struct block 
 {

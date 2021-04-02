@@ -52,6 +52,7 @@ int main(int argc, char * argv[]) {
                 } 
                 test_dirpath[dirpath_length] = '/';
                 test_dirpath[dirpath_length + 1] = 0;
+                ++dirpath_length;
             }
         } else if (option == '?') {
             fprintf(stderr, "%d: Invalid option character: %c\n", __LINE__, optopt);
@@ -83,7 +84,7 @@ int main(int argc, char * argv[]) {
         // oraz jest ich odpowiednia ilość
         while ((dirp = readdir(test_dir)) != NULL) ++nofiles;
 
-        if (!(nofiles & 1)) {
+        if ((nofiles & 1)) {
             fprintf(stderr, "%d: Odd number of files in test files catalogue.\n", __LINE__);
             closedir(test_dir);
             free(test_dirpath);
