@@ -8,8 +8,8 @@ LFLAGS := -O2 -Wall
 
 all: main testgen
 
-main: main.o
-	$(CC) $(CPPFLAGS) $(LFLAGS) -o $@ $<
+main: main.o zad1.o
+	$(CC) $(CPPFLAGS) $(LFLAGS) -o $@ $^
 
 %.o: %.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
@@ -22,11 +22,15 @@ clean_all:
 
 
 valrun: main
-	valgrind --leak-check=full --show-leak=all ./main
+	valgrind --leak-check=full --show-leak-kinds=all ./main
 
 
 valtest: main
-	valgring --leak-check=full --show-leak=all ./main test
+	valgrind --leak-check=full --show-leak-kinds=all ./main -t -d ./tests/10_150_10
+
+
+test: main
+	./main -t -d ./tests/2000_150_3000 
 
 
 testgen: testgen.o
@@ -43,6 +47,7 @@ generate_tests: testgen
 	test -d ./tests/2000_150_500 || mkdir ./tests/2000_150_500
 	test -d ./tests/2000_150_1000 || mkdir ./tests/2000_150_1000
 	test -d ./tests/2000_150_3000 || mkdir ./tests/2000_150_3000
+
 	./testgen ./tests/500_150_500/ 500 150 500
 	./testgen ./tests/500_150_1000/ 500 150 1000
 	./testgen ./tests/500_150_3000/ 500 150 3000

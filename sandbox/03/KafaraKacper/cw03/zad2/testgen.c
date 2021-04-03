@@ -4,7 +4,6 @@
 #include <time.h>
 #include <unistd.h>
 #include <string.h>
-#include <dirent.h>
 #include "zad1.h"
 
 #define MAX_PATH 256

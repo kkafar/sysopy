@@ -167,10 +167,20 @@ void blockch_print(blockch * blkc);
 
 
 /**
+ * Łączy pliki (linia pliku A, linia pliku B) podane w bloku fseq. 
+ * Wynik łaczenia jest zapisywany do łańcucha bloków blkc.
+ * Łączone są kolejne pary plików (1 z 2, 3 z 4, itd.)
  * 
+ * Jeżeli save_flag == 1, to wynik łączenia jest zapisywany do plików, 
+* których nazwa to wynik konkatenacji plików łączonych. (jeżeli savefile == NULL)
  * 
+ * @param fseq      blok z nazwami plików przeznaczonych do łączenia
+ * @param blkc      łańcuch bloków do którego ma zostać zapisany wynik 
+ * @param save_flag jeżeli 1, to wynik łączenia poszczegółnych plików 
+ *                  zostanie zapisany do pliku, którego nazwa to wynik
+ *                  konkatenacji nazw plików łączonych     
  */
-void merge_files(block * fseq, blockch * blkc, int );
+void merge_files(block * fseq, blockch * blkc, int save_flag, const char * savefile[]);
 
 
 size_t file_line_count(const char * pathname);

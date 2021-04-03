@@ -7,19 +7,12 @@
 #include <stdbool.h>
 #include <dirent.h>
 #include <errno.h>
+#include <sys/wait.h>
 #include "zad1.h"
 
 #define MAX_PATH 256
 
-void make_report (
-    const char * pathname, 
-    const char * test,
-    size_t ncases,
-    clock_t clock_ticks[],
-    size_t test_cases[][3],
-    struct tms tstart[],
-    struct tms tstop[]
-);
+void make_report(const char * pathname, clock_t realtime, struct tms * start, struct tms * stop);
 
 double computetime_diff(clock_t start, clock_t stop);
 
@@ -27,7 +20,7 @@ double computetime(clock_t elapsed);
 
 int main(int argc, char * argv[]) {
     if (argc <= 2) {
-        fprintf(stderr, "%d: Bad arg count! Expected at least 2; provided with %d\n", __LINE__, argc);
+        fprintf(stderr, "%d: Bad arg count! Expected at least 2; provided with %d\n", __LINE__, argc - 1);
         exit(EXIT_FAILURE);
     }
 
@@ -76,13 +69,16 @@ int main(int argc, char * argv[]) {
             exit(errnum);
         }
 
-        struct dirent * dirp;            
+        struct dirent * dirp;         
         size_t nofiles = 0;
 
         // najpierw zliczamy ilość wpisów w katalogu z plikami testowymi 
         // założenie jest takie, że w katalogu znajdują się tylko i wyłącznie pliki testowe
         // oraz jest ich odpowiednia ilość
         while ((dirp = readdir(test_dir)) != NULL) ++nofiles;
+
+        // odejmujemy . oraz ..
+        nofiles -= 2;
 
         if ((nofiles & 1)) {
             fprintf(stderr, "%d: Odd number of files in test files catalogue.\n", __LINE__);
@@ -93,63 +89,117 @@ int main(int argc, char * argv[]) {
 
         rewinddir(test_dir);
 
-        char file1[MAX_PATH], file2[MAX_PATH];
+        char filepath[MAX_PATH];
+            
 
-        while ((dirp = readdir(test_dir)) != NULL) {                
+        struct tms start, stop;
+        clock_t time; 
+        block * fseq[nofiles / 2];
 
+        for (size_t i = 0; i < nofiles / 2; ++i) 
+            fseq[i] = block_create(2);
+
+        size_t i = 0;
+
+        while ((dirp = readdir(test_dir)) != NULL) {    
+            if (strcmp(".", dirp->d_name) == 0 || strcmp("..", dirp->d_name) == 0) 
+                continue;
+            strcpy(filepath, test_dirpath);
+            strcat(filepath, dirp->d_name);
+            block_insert_at(fseq[i / 2], i & 1, filepath);
+            ++i;
+        }
+        closedir(test_dir);
+
+        // Mergowanie
+        pid_t cpid;
+
+        time = times(&start);
+        for (size_t i = 0; i < nofiles / 2; ++i) {                
+            if ((cpid = fork()) == 0) {
+                blockch * blkc = blockch_create(1);
+
+                merge_files(fseq[i], blkc, 0, NULL);
+
+                blockch_delete_all(blkc);
+                for (size_t i = 0; i < nofiles / 2; ++i) block_delete(fseq[i]);
+                free(test_dirpath);
+
+                exit(EXIT_SUCCESS);
+            } else if (cpid == -1) {
+                fprintf(stderr, "%s: %d: Could not merge %s %s\n", __func__, __LINE__, fseq[i]->fline[0], fseq[i]->fline[1]);
+            }
         }
 
+        // czekamy na wszystkie dzieci 
+        while (waitpid(-1, NULL, 0) != -1);
 
-        closedir(test_dir);
+        time = times(&stop) - time;
+
+        for (size_t i = 0; i < nofiles / 2; ++i) block_delete(fseq[i]);
+
+        make_report("./report.txt", time, &start, &stop);
+    } else {
+        // jeżeli nie prowadzimy testów to należy wprowadzić parzystą liczbę plików do mergowania
+        // format: <plik A> <plik B> <plik wynikowy> ...
+
+        size_t argcount = optind - argc;
+        if (argcount % 3 != 0) {
+            fprintf(stderr, "%s: %d: Bad arg count.\n", __func__, __LINE__);
+            if (test_dirpath) free(test_dirpath);
+            exit(EXIT_FAILURE);
+        } 
+
+        blockch * blkc = blockch_create(argcount / 3);
+        block * fseq = block_create(argcount / 3 * 2);
+        block * savefseq = block_create(argcount / 3);
+
+        for (size_t i = 0; optind < argc; optind += 3, i += 3) {
+            block_insert_at(fseq, i, argv[optind]);
+            block_insert_at(fseq, i + 1, argv[optind + 1]);
+            block_insert_at(savefseq, i, argv[optind + 2]);
+        }
+
+        
+
+        block_delete(fseq);
+        block_delete(savefseq);
+        blockch_delete_all(blkc);
     }
-
-
 
     if (test_dirpath) free(test_dirpath);
 
     exit(EXIT_SUCCESS);
 }
 
-void make_report(   const char * pathname, 
-                    const char * test, 
-                    size_t ncases, 
-                    clock_t clock_ticks[], 
-                    size_t test_cases[][3], 
-                    struct tms tstart[], 
-                    struct tms tstop[])
-{
+void make_report(const char * pathname, clock_t realtime, struct tms * start, struct tms * stop) {
     FILE * report = fopen(pathname, "w");
-    if (!report)
-    {
-        printf("Could not create/open the file %s for write!\n", pathname);
+    if (!report) {
+        fprintf(stderr, "Could not create/open the file %s for write!\n", pathname);
         return;
     }
-    printf("==================== %s REPORT ======================\n", test);
-    fprintf(report, "====================  %s REPORT ======================\n", test);
-    for (size_t i = 0; i < ncases; ++i)
-    {
-        printf("case %3ld: pairs: %5ld, lwidth: %5ld, nlines: %6ld, ", i+1, test_cases[i][0], test_cases[i][1], test_cases[i][2]);
-        printf("\t\trealtime: %.5lf\tusertime: %.5lf\tsystime: %.5lf\n", 
-            computetime(clock_ticks[i]), 
-            computetime_diff(tstart[i].tms_utime, tstop[i].tms_utime), 
-            computetime_diff(tstart[i].tms_stime, tstop[i].tms_stime));
-        fprintf(report, "case %3ld: pairs: %5ld, lwidth: %5ld, nlines: %6ld, ", i+1, test_cases[i][0], test_cases[i][1], test_cases[i][2]);
-        fprintf(report, "\t\trealtime: %.5lf\tusertime: %.5lf\tsystime: %.5lf\n", 
-            computetime(clock_ticks[i]), 
-            computetime_diff(tstart[i].tms_utime, tstop[i].tms_utime), 
-            computetime_diff(tstart[i].tms_stime, tstop[i].tms_stime));
-    }
-    fprintf(report, "================== END %s REPORT =====================\n", test);
-    printf("================== END %s REPORT =====================\n", test);
+
+    fprintf(stdout, "realtime: %.5lf, usertime: %.5f, systime: %.5f, cusertime: %.5f, csystime: %.5f\n", 
+        computetime(realtime), 
+        computetime_diff(stop->tms_utime, start->tms_utime),
+        computetime_diff(stop->tms_stime, start->tms_stime),
+        computetime_diff(stop->tms_cutime, start->tms_cutime),
+        computetime_diff(stop->tms_cstime, start->tms_cstime));
+
+    fprintf(report, "realtime: %.5lf, usertime: %.5f, systime: %.5f, cusertime: %.5f, csystime: %.5f\n", 
+        computetime(realtime), 
+        computetime_diff(stop->tms_utime, start->tms_utime),
+        computetime_diff(stop->tms_stime, start->tms_stime),
+        computetime_diff(stop->tms_cutime, start->tms_cutime),
+        computetime_diff(stop->tms_cstime, start->tms_cstime));
+
     fclose(report);
 }
 
-double computetime_diff(clock_t start, clock_t stop) 
-{
+double computetime_diff(clock_t stop, clock_t start) {
     return (double) (stop - start) / sysconf(_SC_CLK_TCK);
 }
 
-double computetime(clock_t elapsed)
-{
+double computetime(clock_t elapsed) {
     return (double) elapsed / sysconf(_SC_CLK_TCK);
 }

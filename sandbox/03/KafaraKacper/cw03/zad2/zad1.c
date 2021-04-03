@@ -183,7 +183,7 @@ void block_read(block * blk, const char * pathname)
 
     for (size_t i = 0; i < blk->size; ++i)
     {
-        fgets(buf, LINE_WIDTH, file);
+        if (fgets(buf, LINE_WIDTH, file) == NULL) break;
         block_insert_at(blk, i, buf);
     }
 
@@ -191,7 +191,7 @@ void block_read(block * blk, const char * pathname)
 }
 
 
-void merge_files(block * fseq, blockch * blkc, int save_flag)
+void merge_files(block * fseq, blockch * blkc, int save_flag, const char * savefile[])
 {
     if (!fseq || !blkc || 2 * blkc->size != fseq->size) return;
 
@@ -212,7 +212,7 @@ void merge_files(block * fseq, blockch * blkc, int save_flag)
 
         if (!f1 || !f2) 
         {
-            printf("Could not open one of files: %s, %s\n", pathname1, pathname2);
+            fprintf(stderr, "Could not open one of files: %s, %s\n", pathname1, pathname2);
             continue;
         }
 
@@ -247,9 +247,13 @@ void merge_files(block * fseq, blockch * blkc, int save_flag)
 
         if (save_flag == 1)
         {
-            catpathname = get_tmp_pathname(pathname1, pathname2);
-            block_save(blk, catpathname);
-            free(catpathname);
+            if (!savefile) {
+                catpathname = get_tmp_pathname(pathname1, pathname2);
+                block_save(blk, catpathname);
+                free(catpathname);
+            } else {
+                block_save(blk, savefile[i]);
+            }
         }
     }    
 }
