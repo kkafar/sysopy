@@ -191,7 +191,7 @@ void block_read(block * blk, const char * pathname)
 }
 
 
-void merge_files(block * fseq, blockch * blkc, int save_flag, const char * savefile[])
+void merge_files(block * fseq, blockch * blkc, int save_flag, block * savefile)
 {
     if (!fseq || !blkc || 2 * blkc->size != fseq->size) return;
 
@@ -212,7 +212,7 @@ void merge_files(block * fseq, blockch * blkc, int save_flag, const char * savef
 
         if (!f1 || !f2) 
         {
-            fprintf(stderr, "Could not open one of files: %s, %s\n", pathname1, pathname2);
+            fprintf(stderr, "%s: %d: Could not open one of files: %s, %s\n", __func__, __LINE__, pathname1, pathname2);
             continue;
         }
 
@@ -252,7 +252,7 @@ void merge_files(block * fseq, blockch * blkc, int save_flag, const char * savef
                 block_save(blk, catpathname);
                 free(catpathname);
             } else {
-                block_save(blk, savefile[i]);
+                block_save(blk, savefile->fline[i / 2]);
             }
         }
     }    

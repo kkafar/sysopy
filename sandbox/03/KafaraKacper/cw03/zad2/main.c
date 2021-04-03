@@ -143,7 +143,7 @@ int main(int argc, char * argv[]) {
         // jeżeli nie prowadzimy testów to należy wprowadzić parzystą liczbę plików do mergowania
         // format: <plik A> <plik B> <plik wynikowy> ...
 
-        size_t argcount = optind - argc;
+        size_t argcount = argc - optind;
         if (argcount % 3 != 0) {
             fprintf(stderr, "%s: %d: Bad arg count.\n", __func__, __LINE__);
             if (test_dirpath) free(test_dirpath);
@@ -154,13 +154,16 @@ int main(int argc, char * argv[]) {
         block * fseq = block_create(argcount / 3 * 2);
         block * savefseq = block_create(argcount / 3);
 
-        for (size_t i = 0; optind < argc; optind += 3, i += 3) {
-            block_insert_at(fseq, i, argv[optind]);
-            block_insert_at(fseq, i + 1, argv[optind + 1]);
+        for (size_t i = 0, j = 0; optind < argc; optind += 3, ++i, j += 2) {
+            block_insert_at(fseq, j, argv[optind]);
+            block_insert_at(fseq, j + 1, argv[optind + 1]);
             block_insert_at(savefseq, i, argv[optind + 2]);
         }
 
-        
+        block_print(fseq, 0);
+        block_print(savefseq, 0);
+
+        merge_files(fseq, blkc, 1, savefseq);
 
         block_delete(fseq);
         block_delete(savefseq);

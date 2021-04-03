@@ -180,7 +180,7 @@ void blockch_print(blockch * blkc);
  *                  zostanie zapisany do pliku, którego nazwa to wynik
  *                  konkatenacji nazw plików łączonych     
  */
-void merge_files(block * fseq, blockch * blkc, int save_flag, const char * savefile[]);
+void merge_files(block * fseq, blockch * blkc, int save_flag, block * savefile);
 
 
 size_t file_line_count(const char * pathname);
