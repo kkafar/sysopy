@@ -150,24 +150,34 @@ int main(int argc, char * argv[]) {
             exit(EXIT_FAILURE);
         } 
 
-        blockch * blkc = blockch_create(argcount / 3);
-        block * fseq = block_create(argcount / 3 * 2);
-        block * savefseq = block_create(argcount / 3);
 
-        for (size_t i = 0, j = 0; optind < argc; optind += 3, ++i, j += 2) {
-            block_insert_at(fseq, j, argv[optind]);
-            block_insert_at(fseq, j + 1, argv[optind + 1]);
-            block_insert_at(savefseq, i, argv[optind + 2]);
+        blockch * fseq = blockch_create(argcount / 3);
+        blockch * savefseq = blockch_create(argcount / 3);
+        for (size_t i = 0; i < argcount / 3; ++i) {
+            block_init(fseq->blkarr + i, 2);
+            block_init(savefseq->blkarr + i, 1);
         }
 
-        block_print(fseq, 0);
-        block_print(savefseq, 0);
+        pid_t cpid;
 
-        merge_files(fseq, blkc, 1, savefseq);
+        for (size_t i = 0; optind < argc; optind += 3, ++i) {
+            block_insert_at(fseq->blkarr + i, 0, argv[optind]);
+            block_insert_at(fseq->blkarr + i, 1, argv[optind + 1]);
+            block_insert_at(savefseq->blkarr + i, 0, argv[optind + 2]);
 
-        block_delete(fseq);
-        block_delete(savefseq);
-        blockch_delete_all(blkc);
+            if ((cpid = fork()) == 0) {
+                blockch * blkc = blockch_create(1);
+                merge_files(fseq->blkarr + i, blkc, 1, savefseq->blkarr);
+                break;
+            } else if (cpid == -1) {
+                int errnum = errno;
+                fprintf(stderr, "%s: %d: %s\n", __func__, __LINE__, strerror(errnum));
+            }
+        }
+
+
+        blockch_delete_all(fseq);
+        blockch_delete_all(savefseq);
     }
 
     if (test_dirpath) free(test_dirpath);
