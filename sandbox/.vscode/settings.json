@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "*.rmd": "markdown",
-        "unistd.h": "c"
+        "*.tpp": "cpp",
+        "unistd.h": "c",
+        "sysexits.h": "c"
     }
 }
