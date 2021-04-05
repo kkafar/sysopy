@@ -1,4 +1,4 @@
-.PHONY: clean run clean_all valrun valtest
+.PHONY: clean run clean_all 
 .DEFAULT_TARGET: all
 
 CC := gcc
@@ -20,14 +20,25 @@ clean:
 clean_all:
 	rm -v *.o main testgen tests/* -rf
 
-valrun: main
-	valgrind --leak-check=full --show-leak-kinds=all ./main
-
-valtest: main
-	valgrind --leak-check=full --show-leak-kinds=all ./main -t -d ./tests/10_150_10
-
 test: main
+	./main -t -d ./tests/500_150_500 
+	cat report.txt > report2.txt
+	./main -t -d ./tests/500_150_1000 
+	cat report.txt >> report2.txt
+	./main -t -d ./tests/500_150_3000 
+	cat report.txt >> report2.txt
+	./main -t -d ./tests/1000_150_500 
+	cat report.txt >> report2.txt
+	./main -t -d ./tests/1000_150_1000 
+	cat report.txt >> report2.txt
+	./main -t -d ./tests/1000_150_3000 
+	cat report.txt >> report2.txt
+	./main -t -d ./tests/2000_150_500 
+	cat report.txt >> report2.txt
+	./main -t -d ./tests/2000_150_1000 
+	cat report.txt >> report2.txt
 	./main -t -d ./tests/2000_150_3000 
+	cat report.txt >> report2.txt
 
 testgen: testgen.o
 	$(CC) $(CPPFLAGS) $(LFLAGS) -o $@ $<

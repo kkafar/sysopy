@@ -72,12 +72,8 @@ int main(int argc, char * argv[]) {
         struct dirent * dirp;         
         size_t nofiles = 0;
 
-        // najpierw zliczamy ilość wpisów w katalogu z plikami testowymi 
-        // założenie jest takie, że w katalogu znajdują się tylko i wyłącznie pliki testowe
-        // oraz jest ich odpowiednia ilość
         while ((dirp = readdir(test_dir)) != NULL) ++nofiles;
 
-        // odejmujemy . oraz ..
         nofiles -= 2;
 
         if ((nofiles & 1)) {
@@ -131,7 +127,6 @@ int main(int argc, char * argv[]) {
             }
         }
 
-        // czekamy na wszystkie dzieci 
         while (waitpid(-1, NULL, 0) != -1);
 
         time = times(&stop) - time;
@@ -140,9 +135,6 @@ int main(int argc, char * argv[]) {
 
         make_report("./report.txt", time, &start, &stop);
     } else {
-        // jeżeli nie prowadzimy testów to należy wprowadzić parzystą liczbę plików do mergowania
-        // format: <plik A> <plik B> <plik wynikowy> ...
-
         size_t argcount = argc - optind;
         if (argcount % 3 != 0) {
             fprintf(stderr, "%s: %d: Bad arg count.\n", __func__, __LINE__);
@@ -192,7 +184,7 @@ void make_report(const char * pathname, clock_t realtime, struct tms * start, st
         return;
     }
 
-    fprintf(stdout, "realtime: %.5lf, usertime: %.5f, systime: %.5f, cusertime: %.5f, csystime: %.5f\n", 
+    fprintf(stdout, "realtime: %.5lf, usertime: %.5f, systime: %.5f, cusertime: %.5f, csystime: %.5f\n",
         computetime(realtime), 
         computetime_diff(stop->tms_utime, start->tms_utime),
         computetime_diff(stop->tms_stime, start->tms_stime),

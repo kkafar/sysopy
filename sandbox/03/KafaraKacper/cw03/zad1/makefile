@@ -15,6 +15,10 @@ main: main.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 
+test: main
+	./main 4
+
+
 clean:
 	rm *.o
 

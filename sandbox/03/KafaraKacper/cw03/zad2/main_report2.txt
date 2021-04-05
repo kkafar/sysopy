@@ -1,0 +1,18 @@
+realtime: 0.04000, usertime: 0.00000, systime: 0.01000, cusertime: 0.35000, csystime: 0.03000   // 250 par, 500 linii
+realtime: 0.07000, usertime: 0.00000, systime: 0.01000, cusertime: 0.61000, csystime: 0.09000   // 250 par, 1000 linii
+realtime: 0.19000, usertime: 0.00000, systime: 0.01000, cusertime: 1.61000, csystime: 0.43000   // 250 par, 3000 linii
+realtime: 0.08000, usertime: 0.00000, systime: 0.02000, cusertime: 0.74000, csystime: 0.08000   // 500 par, 500 linii
+realtime: 0.15000, usertime: 0.00000, systime: 0.03000, cusertime: 1.25000, csystime: 0.21000   // 500 par, 1000 linii
+realtime: 0.38000, usertime: 0.00000, systime: 0.02000, cusertime: 3.29000, csystime: 0.83000   // 500 par, 3000 linii
+realtime: 0.17000, usertime: 0.00000, systime: 0.06000, cusertime: 1.54000, csystime: 0.20000   // 1000 par, 500 linii
+realtime: 0.30000, usertime: 0.00000, systime: 0.05000, cusertime: 2.53000, csystime: 0.54000   // 1000 par, 1000 linii
+realtime: 0.78000, usertime: 0.00000, systime: 0.06000, cusertime: 6.71000, csystime: 1.61000   // 1000 par, 3000 linii
+
+Komentarz: 
+
+1. Usertime jest we wszystkich przypadkach rowny 0, poniewaz z procesu glownego (pierwszego) nie sa wykonywane zadne operacje. 
+2. Ogolnie zauwazamy ogromne skrocenie czasu wykonania programu z punktu widzenia uzytkownika (realtime) -- ok. 4.1 razy krotszy czas wykonania dla najwiekszego 
+przypadku testowego. (W ogolnosci takze zauwazamy ogromne przyspieszenie).
+Jest to spowodowane zrownolegleniem wykonywania operacji (testowanie z narzedziem gnome-system-monitor (system: Linux Mint 20) wykazuje ze obliczenia 
+wykonywane sa rownolegle na rownych rdzeniach procesora). Ogolnie jednak czas poswiecony przez procesor jest dluzszy. (czas naliczany rownolegle na roznych watkach
++ czas poswiecony na kopiowanie obszarów pamieci procesu (fork)).
