@@ -9,9 +9,12 @@
 #include <regex.h>
 
 // #define LINE_MAX 255
+#define READ_SIZE 4096
 
-int regex_compile(regex_t * r, const char * pattern);
 char * getpattern(const char * raw_pattern);
+int normalize_path(char * path, size_t max_length);
+int extend_path(char path[], char appendix[], size_t max_length);
+
 
 int main(int argc, char * argv[]) 
 {
@@ -21,9 +24,12 @@ int main(int argc, char * argv[])
         exit(EXIT_FAILURE);
     }
 
-    // kompilowanie regexów
+    /////////////////////////////////////////////////////////////////////////////
+    /// compiling regexs
+    /////////////////////////////////////////////////////////////////////////////
     regex_t file_extension_regex;
     regex_t pattern;
+    size_t raw_pattern_length = strlen(argv[2]);
 
     int ret;
     if ((ret = regcomp(&file_extension_regex, "\.txt$", REG_NEWLINE | REG_EXTENDED)) != 0)
@@ -35,7 +41,7 @@ int main(int argc, char * argv[])
     }
 
     char * regex_pattern = getpattern(argv[2]);
-    printf("Regex pattern: %s\n", regex_pattern);
+    // printf("Regex pattern: %s\n", regex_pattern);
 
     if ((ret = regcomp(&pattern, regex_pattern, REG_NEWLINE | REG_EXTENDED)) != 0) 
     {
@@ -44,37 +50,113 @@ int main(int argc, char * argv[])
         fprintf(stderr, "%s: %d: Pattern regex: %s\n", __func__, __LINE__, errmssg);
         exit(EXIT_FAILURE);
     }
+    /////////////////////////////////////////////////////////////////////////////
 
+    /////////////////////////////////////////////////////////////////////////////
+    /// determining search depth
+    /////////////////////////////////////////////////////////////////////////////
     size_t search_depth;
+    size_t current_search_level = 0;
 
     if ((search_depth = strtol(argv[3], NULL, 10)) < 0) 
     {
         fprintf(stderr, "%s: %d: Invalid max_depth number provided.\n", __func__, __LINE__);
         exit(EXIT_FAILURE);
     }
+    /////////////////////////////////////////////////////////////////////////////
+    else
+        printf("CO TU SIE DZIEJE %ld\n", search_depth);
 
-
+    /////////////////////////////////////////////////////////////////////////////
+    /// opening intial catalogue 
+    /////////////////////////////////////////////////////////////////////////////
     DIR * dirp;
 
-    if ((dirp = opendir(argv[1])) == NULL)
+    char current_path[PATH_MAX];
+    strcpy(current_path, argv[1]);
+
+    if (normalize_path(current_path, PATH_MAX) < 0) 
+    {
+        fprintf(stderr, "pid: %d: %s: %d: Failed to normalize path due to exceeding max_length", getpid(), __func__, __LINE__);
+        exit(EXIT_FAILURE);
+    }
+
+    if ((dirp = opendir(current_path)) == NULL)
     {
         int errnum = errno;
         fprintf(stderr, "%s: %d: %s", __func__, __LINE__, strerror(errnum));
         exit(errnum);
     }
+    /////////////////////////////////////////////////////////////////////////////
     
     struct dirent * dir;
+    pid_t cpid;
+    char buf[READ_SIZE];
+    regmatch_t match;
 
-    errno = 0;
     while ((dir = readdir(dirp)) != NULL) 
     {
-        if (dir->d_type == DT_DIR) 
-        {
+        if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) continue;
 
+        errno = 0;
+        if (dir->d_type == DT_DIR && current_search_level < search_depth) 
+        {
+            if ((cpid = fork()) == 0) 
+            {
+                ++current_search_level;
+                extend_path(current_path, dir->d_name, PATH_MAX);
+                closedir(dirp);
+
+                if ((dirp = opendir(current_path)) == NULL)
+                {
+                    int errnum = errno;
+                    fprintf(stderr, "pid: %d: %s: %d: %s", getpid(), __func__, __LINE__, strerror(errnum));
+                    exit(errnum);
+                }
+            }
+            else if (cpid == -1) 
+            {
+                int errnum = errno;
+                fprintf(stderr, "pid: %d: %s: %d: %s. Failed for %s\n", getpid(), __func__, __LINE__, strerror(errnum), dir->d_name);
+            }
         } 
         else if (dir->d_type == DT_REG) 
         {
+            // checking if filename has .txt extension
+            const char * tmp = dir->d_name;
+            regmatch_t m;
+            if (regexec(&file_extension_regex, tmp, 1, &m, 0) != 0) continue;
 
+            char filepath[PATH_MAX];
+            strcpy(filepath, current_path);
+            strcat(filepath, dir->d_name);
+
+            FILE * filestream;
+            if ((filestream = fopen(filepath, "r")) == NULL)
+            {
+                fprintf(stderr, "pid: %d: %s: %d: %s", getpid(), __func__, __LINE__, strerror(errno));
+                continue;
+            }
+
+            size_t bytes_read; 
+            while ((bytes_read = fread(buf, sizeof(char), READ_SIZE, filestream)) > raw_pattern_length)
+            {
+                if (regexec(&pattern, buf, 1, &match, 0) == 0)
+                {
+                    fprintf(stdout, "pid: %d: %s <- pattern found\n", getpid(), filepath);
+                    break;
+                }  
+                fseek(filestream, -raw_pattern_length, SEEK_CUR);
+            }   
+            if (bytes_read == 0) 
+            {
+                if (ferror(filestream)) 
+                {
+                    fprintf(stderr, "pid: %d: %s: %d: %s", getpid(), __func__, __LINE__, strerror(errno));
+                }
+            }         
+
+            fclose(filestream);
         }
     }
 
@@ -107,4 +189,35 @@ char * getpattern(const char * raw_pattern)
     new_pattern[pattern_length + 3] = '*';
 
     return new_pattern;
+}
+
+
+int normalize_path(char * path, size_t max_length)
+{
+    if (!path) return -2;
+    size_t current_length = strlen(path);
+    if (current_length >= max_length - 1) return -1;
+
+    if (path[current_length - 1] != '/')
+    {
+        path[current_length] = '/';
+        path[current_length + 1] = 0;
+        return current_length + 2;
+    }
+    return current_length;
+}
+
+
+int extend_path(char path[], char appendix[], size_t max_length)
+{
+    if (!path || !appendix) return -3;
+
+    size_t path_length      = strlen(path);
+    size_t appendix_length  = strlen(appendix);
+
+    if (path_length + appendix_length + 1 >= max_length) return -4;
+
+    strcat(path, appendix);
+
+    return normalize_path(path, max_length);
 }
