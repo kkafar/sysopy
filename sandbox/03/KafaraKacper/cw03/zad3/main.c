@@ -55,17 +55,16 @@ int main(int argc, char * argv[])
     /////////////////////////////////////////////////////////////////////////////
     /// determining search depth
     /////////////////////////////////////////////////////////////////////////////
-    size_t search_depth;
+    int search_depth;
     size_t current_search_level = 0;
-
+    
     if ((search_depth = strtol(argv[3], NULL, 10)) < 0) 
     {
         fprintf(stderr, "%s: %d: Invalid max_depth number provided.\n", __func__, __LINE__);
         exit(EXIT_FAILURE);
     }
     /////////////////////////////////////////////////////////////////////////////
-    else
-        printf("CO TU SIE DZIEJE %ld\n", search_depth);
+
 
     /////////////////////////////////////////////////////////////////////////////
     /// opening intial catalogue 
@@ -170,6 +169,8 @@ int main(int argc, char * argv[])
 
     closedir(dirp);
     free(regex_pattern);
+    regfree(&file_extension_regex);
+    regfree(&pattern);
 
     exit(EXIT_SUCCESS);
 }

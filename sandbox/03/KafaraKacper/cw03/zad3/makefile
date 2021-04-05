@@ -1,4 +1,4 @@
-.PHONY: clean clean_all valrun
+.PHONY: clean clean_all valtest test
 
 CC := gcc
 CPPFLAGS := 
@@ -19,11 +19,15 @@ main: main.o
 clean: 
 	rm -v *.o 
 
+test: main
+	./main ./testrootdir WIELKANOC 3
+
+
 
 clean_all:
 	rm -v *.o main
 
-valrun:
-	valgrind --leak-check=full --show-leak-kinds=all ./main
+valtest: main
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./main ./testrootdir WIELK 1
 
 
