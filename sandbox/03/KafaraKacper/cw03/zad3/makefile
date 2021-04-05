@@ -23,11 +23,8 @@ test: main
 	./main ./testrootdir WIELKANOC 3
 
 
-
 clean_all:
 	rm -v *.o main
 
 valtest: main
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./main ./testrootdir WIELK 1
-
-
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./main ./testrootdir WIELKANOC 1

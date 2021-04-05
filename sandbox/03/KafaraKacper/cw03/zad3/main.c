@@ -7,6 +7,7 @@
 #include <string.h>
 #include <limits.h>
 #include <regex.h>
+#include <stdbool.h>
 
 // #define LINE_MAX 255
 #define READ_SIZE 4096
@@ -14,6 +15,7 @@
 char * getpattern(const char * raw_pattern);
 int normalize_path(char * path, size_t max_length);
 int extend_path(char path[], char appendix[], size_t max_length);
+void clearbuff(char buf[], size_t size);
 
 
 int main(int argc, char * argv[]) 
@@ -23,6 +25,9 @@ int main(int argc, char * argv[])
         fprintf(stderr, "Bad arg count. Usage: <dirpath> <pattern> <max_depth>\n");
         exit(EXIT_FAILURE);
     }
+
+    pid_t rootid = getpid();
+
 
     /////////////////////////////////////////////////////////////////////////////
     /// compiling regexs
@@ -95,6 +100,7 @@ int main(int argc, char * argv[])
 
     while ((dir = readdir(dirp)) != NULL) 
     {
+        clearbuff(buf, READ_SIZE);
         if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) continue;
 
         errno = 0;
@@ -138,7 +144,11 @@ int main(int argc, char * argv[])
             }
 
             size_t bytes_read; 
-            while ((bytes_read = fread(buf, sizeof(char), READ_SIZE, filestream)) > raw_pattern_length)
+            bool shifted = false;
+
+            while ((bytes_read = fread(buf, sizeof(char), READ_SIZE, filestream)) > raw_pattern_length 
+                  || 
+                  (bytes_read == raw_pattern_length && !shifted))
             {
                 if (regexec(&pattern, buf, 1, &match, 0) == 0)
                 {
@@ -146,6 +156,7 @@ int main(int argc, char * argv[])
                     break;
                 }  
                 fseek(filestream, -raw_pattern_length, SEEK_CUR);
+                shifted = true;
             }   
             if (bytes_read == 0) 
             {
@@ -171,6 +182,12 @@ int main(int argc, char * argv[])
     free(regex_pattern);
     regfree(&file_extension_regex);
     regfree(&pattern);
+
+    if (getpid() == rootid)
+    {
+        // waiting for all children
+        while (waitpid(-1, NULL, 0) != -1);
+    }
 
     exit(EXIT_SUCCESS);
 }
@@ -221,4 +238,9 @@ int extend_path(char path[], char appendix[], size_t max_length)
     strcat(path, appendix);
 
     return normalize_path(path, max_length);
+}
+
+void clearbuff(char buf[], size_t size)
+{
+    for (char * p = buf; p < buf + size; ++p) *p = 0;
 }
