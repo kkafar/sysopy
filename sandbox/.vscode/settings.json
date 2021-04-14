@@ -6,6 +6,9 @@
         "sysexits.h": "c",
         "signal.h": "c",
         "signum.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "errno.h": "c",
+        "errno-base.h": "c",
+        "features.h": "c"
     }
 }
