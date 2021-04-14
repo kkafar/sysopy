@@ -3,6 +3,9 @@
         "*.rmd": "markdown",
         "*.tpp": "cpp",
         "unistd.h": "c",
-        "sysexits.h": "c"
+        "sysexits.h": "c",
+        "signal.h": "c",
+        "signum.h": "c",
+        "types.h": "c"
     }
 }
