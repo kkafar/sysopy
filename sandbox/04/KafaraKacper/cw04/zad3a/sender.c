@@ -8,11 +8,16 @@
 #include <stdbool.h>
 
 
+int SIG1 = SIGUSR1, SIG2 = SIGUSR2;
+
 int no_received_signals = 0;
 int no_signals;
 
-void handler_sigusr1(int signo);
-void handler_sigusr2(int signo);
+void handle_sig1(int signo);
+void handle_sig2(int signo);
+void handle_sig2_sigqueue(int signo);
+void killmode(pid_t catcher_pid, sigset_t * mask);
+void sigqueuemode(pid_t catcher_pid, sigset_t * mask);
 
 
 int main(int argc, char * argv[]) 
@@ -40,80 +45,31 @@ int main(int argc, char * argv[])
         exit(EXIT_FAILURE);
     }
 
+    /* masking all signals except SIG1 && SIG2 */
+    sigset_t mask;
+        
+    if (sigfillset(&mask) < 0) 
+    {
+        int errnum = errno;
+        perror("sigfillset");
+        exit(errnum);
+    }
+
+    printf("%s: %d: sender's pid: %d\n", __func__, __LINE__, getpid());
     /* KILL mode */
     if (strcmp(argv[3], "KILL") == 0)
-    {
-        /* masking all signals except SIGUSR1 && SIGUSR2 */
-        sigset_t mask;
-         
-        if (sigfillset(&mask) < 0) 
-        {
-            int errnum = errno;
-            perror("sigfillset");
-            exit(errnum);
-        }
-
-        if (sigdelset(&mask, SIGUSR1) < 0 || sigdelset(&mask, SIGUSR2) < 0) 
-        {
-            int errnum = errno;
-            perror("sigdelset");
-            exit(errnum);
-        }
-
-        if (sigprocmask(SIG_SETMASK, &mask, NULL) < 0)
-        {
-            int errnum = errno;
-            perror("sigprocmask");
-            exit(errnum);
-        }
-        
-
-        struct sigaction action_usr1, action_usr2;
-        action_usr1.sa_handler = handler_sigusr1;
-        action_usr2.sa_handler = handler_sigusr2;
-        
-        if (sigemptyset(&action_usr1.sa_mask) < 0 || sigemptyset(&action_usr2.sa_mask) < 0)
-        {
-            int errnum = errno;
-            perror("sigemptyset");
-            exit(errnum);
-        }
-
-        if (sigaction(SIGUSR1, &action_usr1, NULL) < 0 || sigaction(SIGUSR2, &action_usr2, NULL) < 0) 
-        {
-            int errnum = errno;
-            perror("sigaction");
-            exit(errnum);
-        }
-
-        for (int i = 0; i < no_signals; ++i) 
-        {
-            if (kill(catcher_pid, SIGUSR1) < 0) 
-            {
-                int errnum = errno;
-                perror("kill SIGUSR1");
-                exit(errnum);
-            }
-        }
-
-        if (kill(catcher_pid, SIGUSR2) < 0)
-        {
-            int errnum = errno;
-            perror("kill SIGUSR2");
-            exit(errnum);
-        }
-
-        /* waiting for signals, SIGUSR2 terminates process */
-        while (true) 
-            sigsuspend(&mask);
-    }
+        killmode(catcher_pid, &mask);
+    
     else if (strcmp(argv[3], "SIGQUEUE") == 0) 
-    {
+        sigqueuemode(catcher_pid, &mask);
 
-    }
     else if (strcmp(argv[3], "SIGRT") == 0) 
     {
-
+        printf("SIGRT EXECUTING\n");
+        /* swapping signals */
+        SIG1 = SIGRTMIN;
+        SIG2 = SIGRTMIN + 1;
+        killmode(catcher_pid, &mask);
     }
     else 
     {
@@ -125,14 +81,137 @@ int main(int argc, char * argv[])
 }
 
 
-void handler_sigusr1(int signo) 
+void handle_sig1(int signo) 
 {
     ++no_received_signals;
 }
 
 
-void handler_sigusr2(int signo)
+void handle_sig2(int signo)
 {
-    printf("sender received SIGUSR2(%d). %d/%d SIGUSR1 signals were fetched\n", signo, no_received_signals, no_signals);
+    printf("sender received SIGUSR2(%d). %d/%d SIGUSR1 signals were fetched back (%.2lf)%%\n", signo, no_received_signals, no_signals, (double)(no_received_signals) / no_signals * 100);
+    exit(EXIT_SUCCESS);
+}
+
+
+void killmode(pid_t catcher_pid, sigset_t * mask)
+{
+    printf("killmode executing\n");
+    if (sigdelset(mask, SIG1) < 0 || sigdelset(mask, SIG2) < 0) 
+    {
+        int errnum = errno;
+        perror("sigdelset");
+        exit(errnum);
+    }
+
+    if (sigprocmask(SIG_SETMASK, mask, NULL) < 0)
+    {
+        int errnum = errno;
+        perror("sigprocmask");
+        exit(errnum);
+    }
+    
+    struct sigaction action_sig1, action_sig2;
+    action_sig1.sa_handler = handle_sig1;
+    action_sig2.sa_handler = handle_sig2;
+    
+    if (sigemptyset(&action_sig1.sa_mask) < 0 || sigemptyset(&action_sig2.sa_mask) < 0)
+    {
+        int errnum = errno;
+        perror("sigemptyset");
+        exit(errnum);
+    }
+
+    if (sigaction(SIG1, &action_sig1, NULL) < 0 || sigaction(SIG2, &action_sig2, NULL) < 0) 
+    {
+        int errnum = errno;
+        perror("sigaction");
+        exit(errnum);
+    }
+
+    printf("sending signals...\n");
+    for (int i = 0; i < no_signals; ++i) 
+    {
+        if (kill(catcher_pid, SIG1) < 0) 
+        {
+            int errnum = errno;
+            perror("kill SIG1");
+            exit(errnum);
+        }
+    }
+
+    if (kill(catcher_pid, SIG2) < 0)
+    {
+        int errnum = errno;
+        perror("kill SIG2");
+        exit(errnum);
+    }
+
+    printf("waiting for return signals\n");
+    /* waiting for signals, SIG2 terminates process */
+    while (true) 
+        sigsuspend(mask);
+}
+
+void sigqueuemode(pid_t catcher_pid, sigset_t * mask) 
+{
+    if (sigdelset(mask, SIG1) < 0 || sigdelset(mask, SIG2) < 0) 
+    {
+        int errnum = errno;
+        perror("sigdelset");
+        exit(errnum);
+    }
+
+    if (sigprocmask(SIG_SETMASK, mask, NULL) < 0)
+    {
+        int errnum = errno;
+        perror("sigprocmask");
+        exit(errnum);
+    }
+    
+    struct sigaction action_sig1, action_sig2;
+    action_sig1.sa_handler = handle_sig1;
+    action_sig2.sa_handler = handle_sig2_sigqueue; 
+
+    if (sigemptyset(&action_sig1.sa_mask) < 0 || sigemptyset(&action_sig2.sa_mask) < 0)
+    {
+        int errnum = errno;
+        perror("sigemptyset");
+        exit(errnum);
+    }
+
+    if (sigaction(SIG1, &action_sig1, NULL) < 0 || sigaction(SIG2, &action_sig2, NULL) < 0)
+    {
+        int errnum = errno;
+        perror("sigaction");
+        exit(errnum);
+    }
+
+    union sigval sval; 
+    sval.sival_int = 0;
+    for (int i = 0; i < no_signals; ++i) 
+    {
+        if (sigqueue(catcher_pid, SIG1, sval) < 0) 
+        {
+            int errnum = errno;
+            perror("sigqueue");
+            exit(errnum);
+        }
+    }
+
+    if (sigqueue(catcher_pid, SIG2, sval) < 0) 
+    {
+        int errnum = errno;
+        perror("sigqueue");
+        exit(errnum);
+    }
+
+    while (true)
+        sigsuspend(mask);
+}
+
+void handle_sig2_sigqueue(int signo) 
+{
+    printf("sender received SIG2(%d). %d/%d SIG1(%d) signals were fetched back (%.2lf)%%\n", signo, no_received_signals, no_signals, SIG1, (double)(no_received_signals) / no_signals * 100);
     exit(EXIT_SUCCESS);
 }
