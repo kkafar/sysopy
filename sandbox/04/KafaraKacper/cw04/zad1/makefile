@@ -5,11 +5,18 @@ CPPFLAGS :=
 CFLAGS := -O2 -Wall
 LFLAGS := -O2 -Wall
 
-all: main
+all: mainfork mainexec toexec
 
 
 main: main.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
+toexec: toexec.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
+mainexec: mainexec.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
 
 
 %.o: %.c 
@@ -24,7 +31,4 @@ test: main
 
 
 clean_all:
-	rm -v *.o main
-
-valtest: main
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./main 
+	rm -v *.o mainfork mainexec toexec

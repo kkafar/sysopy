@@ -8,30 +8,6 @@
 #include <wait.h>
 
 
-/**
- * ignore: 
- * w procesie przodka ustawia ignorowanie SIGUSR1
- * 
- * handler:
- * w procesie przeodka ustawia handler do łapania i obsługi
- * sygnału SIGUSR1 (wypisuje komunikat o otrzymaniu sygnału);
- * 
- * mask: 
- * w procesie przodka maskuje sygnał SIGUSR1
- * 
- * pending: 
- * w procesie przodka maskuje sygnał SIGUSR1 oraz 
- * sprawdza czy oczekujący sygnał jest widoczny w procesie
- * 
- * dalej dla każdej z opcji:
- * wysyła sygnał do samego siebie;
- * tworzy potomka;
- * potomek wysyła sygnał do samego siebie (przy pending 
- * sprawdzamy tylko czy sygnał wysłany w przodku jest widoczny w potomku)
- * 
- * Ewentualnie wykonać jeszcze jeden program do sprawdzania większej ilości sygnałów. 
- */
-
 void handler(int);
 
 
@@ -45,7 +21,6 @@ int main(int argc, char * argv[]) {
         sigset_t sigset;
 
         if (sigemptyset(&sigset) < 0) {
-            // może to byc potencjalnie błędny komunikat 
             int errnum = errno;
             fprintf(stderr, "%s: %d: failed to clear sigset, %s\n", __func__, __LINE__, strerror(errnum));
             exit(errnum);
@@ -57,14 +32,14 @@ int main(int argc, char * argv[]) {
             exit(errnum);            
         }
 
-        // ustawiamy maskę dla aktualnego procesu 
+        // setting mask for current process
         if (sigprocmask(SIG_BLOCK, &sigset, NULL) < 0) {
             int errnum = errno;
             fprintf(stderr, "%s: %d: failed to set new sigmask, %s\n", __func__, __LINE__, strerror(errnum));
             exit(errnum);            
         }
 
-        // wysyłamy sygnał do samego siebie
+        // process sends singal to itself
         if (raise(SIGUSR1) != 0) {
             fprintf(stderr, "%s: %d: parent process failed to send signal to itself\n", __func__, __LINE__);
             exit(EXIT_FAILURE);
@@ -77,21 +52,20 @@ int main(int argc, char * argv[]) {
             fprintf(stderr, "%s: %d: %s\n", __func__, __LINE__, strerror(errnum));
             exit(errnum);
         } else if (cpid == 0) {
-            // sprawdzamy czy SIGUSR1 jest zamaskowany w potomku
+            // is SIGUSR1 masked in child process?
             sigset_t empty_mask, cmask;
             
             if (sigemptyset(&empty_mask) < 0) {
-                // może to byc potencjalnie błędny komunikat 
                 int errnum = errno;
                 fprintf(stderr, "%s: %d: failed to clear sigset, %s\n", __func__, __LINE__, strerror(errnum));
                 exit(errnum);
             }
 
-            // ta operacja nie zmienia wartości maski! 
-            // pozyskujemy starą maskę
+            // this operation does not change mask value!
+            // acquiring old mask
             if (sigprocmask(SIG_BLOCK, &empty_mask, &cmask) < 0) {
                 int errnum = errno;
-                fprintf(stderr, "%s: %d: failed to set new sigmask, %s\n", __func__, __LINE__, strerror(errnum));
+                fprintf(stderr, "%s: %d: failed to aquire old sigmask, %s\n", __func__, __LINE__, strerror(errnum));
                 exit(errnum);            
             }
 
@@ -110,7 +84,6 @@ int main(int argc, char * argv[]) {
         struct sigaction action;
 
         if (sigemptyset(&action.sa_mask) < 0) {
-            // może to byc potencjalnie błędny komunikat 
             int errnum = errno;
             fprintf(stderr, "%s: %d: failed to clear sigset, %s\n", __func__, __LINE__, strerror(errnum));
             exit(errnum);
@@ -125,7 +98,6 @@ int main(int argc, char * argv[]) {
             exit(errnum);            
         }
 
-        // wysyłamy sygnał do samego siebie
         if (raise(SIGUSR1) != 0) {
             fprintf(stderr, "%s: %d: parent process failed to send signal to itself\n", __func__, __LINE__);
             exit(EXIT_FAILURE);
@@ -138,7 +110,6 @@ int main(int argc, char * argv[]) {
             fprintf(stderr, "%s: %d: %s\n", __func__, __LINE__, strerror(errnum));
             exit(errnum);
         } else if (cpid == 0) {
-            // wysyłamy sygnał do samego siebie
             if (raise(SIGUSR1) != 0) {
                 fprintf(stderr, "%s: %d: child process failed to send signal to itself\n", __func__, __LINE__);
                 exit(EXIT_FAILURE);
@@ -165,7 +136,6 @@ int main(int argc, char * argv[]) {
             fprintf(stderr, "%s: %d: %s\n", __func__, __LINE__, strerror(errnum));
             exit(errnum);
         } else if (cpid == 0) {
-            // wysyłamy sygnał do samego siebie
             if (raise(SIGUSR1) != 0) {
                 fprintf(stderr, "%s: %d: child process failed to send signal to itself\n", __func__, __LINE__);
                 exit(EXIT_FAILURE);
@@ -180,7 +150,6 @@ int main(int argc, char * argv[]) {
         sigset_t sigset, empty_set;
 
         if (sigemptyset(&sigset) < 0 || sigemptyset(&empty_set) < 0) {
-            // może to byc potencjalnie błędny komunikat 
             int errnum = errno;
             fprintf(stderr, "%s: %d: failed to clear sigset | empty_set, %s\n", __func__, __LINE__, strerror(errnum));
             exit(errnum);
@@ -192,20 +161,17 @@ int main(int argc, char * argv[]) {
             exit(errnum);            
         }
 
-        // ustawiamy maskę dla aktualnego procesu 
         if (sigprocmask(SIG_BLOCK, &sigset, NULL) < 0) {
             int errnum = errno;
             fprintf(stderr, "%s: %d: failed to set new sigmask, %s\n", __func__, __LINE__, strerror(errnum));
             exit(errnum);            
         }
 
-        // wysyłamy sygnał do samego siebie
         if (raise(SIGUSR1) != 0) {
             fprintf(stderr, "%s: %d: parent process failed to send signal to itself\n", __func__, __LINE__);
             exit(EXIT_FAILURE);
         }
 
-        // sprawdzamy czy sygnał ma status pending 
         if (sigpending(&empty_set) < 0) {
             int errnum = errno;
             fprintf(stderr, "%s: %d: %s\n", __func__, __LINE__, strerror(errnum));
@@ -224,21 +190,27 @@ int main(int argc, char * argv[]) {
             fprintf(stderr, "%s: %d: %s\n", __func__, __LINE__, strerror(errnum));
             exit(errnum);
         } else if (cpid == 0) {
-            // sprawdzamy czy SIGUSR1 jest zamaskowany w potomku
             sigset_t cmask;
             
             if (sigemptyset(&cmask) < 0) {
-                // może to byc potencjalnie błędny komunikat 
                 int errnum = errno;
                 fprintf(stderr, "%s: %d: failed to clear sigset, %s\n", __func__, __LINE__, strerror(errnum));
                 exit(errnum);
             }
 
+            if (sigpending(&cmask) < 0) {
+                int errnum = errno;
+                fprintf(stderr, "%s: %d: %s\n", __func__, __LINE__, strerror(errnum));
+                exit(errnum);            
+            }
+
             if (sigismember(&cmask, SIGUSR1) == 1) {
-                printf("pid: %d: child process: signal is pending\n", getpid());
+                // printf("pid: %d: child process: signal is pending\n", getpid());
+                printf("%s: %d: child process: signal is pending\n", __func__ ,__LINE__);
                 exit(EXIT_SUCCESS);
             } else {
-                printf("pid: %d: child process: singal is NOT pending\n", getpid());
+                // printf("pid: %d: child process: singal is NOT pending\n", getpid());
+                printf("%s: %d: child process: signal is NOT pending\n", __func__ ,__LINE__);
                 exit(EXIT_SUCCESS);
             }
 
