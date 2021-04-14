@@ -5,14 +5,12 @@ CPPFLAGS :=
 CFLAGS := -O2 -Wall
 LFLAGS := -O2 -Wall
 
-all: sender catcher
+all: main
 
 
-sender: sender.o
+main: main.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $<
 
-catcher: catcher.o
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $<
 
 %.o: %.c 
 	$(CC) $(CPPFLAGS) $(LFLAGS) -c -o $@ $<
@@ -21,5 +19,12 @@ catcher: catcher.o
 clean: 
 	rm -v *.o 
 
+test: main
+	./main
+
+
 clean_all:
-	rm -v *.o sender catcher
+	rm -v *.o main
+
+valtest: main
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./main 

@@ -1,0 +1,47 @@
+Dziedziczenie ustawien sygnalow po wykonaniu funkcji fork:
+
+1. ignore:
+main: 130: parent process did not terminate after sending singal ==> SIGUSR1 is ignored
+main: 143: child process did not terminate after sending singal ==> SIGUSR1 is ignored
+
+Ignorowanie sygnalu w procesie przodku skutkuje take jego ignorowaniem w procesie potomnym. 
+
+2. handler:
+125225: handler: 229: recieved SIGUSR1 (10) // parent process
+125226: handler: 229: recieved SIGUSR1 (10) // child process
+
+Zapewnienie obslugi sygnalu w procesie przodku zapewnia taka sama jego obsluge w procesie potomnym.
+
+3. mask:
+pid: 125546: child process: mask is preserved
+
+Sygnal zamaskowany w procesie macierzystym pozostaje zamaskowany w procesie potomnym.
+
+4. pending:
+main: 182: parent process: signal is pending
+main: 213: child process: signal is NOT pending
+
+Generlanie wszelkie nie obsluzone sygnaly, oczekujace (pending) w procesie macierzystym sa kasowane (/ nie sa kopiowane).
+
+
+Dziedziczenie ustawien sygnalow po wykonaniu funkcji exec 
+
+1. ignore:
+mainexec.c: main: 64: parent process did not terminate after sending singal ==> SIGUSR1 is ignored
+toexec.c: main: 29: child process did not terminate after sending singal ==> SIGUSR1 is ignored
+
+zbior sygnalow ignorowanych bezposrednio przed wykonaniem exec'a i bezposrednio po jego wykonaniu jest jednakowy
+
+2. mask:
+toexec.c: main: 50: child process: mask is preserved
+
+Maska zostaje taka sama
+
+2. pending:
+mainexec.c: main: 105: parent process: signal is pending
+toexec.c: main: 74: child process: signal is pending
+
+nieobsluzone przed wykonaniem execa sygnaly zostaja w trybie pending (dla "nowego" procesu) po wykonaniu funckji exec 
+
+
+
