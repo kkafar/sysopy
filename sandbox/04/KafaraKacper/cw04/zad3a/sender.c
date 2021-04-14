@@ -15,7 +15,7 @@ int no_signals;
 
 void handle_sig1(int signo);
 void handle_sig2(int signo);
-void handle_sig2_sigqueue(int signo);
+void handle_sig2_sigqueue(int signo, siginfo_t * info, void * ucontext);
 void killmode(pid_t catcher_pid, sigset_t * mask);
 void sigqueuemode(pid_t catcher_pid, sigset_t * mask);
 
@@ -65,7 +65,6 @@ int main(int argc, char * argv[])
 
     else if (strcmp(argv[3], "SIGRT") == 0) 
     {
-        printf("SIGRT EXECUTING\n");
         /* swapping signals */
         SIG1 = SIGRTMIN;
         SIG2 = SIGRTMIN + 1;
@@ -96,7 +95,6 @@ void handle_sig2(int signo)
 
 void killmode(pid_t catcher_pid, sigset_t * mask)
 {
-    printf("killmode executing\n");
     if (sigdelset(mask, SIG1) < 0 || sigdelset(mask, SIG2) < 0) 
     {
         int errnum = errno;
@@ -129,7 +127,6 @@ void killmode(pid_t catcher_pid, sigset_t * mask)
         exit(errnum);
     }
 
-    printf("sending signals...\n");
     for (int i = 0; i < no_signals; ++i) 
     {
         if (kill(catcher_pid, SIG1) < 0) 
@@ -147,7 +144,6 @@ void killmode(pid_t catcher_pid, sigset_t * mask)
         exit(errnum);
     }
 
-    printf("waiting for return signals\n");
     /* waiting for signals, SIG2 terminates process */
     while (true) 
         sigsuspend(mask);
@@ -171,7 +167,8 @@ void sigqueuemode(pid_t catcher_pid, sigset_t * mask)
     
     struct sigaction action_sig1, action_sig2;
     action_sig1.sa_handler = handle_sig1;
-    action_sig2.sa_handler = handle_sig2_sigqueue; 
+    action_sig2.sa_sigaction = handle_sig2_sigqueue; 
+    action_sig2.sa_flags = SA_SIGINFO;
 
     if (sigemptyset(&action_sig1.sa_mask) < 0 || sigemptyset(&action_sig2.sa_mask) < 0)
     {
@@ -210,8 +207,14 @@ void sigqueuemode(pid_t catcher_pid, sigset_t * mask)
         sigsuspend(mask);
 }
 
-void handle_sig2_sigqueue(int signo) 
+void handle_sig2_sigqueue(int signo, siginfo_t * info, void * ucontext)
 {
-    printf("sender received SIG2(%d). %d/%d SIG1(%d) signals were fetched back (%.2lf)%%\n", signo, no_received_signals, no_signals, SIG1, (double)(no_received_signals) / no_signals * 100);
+    printf("sender received SIG2(%d). %d/%d SIG1(%d) signals were fetched back (%.2lf)%%. Catcher confirmed %d signals.\n", 
+        signo, 
+        no_received_signals, 
+        no_signals, 
+        SIG1, 
+        (double)(no_received_signals) / no_signals * 100, 
+        info->si_int);
     exit(EXIT_SUCCESS);
 }

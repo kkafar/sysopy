@@ -45,6 +45,7 @@ int main(int argc, char * argv[])
 
     action_sig1.sa_sigaction = handle_sig1;
 
+    /* setting masks && signals handlers */
     if (strcmp("KILL", argv[1]) == 0) 
     {
         if (sigdelset(&mask, SIGNAL1) < 0 || sigdelset(&mask, SIGNAL2) < 0)
@@ -152,7 +153,30 @@ void handle_sig2_kill(int signo, siginfo_t * info, void * ucontext)
 
 void handle_sig2_sigqueue(int signo, siginfo_t * info, void * ucontext)
 {
+    pid_t ppid = info->si_pid;
+    int signals_received = no_signals_received;
+    union sigval value;
 
+    for (int i = 0; i < signals_received; ++i) 
+    {
+        value.sival_int = i+1;
+        if (sigqueue(ppid, SIGNAL1, value) < 0)
+        {
+            int errnum = errno;
+            perror("sigqueue");
+            exit(errnum);
+        }
+    }
+
+    if (sigqueue(ppid, SIGNAL2, value) < 0)
+    {
+        int errnum = errno;
+        perror("sigqueue");
+        exit(errnum);
+    }
+
+    printf("catcher received %d SIG1(%d) signals\n", signals_received, signo);
+    exit(EXIT_SUCCESS);
 }
 
 void handle_sig2_sigrt(int signo, siginfo_t * info, void * ucontext)
