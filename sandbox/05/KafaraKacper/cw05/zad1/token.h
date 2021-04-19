@@ -14,19 +14,25 @@ struct Command
 typedef
 struct CommandChain
 {
+    char * name;
     int command_count; 
+    int guard;
     Command * commands;
 }   CommandChain;
 
 
 Command * cmd_create(const char cmd[], int argc, char * args[]);
 
+int cmd_init(Command * command, const char cmdname[], int argc, char * args[]);
+
+void cmd_clean(Command * command);
+
 void cmd_delete(Command * command);
 
+CommandChain * cmdch_create(const char name[], int command_count);
 
-// CommandChain * cmdch_create(const)
+// void cmdch_insert()
 
+void cmdch_delete(CommandChain * cmdch);
 
-
-
-#endif __TOKEN_H__
+#endif

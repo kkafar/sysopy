@@ -8,7 +8,15 @@ LFLAGS := -O2 -Wall
 all: main
 
 
-main: main.o
+main: main.o parser.o token.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^
+
+
+parser: parser.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $<
+
+
+token: token.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $<
 
 
@@ -21,3 +29,7 @@ clean:
 
 clean_all:
 	rm -v *.o main 
+
+
+valtest: main
+	valgrind --leak-check=full --show-leak-kinds=all ./main

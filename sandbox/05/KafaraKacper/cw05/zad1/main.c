@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
+#include "token.h"
+#include "parser.h"
 
 
 #define MAX_LINE_LEN 4096
@@ -15,13 +17,13 @@ size_t remove_trailing_newline(char str[]);
 
 int main(int argc, char * argv[]) 
 {
-    if (argc != 2) err("bad arg count", __FILE__, __LINE__);
+    // if (argc != 2) err("bad arg count", __FILE__, __LINE__);
 
-    FILE * commands_file;
+    // FILE * commands_file;
 
-    if (( commands_file = fopen(argv[1], "r") ) == NULL) syserr(NULL, __FILE__, __LINE__);
+    // if (( commands_file = fopen(argv[1], "r") ) == NULL) syserr(NULL, __FILE__, __LINE__);
 
-
+    
     exit(EXIT_SUCCESS);
 }
 
