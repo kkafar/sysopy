@@ -1,3 +1,12 @@
+/** 
+ * Assumptions:
+ * 
+ * All tokens are separated by single space.
+ * There is no empty definition.
+ * All lines are ended with newline character
+ */
+
+
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
@@ -23,7 +32,7 @@ int main(int argc, char * argv[])
 
     // if (( commands_file = fopen(argv[1], "r") ) == NULL) syserr(NULL, __FILE__, __LINE__);
 
-    
+
     exit(EXIT_SUCCESS);
 }
 
