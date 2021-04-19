@@ -101,7 +101,7 @@ int main(int argc, char * argv[]) {
             sleep(2);
             printf("sending sigstop\n");
             kill(cpid, SIGSTOP); 
-            // sleep(2);
+            sleep(2);
             // printf("sending sigcont\n");
             // kill(cpid, SIGCONT);
         }
