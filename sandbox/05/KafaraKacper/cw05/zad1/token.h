@@ -39,5 +39,4 @@ void cmd_print(Command * command);
 
 void cmdch_print(CommandChain * command_chain);
 
-
 #endif

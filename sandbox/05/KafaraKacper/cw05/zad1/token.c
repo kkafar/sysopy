@@ -158,15 +158,15 @@ void cmdch_delete(CommandChain * command_chain)
 
 void cmd_print(Command * command)
 {
-    printf("%s ", command->cmd);
+    printf("cmd name(%d): %s ", command->arg_count,command->cmd);
     for (int i = 0; i < command->arg_count; ++i) 
-        printf("%s ", command->args[i]);
+        printf("%s(%ld) ", command->args[i], strlen(command->args[i]));
     printf("\n");
 }
 
 void cmdch_print(CommandChain * command_chain) 
 {
-    printf("%s ", command_chain->name);
+    printf("ins. name: %s, commands: %d\n", command_chain->name, command_chain->command_count);
     for (int i = 0; i < command_chain->command_count; ++i) 
         cmd_print(command_chain->commands + i);
 }

@@ -8,7 +8,7 @@ LFLAGS := -O2 -Wall
 all: main
 
 
-main: main.o parser.o token.o util.o
+main: main.o parser.o token.o util.o tokenlist.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^
 
 

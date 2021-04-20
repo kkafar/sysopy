@@ -17,14 +17,14 @@ CommandChain * parse_instruction(const char line[])
         if (line[i] == '|') ++command_count;
 
     int token_end = get_instruction_name(line, 0, line_length, buf);
-    int token_start = token_end + 4;
+    int token_start = skip_whitespace(line, token_end, line_length);
 
     CommandChain * command_chain = cmdch_create(buf, command_count);
 
     for (int i = 0; i < command_count; ++i) 
     {
         token_end = get_command(command_chain->commands + i, line, token_start, line_length);
-        token_start = token_end + 4;
+        token_start = skip_whitespace(line, token_end, line_length);
     }
     return command_chain;
 }
@@ -82,7 +82,6 @@ int get_command(Command * command, const char line[], int token_start, int line_
         if (line[i] == ' ') ++arg_count;
         ++i;
     }
-    ++arg_count;
 
     char buf[BUFSIZE];
 
@@ -105,7 +104,7 @@ int get_command(Command * command, const char line[], int token_start, int line_
         if (( token_end = get_argument(line, token_start, line_length, arguments[i]) ) < 0)
             return -1;
 
-        token_start = token_end + 2;
+        token_start = skip_whitespace(line, token_end, line_length);
     }
 
     if (cmd_init(command, command_name, arg_count, arguments) < 0) 
@@ -149,12 +148,63 @@ int get_argument(const char line[], int token_start, int line_length, char buf[]
 int skip_whitespace(const char line[], int start, int line_length) 
 {
     ++start;
-    while (start < line_length && line[start] == ' ' || line[start] == '|') 
+    while (start < line_length && ((line[start] == ' ') || line[start] == '=' || line[start] == '|')) 
         ++start;
 
     if (start >= line_length) 
     {
+        err_noexit("invalid call", __FILE__, __func__, __LINE__);
+        return -1;
+    }
+
+    return start;
+}
+
+CCList * parse_file(const char filepath[])
+{
+    if (!filepath) return NULL;
+
+    FILE * file;
+    if (( file = fopen(filepath, "r")) == NULL) return NULL;
+
+    char buf[MAX_LINE_LEN];
+    ParseMode parse_mode = INSTRUCTION;
+    CommandChain ** command_chain_arr;
+
+    while (fgets(buf, MAX_LINE_LEN - 1, file) != NULL)
+    {
+        if (buf[0] == '\n')
+        {
+            parse_mode = EXECUTABLE;
+            continue;
+        }
+
+        if (parse_mode == INSTRUCTION)
+        {
+            remove_trailing_newline(buf);
+            parse_instruction(buf);
+        }
+        else
+        {
+
+        }
 
     }
 
+
+    fclose(file);
+
+}
+
+size_t remove_trailing_newline(char str[])
+{
+    if (!str) return -1;
+
+    size_t str_length = strlen(str);
+    if (str[str_length - 1] == '\n') 
+    {
+        str[str_length - 1] = 0;
+        return str_length - 1;
+    }
+    return str_length;
 }
