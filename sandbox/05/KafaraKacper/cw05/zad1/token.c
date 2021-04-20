@@ -24,7 +24,8 @@ Command * cmd_create(const char cmd[], int argc, char * args[])
 
     strcpy(command->cmd, cmd);
     command->arg_count = argc;
-    command->args = (char **) calloc(argc, sizeof(char *));
+    /* 0-th arg is a cmdname, argc+1 is a NULL */
+    command->args = (char **) calloc(argc + 2, sizeof(char *));
 
     if (!command->args)
     {
@@ -37,9 +38,11 @@ Command * cmd_create(const char cmd[], int argc, char * args[])
     for (int i = 0; i < argc; ++i) 
     {
         arg_len = strlen(args[i]);
-        command->args[i] = (char *) calloc(arg_len + 1, sizeof(char));
-        strcpy(command->args[i], args[i]);
+        command->args[i + 1] = (char *) calloc(arg_len + 1, sizeof(char));
+        strcpy(command->args[i + 1], args[i]);
     }
+    command->args[0] = (char *) calloc(cmd_len + 1, sizeof(char)); 
+    strcpy(command->args[0], cmd);
 
     return command;
 }
@@ -64,7 +67,7 @@ int cmd_init(Command * command, const char cmdname[], int argc, char * args[])
 
     if (args && argc > 0)   
     {
-        command->args = (char **) calloc(argc, sizeof(char *));
+        command->args = (char **) calloc(argc + 2, sizeof(char *));
         if (!command->args)
         {
             free(command->cmd);
@@ -72,11 +75,13 @@ int cmd_init(Command * command, const char cmdname[], int argc, char * args[])
             return -1;
         }
         int arg_len;
+        command->args[0] = (char *) calloc(cmd_len + 1, sizeof(char));
+        strcpy(command->args[0], cmdname);
         for (int i = 0; i < argc; ++i) 
         {
             arg_len = strlen(args[i]);
-            command->args[i] = (char *) calloc(arg_len + 1, sizeof(char));
-            strcpy(command->args[i], args[i]);
+            command->args[i + 1] = (char *) calloc(arg_len + 1, sizeof(char));
+            strcpy(command->args[i + 1], args[i]);
         }
     }
     else    
@@ -168,7 +173,7 @@ void cmd_print(Command * command)
         printf("no args\n");
         return;
     }
-    for (int i = 0; i < command->arg_count; ++i) 
+    for (int i = 1; i <= command->arg_count; ++i) 
         printf("%s(%ld) ", command->args[i], strlen(command->args[i]));
     printf("\n");
 }
