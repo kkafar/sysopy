@@ -1,0 +1,1 @@
+instruction1 = prog1 arg1 arg2 | prog2 arg1 arg2

@@ -14,7 +14,7 @@
 #include <limits.h>
 #include "token.h"
 #include "parser.h"
-
+#include "util.h"
 
 #define MAX_LINE_LEN 4096
 
@@ -26,11 +26,23 @@ size_t remove_trailing_newline(char str[]);
 
 int main(int argc, char * argv[]) 
 {
-    // if (argc != 2) err("bad arg count", __FILE__, __LINE__);
+    if (argc != 2) err("bad arg count", __FILE__, __LINE__);
 
-    // FILE * commands_file;
+    FILE * commands_file;
 
-    // if (( commands_file = fopen(argv[1], "r") ) == NULL) syserr(NULL, __FILE__, __LINE__);
+    if (( commands_file = fopen(argv[1], "r") ) == NULL) syserr(NULL, __FILE__, __LINE__);
+
+    char buf[MAX_LINE_LEN];
+
+    fgets(buf, MAX_LINE_LEN - 1, commands_file);
+
+    CommandChain * command_chain = parse_instruction(buf);
+
+    cmdch_print(command_chain);
+
+    cmdch_delete(command_chain);
+
+    fclose(commands_file);
 
 
     exit(EXIT_SUCCESS);
@@ -52,23 +64,3 @@ size_t remove_trailing_newline(char str[])
     return str_length;
 }
 
-
-void syserr(const char errmsg[], const char file[], int line)
-{
-    int errnum = errno;
-    if (!errmsg)            errmsg = "";
-    if (!file)              file = "";
-    if (line < 0)           line = -1;
-    fprintf(stderr, "%s: %d: %s. %s\n", file, line, strerror(errnum), errmsg);
-    exit(errnum);
-}
-
-
-void err(const char errmsg[], const char file[], int line) 
-{
-    if (!errmsg)            errmsg = "empty error message";
-    if (!file)              file = "";
-    if (line < 0)           line = -1;
-    fprintf(stderr, "%s: %d: %s\n", file, line, errmsg);
-    exit(EXIT_FAILURE);
-}

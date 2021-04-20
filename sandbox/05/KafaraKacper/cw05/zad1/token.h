@@ -35,4 +35,9 @@ CommandChain * cmdch_create(const char name[], int command_count);
 
 void cmdch_delete(CommandChain * cmdch);
 
+void cmd_print(Command * command);
+
+void cmdch_print(CommandChain * command_chain);
+
+
 #endif
