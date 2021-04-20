@@ -7,7 +7,7 @@
 CommandChain * parse_instruction(const char line[])
 {
     if (!line) return NULL;
-
+    printf("parsing line: %s\n", line);
 
     char buf[BUFSIZE];        
     int command_count = 1;
@@ -30,11 +30,57 @@ CommandChain * parse_instruction(const char line[])
 }
 
 
-char * strncpy_nulled(char * dest, const char * src, size_t n)
+CommandChain * parse_exec_line(const char line[])
 {
-    strncpy(dest, src, n);
-    dest[n] = 0;
-    return dest;
+    if (!line) return NULL;
+    char buf[BUFSIZ];
+    int exec_count = 1;
+    int line_length = strlen(line);
+    for (int i = 0; i < line_length; ++i) 
+        if (line[i] == '|') ++exec_count;
+
+    int token_end, token_start = 0;
+    CommandChain * command_chain = cmdch_create("EXEC", exec_count);
+    
+    for (int i = 0; i < exec_count; ++i)
+    {
+        token_end = get_next_token(line, token_start, line_length, buf);
+        token_start = skip_whitespace(line, token_end, line_length);
+        cmd_init(command_chain->commands + i, buf, 0, NULL);
+    }
+    return command_chain;
+}
+
+int get_next_token(const char line[], int token_start, int line_length, char * buf)
+{
+    if (!line || token_start < 0 || token_start >= line_length)
+    {
+        err_noexit("invalid arguments", __FILE__, __func__, __LINE__);
+        return -1;
+    }
+
+    int i = token_start, token_end = -1, bufi = -1;
+    while (i < line_length && (line[i] == ' ' || line[i] == '|' || line[i] == '='))
+        ++i;
+
+    if (i >= line_length) 
+    {
+        err_noexit("invalid call", __FILE__, __func__, __LINE__);
+        return -1;
+    }
+
+    while (i < line_length)
+    {
+        if (line[i] == ' ')
+        {
+            token_end = i - 1;                
+            break;
+        }
+        buf[++bufi] = line[i++];
+    }
+    if (i == line_length) token_end = i - 1;
+    buf[bufi + 1] = 0;
+    return token_end;
 }
 
 
@@ -67,6 +113,7 @@ int get_instruction_name(const char line[], int token_start, int line_length, ch
 }
 
 
+
 int get_command(Command * command, const char line[], int token_start, int line_length)
 {
     if (!line || token_start < 0 || token_start >= line_length || !command)
@@ -82,6 +129,7 @@ int get_command(Command * command, const char line[], int token_start, int line_
         if (line[i] == ' ') ++arg_count;
         ++i;
     }
+    if (i == line_length) ++arg_count;
 
     char buf[BUFSIZE];
 
@@ -152,15 +200,12 @@ int skip_whitespace(const char line[], int start, int line_length)
         ++start;
 
     if (start >= line_length) 
-    {
-        err_noexit("invalid call", __FILE__, __func__, __LINE__);
         return -1;
-    }
 
     return start;
 }
 
-CCList * parse_file(const char filepath[])
+FileContent * parse_file(const char filepath[])
 {
     if (!filepath) return NULL;
 
@@ -169,7 +214,22 @@ CCList * parse_file(const char filepath[])
 
     char buf[MAX_LINE_LEN];
     ParseMode parse_mode = INSTRUCTION;
-    CommandChain ** command_chain_arr;
+
+    FileContent * file_content = (FileContent *) malloc(sizeof(FileContent));
+    if ((file_content->command_list = cclist_create()) == NULL) 
+    {
+        free(file_content);
+        fclose(file);
+        return NULL;
+    }
+    if ((file_content->exec_list = cclist_create()) == NULL)
+    {
+        cclist_delete(file_content->command_list);
+        free(file_content);
+        fclose(file);
+        return NULL;
+    }
+
 
     while (fgets(buf, MAX_LINE_LEN - 1, file) != NULL)
     {
@@ -182,18 +242,17 @@ CCList * parse_file(const char filepath[])
         if (parse_mode == INSTRUCTION)
         {
             remove_trailing_newline(buf);
-            parse_instruction(buf);
+            cclist_push_back(file_content->command_list, parse_instruction(buf));
         }
         else
         {
-
+            remove_trailing_newline(buf);
+            cclist_push_back(file_content->exec_list, parse_exec_line(buf));
         }
 
     }
-
-
     fclose(file);
-
+    return file_content;
 }
 
 size_t remove_trailing_newline(char str[])
@@ -208,3 +267,39 @@ size_t remove_trailing_newline(char str[])
     }
     return str_length;
 }
+
+
+FileContent * fc_create()
+{
+    FileContent * file_content;
+    if ((file_content = (FileContent *) malloc(sizeof(FileContent))) == NULL) return NULL;
+    if ((file_content->command_list = cclist_create()) == NULL) 
+    {
+        free(file_content);
+        return NULL;
+    }
+    if ((file_content->exec_list = cclist_create()) == NULL)
+    {
+        cclist_delete(file_content->command_list);
+        free(file_content);
+        return NULL;
+    }
+    return file_content;
+}
+
+
+void fc_delete(FileContent * file_content)
+{
+    if (!file_content) return;
+    cclist_delete(file_content->command_list);
+    cclist_delete(file_content->exec_list);
+    free(file_content);    
+}
+
+void fc_print(FileContent * file_content)
+{
+    if (!file_content) return;
+    cclist_print(file_content->command_list);
+    cclist_print(file_content->exec_list);
+}
+

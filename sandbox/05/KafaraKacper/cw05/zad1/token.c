@@ -46,7 +46,7 @@ Command * cmd_create(const char cmd[], int argc, char * args[])
 
 int cmd_init(Command * command, const char cmdname[], int argc, char * args[])
 {
-    if (!command || argc < 0 || !args || !cmdname) return -2;
+    if (!command || argc < 0 || !cmdname) return -2;
 
     int cmd_len = strlen(cmdname);
 
@@ -61,22 +61,26 @@ int cmd_init(Command * command, const char cmdname[], int argc, char * args[])
 
     strcpy(command->cmd, cmdname);
     command->arg_count = argc;
-    command->args = (char **) calloc(argc, sizeof(char *));
 
-    if (!command->args)
+    if (args && argc > 0)   
     {
-        free(command->cmd);
-        free(command);
-        return -1;
+        command->args = (char **) calloc(argc, sizeof(char *));
+        if (!command->args)
+        {
+            free(command->cmd);
+            free(command);
+            return -1;
+        }
+        int arg_len;
+        for (int i = 0; i < argc; ++i) 
+        {
+            arg_len = strlen(args[i]);
+            command->args[i] = (char *) calloc(arg_len + 1, sizeof(char));
+            strcpy(command->args[i], args[i]);
+        }
     }
-
-    int arg_len;
-    for (int i = 0; i < argc; ++i) 
-    {
-        arg_len = strlen(args[i]);
-        command->args[i] = (char *) calloc(arg_len + 1, sizeof(char));
-        strcpy(command->args[i], args[i]);
-    }
+    else    
+        command->args = NULL;
 
     return 0;
 }
@@ -159,6 +163,11 @@ void cmdch_delete(CommandChain * command_chain)
 void cmd_print(Command * command)
 {
     printf("cmd name(%d): %s ", command->arg_count,command->cmd);
+    if (!command->args) 
+    {
+        printf("no args\n");
+        return;
+    }
     for (int i = 0; i < command->arg_count; ++i) 
         printf("%s(%ld) ", command->args[i], strlen(command->args[i]));
     printf("\n");

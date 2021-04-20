@@ -1,2 +1,6 @@
-instruction1 = prog1 arg1 arg2 | prog2 arg1 arg2 | prog3 arg1 arg2 arg3
+instruction1 = prog1 arg1 arg2 | prog2 arg1 arg2 | prog3 arg1 arg2 arg3 arg4 arg5
 instruction2 = prog4 arg1 | prog5 arg1 arg2 arg3 arg4
+ins3 = omg xd xd xd
+
+instruction1 | instruction2
+instruction2 | instruction1
