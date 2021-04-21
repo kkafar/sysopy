@@ -27,16 +27,13 @@ int main(int argc, char * argv[])
 {
     if (argc != 2) err("bad arg count", __FILE__, __func__, __LINE__);
 
-    FileContent * file_content = parse_file(argv[1]);
+    FileContent * file_content;
+    if ((file_content = parse_file(argv[1])) == NULL) err("Failed to parse file", __FILE__, __func__, __LINE__);
 
-
-      
+    
 
     fc_print(file_content);
-
-
-
-    fc_delete(file_content);
+    fc_delete(file_content); 
     exit(EXIT_SUCCESS);
 }
 
