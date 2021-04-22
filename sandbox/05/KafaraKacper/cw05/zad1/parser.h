@@ -1,9 +1,10 @@
 #ifndef __PARSER_H__
 #define __PARSER_H__
 
+#include <stdlib.h>
 #include "token.h"
 #include "tokenlist.h"
-#include <stdlib.h>
+
 
 
 #define BUFSIZE 255

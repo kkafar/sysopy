@@ -1,6 +1,6 @@
-#include "tokenlist.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "tokenlist.h"
 
 
 CCList * cclist_create()
@@ -24,6 +24,7 @@ int cclist_init(CCList * list)
     list->tail->prev = list->head;
     list->head->prev = list->tail->next = NULL;
     list->head->command_chain = list->tail->command_chain = NULL;
+    list->size = 0;
     return 0;
 }
 
@@ -56,6 +57,7 @@ void cclist_push_back(CCList * list, CommandChain * command_chain)
     new_node->prev = list->tail->prev;
     list->tail->prev->next = new_node;
     list->tail->prev = new_node;
+    ++(list->size);
 }
 
 

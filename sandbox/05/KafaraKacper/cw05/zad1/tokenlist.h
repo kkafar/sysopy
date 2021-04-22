@@ -12,6 +12,7 @@ typedef struct CommandChainListNode
 typedef struct CommandChainList
 {
     CCListNode * head, * tail;
+    size_t size;
 }   CCList;
 
 CCList * cclist_create();

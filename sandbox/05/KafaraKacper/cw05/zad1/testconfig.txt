@@ -1,6 +1,4 @@
-instruction1 = prog1 arg1 arg2 | prog2 arg1 arg2 | prog3 arg1 arg2 arg3 arg4 arg5
-instruction2 = prog4 arg1 | prog5 arg1 arg2 arg3 arg4
-ins3 = omg xd xd xd
+echoforme = echo 1234 | echo 12355555 | echo XD
+echoforme2 = echo 1234 | echo 2456 | echo 111
 
-instruction1 | instruction2 | instruction3
-instruction2 | instruction1
+echoforme | echoforme2

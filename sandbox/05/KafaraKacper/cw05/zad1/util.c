@@ -27,6 +27,8 @@ void err(const char errmsg[], const char file[], const char func[], int line)
     exit(EXIT_FAILURE);
 }
 
+
+
 void syserr_noexit(const char errmsg[], const char file[], const char func[], int line)
 {
     int errnum = errno;
