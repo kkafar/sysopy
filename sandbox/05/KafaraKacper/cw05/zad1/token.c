@@ -63,7 +63,7 @@ int cmd_init(Command * command, const char cmdname[], int argc, char * args[])
     }
 
     strcpy(command->cmd, cmdname);
-    command->arg_count = argc;
+    command->arg_count = argc; 
 
     if (args && argc > 0)   
     {
@@ -101,7 +101,7 @@ void cmd_delete(Command * command)
     free(command->args);
     free(command->cmd);
     free(command);
-    command = NULL;
+    // command = NULL;
 }
 
 

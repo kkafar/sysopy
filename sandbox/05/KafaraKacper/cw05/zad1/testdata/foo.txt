@@ -1,0 +1,3 @@
+Pierwsza linia foo
+Drugia linia foo
+trzecia linia foo

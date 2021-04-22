@@ -50,14 +50,21 @@ int main(int argc, char * argv[])
         {
             if ((instruction = find_instruction(file_content, iterator->command_chain->commands[i].cmd)) == NULL)
                 err("invalid instruction", __FILE__, __func__, __LINE__);
-            if (i == 0)
+            if (command_count == 1)
+                execute_command_chain(instruction, -1, -1);
+            else if (i == 0)
                 execute_command_chain(instruction, -1, pipes[0][1]);
             else if (i < command_count - 1)
                 execute_command_chain(instruction, pipes[i - 1][0], pipes[i][1]);
             else 
                 execute_command_chain(instruction, pipes[i - 1][0], -1);
         }
-        // for (int i = 0; i < command_count - 1; ++i)
+        
+        for (int i = 0; i < command_count - 1; ++i)
+        {
+            close(pipes[i][0]);
+            close(pipes[i][1]);
+        }
         while (waitpid(-1, NULL, 0) != -1);
         iterator = iterator->next;
     }
@@ -111,7 +118,16 @@ int * execute_command_chain(CommandChain * command_chain, int input_fd, int outp
         if (( cpid = fork() ) < 0) syserr("fork", __FILE__, __func__, __LINE__);
         else if (cpid == 0)
         {
-            if (i == 0)
+            if (command_chain->command_count == 1)
+            {
+                if (input_fd >= 0)
+                    if (dup2(input_fd, STDIN_FILENO) < 0) syserr("dup2", __FILE__, __func__, __LINE__);
+                if (output_fd >= 0)
+                    if (dup2(output_fd, STDOUT_FILENO) < 0) syserr("dup2", __FILE__, __func__, __LINE__);
+                execvp(command_chain->commands[i].cmd, command_chain->commands[i].args);
+                syserr("execvp", __FILE__, __func__, __LINE__);
+            }
+            else if (i == 0) /* first command */
             {
                 if (input_fd >= 0)
                     if (dup2(input_fd, STDIN_FILENO) < 0) syserr("dup2", __FILE__, __func__, __LINE__);
@@ -130,7 +146,7 @@ int * execute_command_chain(CommandChain * command_chain, int input_fd, int outp
                 execvp((command_chain->commands + i)->cmd, (command_chain->commands + i)->args);
                 syserr("execvp", __FILE__, __func__, __LINE__);
             }
-            else 
+            else /* last command */
             {
                 if (output_fd >= 0)
                     if (dup2(output_fd, STDOUT_FILENO) < 0) syserr("dup2", __FILE__, __func__, __LINE__);
@@ -142,5 +158,10 @@ int * execute_command_chain(CommandChain * command_chain, int input_fd, int outp
             }
         }
     }
-    return NULL; // co miałem zwracać? 
+    for (int i = 0; i < command_chain->command_count - 1; ++i)
+    {
+        close(pipes[i][0]);
+        close(pipes[i][1]);
+    }
+    return NULL;
 }

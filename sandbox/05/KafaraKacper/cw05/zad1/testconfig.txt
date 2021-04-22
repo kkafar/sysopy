@@ -1,4 +1,5 @@
-echoforme = echo 1234 | echo 12355555 | echo XD
-echoforme2 = echo 1234 | echo 2456 | echo 111
+foo = cat testdata/foo.txt | wc -l
+bar = cat testdata/bar.txt | wc -l
 
-echoforme | echoforme2
+foo
+bar
