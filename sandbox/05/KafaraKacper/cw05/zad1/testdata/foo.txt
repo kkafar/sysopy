@@ -1,3 +1,6 @@
 Pierwsza linia foo
 Drugia linia foo
 trzecia linia foo
+czwarta linia foo
+piata linia foo
+

@@ -1,5 +1,10 @@
 foo = cat testdata/foo.txt | wc -l
 bar = cat testdata/bar.txt | wc -l
+grepforme = echo "Ala ma kota" | grep Ala
+echo = echo "Ala ma kota"
+grepAla = grep Ala
 
 foo
 bar
+grepforme
+echo | grepAla

@@ -7,7 +7,7 @@
 CommandChain * parse_instruction(const char line[])
 {
     if (!line) return NULL;
-    printf("parsing line: %s\n", line);
+    printf("%s\n", line);
 
     char buf[BUFSIZE];        
     int command_count = 1;

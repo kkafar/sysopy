@@ -34,7 +34,7 @@ int main(int argc, char * argv[])
     FileContent * file_content;
     if ((file_content = parse_file(argv[1])) == NULL) err("failed to parse file", __FILE__, __func__, __LINE__);
 
-    fc_print(file_content);
+    // fc_print(file_content);
 
     CommandChain * instruction;
     CCListNode * iterator = file_content->exec_list->head->next;
@@ -50,6 +50,9 @@ int main(int argc, char * argv[])
         {
             if ((instruction = find_instruction(file_content, iterator->command_chain->commands[i].cmd)) == NULL)
                 err("invalid instruction", __FILE__, __func__, __LINE__);
+                
+            printf("Executing: %s\n", instruction->name);
+
             if (command_count == 1)
                 execute_command_chain(instruction, -1, -1);
             else if (i == 0)
