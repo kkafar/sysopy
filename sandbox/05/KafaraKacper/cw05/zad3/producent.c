@@ -13,39 +13,46 @@
 #define FIFO_PATH   1
 #define ROW_NUM     2
 #define FILE_PATH   3
-#define CHAR_NUM    5
+#define CHAR_NUM    4
 
 
 int main(int argc, char * argv[])
 {
-    if (argc != 5) err("bad arg count", __FILE__, __func__, __LINE__);
+    if (argc != 5) err("bad arg count; usage: ./producent fifo_path row_num file_path char_num", __FILE__, __func__, __LINE__);
+    printf("Hello world 1\n");
 
     srand(time(NULL));
 
-    int fd;
     FILE * file_fifo;
-    if ((fd = mkfifo(argv[FIFO_PATH], O_WRONLY)) < 0)   syserr("mkfifo", __FILE__, __func__, __LINE__);
-    if ((file_fifo = fdopen(fd, "w")) == NULL)          syserr("fdopen", __FILE__, __func__, __LINE__);
+    if ((file_fifo = fopen(argv[FIFO_PATH], "w")) == NULL)       syserr("fopen", __FILE__, __func__, __LINE__);
 
     FILE * file;
     if ((file = fopen(argv[FILE_PATH], "r")) == NULL)   syserr("fopen", __FILE__, __func__, __LINE__);
 
     long N = strtol(argv[CHAR_NUM], NULL, 10);
     if (N <= 0) err("invalid N value", __FILE__, __func__, __LINE__);
+
     long row_num_width = strlen(argv[ROW_NUM]);
-    char buf[N + 2], buf2[N + 2 + row_num_width];
+
+    char buf[N + 3], buf2[N + 2 + row_num_width];
+    buf[N] = 0;
 
     int bytes_read;
-    while ( (bytes_read = fread(buf, sizeof(char), N, file)) > 0)
+    while ( (bytes_read = fread(buf, sizeof(char), N, file) ) > 0)
     {   
-        buf[bytes_read] = 0;
+        printf("Read from file: %s\n", buf);
+        if (bytes_read < N)
+            for (int i = bytes_read; i < N; ++i) buf[i] = ' ';
+        
+        buf[N] = 0;
         strcpy(buf2, argv[ROW_NUM]);
         buf2[row_num_width] = ' ';
         buf2[row_num_width + 1] = 0;
         strcat(buf2, buf);
-        sleep(rand() % 3 + 1);
 
-        if (fwrite(buf2, sizeof(char), bytes_read, file_fifo) <= 0) err("fwrite", __FILE__, __func__, __LINE__);
+        sleep(rand() % 2 + 1);      /* sleep for one or two seconds */
+        fwrite(buf2, sizeof(char), strlen(buf2), stdout); printf(" -- %ld bytes\n", strlen(buf2));
+        if (fwrite(buf2, sizeof(char), strlen(buf2), file_fifo) <= 0) err("fwrite", __FILE__, __func__, __LINE__);
     }
     if (ferror(file)) err("fread", __FILE__, __func__, __LINE__);
 
