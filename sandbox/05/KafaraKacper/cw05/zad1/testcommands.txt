@@ -1,10 +1,13 @@
 foo = cat testdata/foo.txt | wc -l
 bar = cat testdata/bar.txt | wc -l
+passwd = cat /etc/passwd | wc -l
 grepforme = echo "Ala ma kota" | grep Ala
-echo = echo "Ala ma kota"
+echoAla = echo "Ala ma kota"
 grepAla = grep Ala
 
 foo
 bar
 grepforme
-echo | grepAla
+echoAla | grepAla
+echoAla | grepAla | grepAla | grepAla
+passwd

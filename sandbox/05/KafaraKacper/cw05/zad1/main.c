@@ -20,7 +20,6 @@
 #include "tokenlist.h"
 
 
-
 size_t remove_trailing_newline(char str[]);
 CommandChain * find_instruction(FileContent * file_content, char * instruction);
 size_t calculate_exec_size(CCList * exec_list);
@@ -33,8 +32,6 @@ int main(int argc, char * argv[])
 
     FileContent * file_content;
     if ((file_content = parse_file(argv[1])) == NULL) err("failed to parse file", __FILE__, __func__, __LINE__);
-
-    // fc_print(file_content);
 
     CommandChain * instruction;
     CCListNode * iterator = file_content->exec_list->head->next;
@@ -101,7 +98,6 @@ size_t calculate_exec_size(CCList * exec_list)
         size += iter->command_chain->command_count;
         iter = iter->next;
     }
-
     return size;
 }
 
@@ -124,43 +120,37 @@ int * execute_command_chain(CommandChain * command_chain, int input_fd, int outp
             if (command_chain->command_count == 1)
             {
                 if (input_fd >= 0)
-                    if (dup2(input_fd, STDIN_FILENO) < 0) syserr("dup2", __FILE__, __func__, __LINE__);
+                    if (dup2(input_fd, STDIN_FILENO) < 0)       syserr("dup2", __FILE__, __func__, __LINE__);
                 if (output_fd >= 0)
-                    if (dup2(output_fd, STDOUT_FILENO) < 0) syserr("dup2", __FILE__, __func__, __LINE__);
-                execvp(command_chain->commands[i].cmd, command_chain->commands[i].args);
-                syserr("execvp", __FILE__, __func__, __LINE__);
+                    if (dup2(output_fd, STDOUT_FILENO) < 0)     syserr("dup2", __FILE__, __func__, __LINE__);
             }
             else if (i == 0) /* first command */
             {
                 if (input_fd >= 0)
-                    if (dup2(input_fd, STDIN_FILENO) < 0) syserr("dup2", __FILE__, __func__, __LINE__);
-
-                close(pipes[0][0]);
-                if (dup2(pipes[0][1], STDOUT_FILENO) < 0) syserr("dup2", __FILE__, __func__, __LINE__);
-                execvp((command_chain->commands + i)->cmd, (command_chain->commands + i)->args);
-                syserr("execvp", __FILE__, __func__, __LINE__);
+                    if (dup2(input_fd, STDIN_FILENO) < 0)       syserr("dup2", __FILE__, __func__, __LINE__);
+                if (dup2(pipes[0][1], STDOUT_FILENO) < 0)       syserr("dup2", __FILE__, __func__, __LINE__);
             }
             else if (i < command_chain->command_count - 1)
             {
-                close(pipes[i - 1][1]);
-                close(pipes[i][0]);
-                if (dup2(pipes[i - 1][0], STDIN_FILENO) < 0) syserr("dup2", __FILE__, __func__, __LINE__);
-                if (dup2(pipes[i][1], STDOUT_FILENO) < 0) syserr("dup2", __FILE__, __func__, __LINE__);
-                execvp((command_chain->commands + i)->cmd, (command_chain->commands + i)->args);
-                syserr("execvp", __FILE__, __func__, __LINE__);
+                if (dup2(pipes[i - 1][0], STDIN_FILENO) < 0)    syserr("dup2", __FILE__, __func__, __LINE__);
+                if (dup2(pipes[i][1], STDOUT_FILENO) < 0)       syserr("dup2", __FILE__, __func__, __LINE__);
             }
             else /* last command */
             {
                 if (output_fd >= 0)
-                    if (dup2(output_fd, STDOUT_FILENO) < 0) syserr("dup2", __FILE__, __func__, __LINE__);
-
-                close(pipes[i - 1][1]);
-                if (dup2(pipes[i - 1][0], STDIN_FILENO) < 0) syserr("dup2", __FILE__, __func__, __LINE__);
-                execvp(command_chain->commands[i].cmd, command_chain->commands[i].args);
-                syserr("execvp", __FILE__, __func__, __LINE__);
+                    if (dup2(output_fd, STDOUT_FILENO) < 0)     syserr("dup2", __FILE__, __func__, __LINE__);
+                if (dup2(pipes[i - 1][0], STDIN_FILENO) < 0)    syserr("dup2", __FILE__, __func__, __LINE__);
             }
+            for (int i = 0; i < command_chain->command_count - 1; ++i)
+            {
+                close(pipes[i][0]);
+                close(pipes[i][1]);
+            }
+            execvp(command_chain->commands[i].cmd, command_chain->commands[i].args);
+            syserr("execvp", __FILE__, __func__, __LINE__);
         }
     }
+    close(input_fd); close(output_fd);
     for (int i = 0; i < command_chain->command_count - 1; ++i)
     {
         close(pipes[i][0]);
