@@ -1,0 +1,5 @@
+1. Dzialanie dla niezaleznych procesow
+
+Uruchomiono programy producenta i konsumenta w oddzielnych terminalach -- dzialanie programow bylo prawidlowe, tj. 
+dane przekazane przez producenta do pipe'a zostaly poprawnie odczytane i zapisane przez konsumenta.
+

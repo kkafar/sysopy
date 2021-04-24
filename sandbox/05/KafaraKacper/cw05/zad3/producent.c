@@ -19,12 +19,11 @@
 int main(int argc, char * argv[])
 {
     if (argc != 5) err("bad arg count; usage: ./producent fifo_path row_num file_path char_num", __FILE__, __func__, __LINE__);
-    printf("Hello world 1\n");
 
     srand(time(NULL));
 
     FILE * file_fifo;
-    if ((file_fifo = fopen(argv[FIFO_PATH], "w")) == NULL)       syserr("fopen", __FILE__, __func__, __LINE__);
+    if ((file_fifo = fopen(argv[FIFO_PATH], "w")) == NULL) syserr("fopen", __FILE__, __func__, __LINE__);
 
     FILE * file;
     if ((file = fopen(argv[FILE_PATH], "r")) == NULL)   syserr("fopen", __FILE__, __func__, __LINE__);
@@ -40,7 +39,7 @@ int main(int argc, char * argv[])
     int bytes_read;
     while ( (bytes_read = fread(buf, sizeof(char), N, file) ) > 0)
     {   
-        printf("Read from file: %s\n", buf);
+        printf("%s:id(%s): read from input file: %s\n", __FILE__, argv[ROW_NUM], buf);
         if (bytes_read < N)
             for (int i = bytes_read; i < N; ++i) buf[i] = ' ';
         
@@ -51,7 +50,7 @@ int main(int argc, char * argv[])
         strcat(buf2, buf);
 
         sleep(rand() % 2 + 1);      /* sleep for one or two seconds */
-        fwrite(buf2, sizeof(char), strlen(buf2), stdout); printf(" -- %ld bytes\n", strlen(buf2));
+        // fwrite(buf2, sizeof(char), strlen(buf2), stdout); printf(" -- %ld bytes\n", strlen(buf2));
         if (fwrite(buf2, sizeof(char), strlen(buf2), file_fifo) <= 0) err("fwrite", __FILE__, __func__, __LINE__);
     }
     if (ferror(file)) err("fread", __FILE__, __func__, __LINE__);

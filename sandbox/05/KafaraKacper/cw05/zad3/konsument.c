@@ -64,9 +64,8 @@ int main(int argc, char * argv[])
     while ((bytes_read = fread(buf, sizeof(char), N+2, file_fifo)) > 0)
     {
         wi = wi_alloc();
-        printf("Read from: %s, bytes: %d ", buf, bytes_read);
         if (parse(wi, buf, N + 10) < 0) err("parse error", __FILE__, __func__, __LINE__);
-        printf("Parsed: %s, wid: %d\n", buf, wi->id);
+        printf("%s: read from pipe: %s, from writer %d\n", __FILE__, buf, wi->id);
         fb_append(&fb, wi, buf);
         clear_buf(buf, N + 10);
         fflush(stdout);
@@ -78,7 +77,7 @@ int main(int argc, char * argv[])
     {
         if (fb.producer_buf[i] != NULL) 
         {
-            printf("saving for %d\n", i);
+            printf("%s: saving for writer %d\n", __FILE__, i);
             if (fwrite(strcat(fb.producer_buf[i], "\n"), sizeof(char), strlen(fb.producer_buf[i]) + 1, file) <= 0) 
                 err("fwrite", __FILE__, __func__, __LINE__);
         }
