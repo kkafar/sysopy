@@ -13,7 +13,7 @@
 #define FIFO_PATH   1
 #define FILE_PATH   2
 #define CHAR_NUM    3
-#define BUFSIZE     255
+#define BUFSIZE     8096
 // #define LINE_MAX    8096
 #define MAX_PROD    1000    /* maximum number of producers */
 
@@ -65,7 +65,7 @@ int main(int argc, char * argv[])
     {
         wi = wi_alloc();
         if (parse(wi, buf, N + 10) < 0) err("parse error", __FILE__, __func__, __LINE__);
-        printf("%s: read from pipe: %s, from writer %d\n", __FILE__, buf, wi->id);
+        // printf("%s: read from pipe: %s, from writer %d\n", __FILE__, buf, wi->id);
         fb_append(&fb, wi, buf);
         clear_buf(buf, N + 10);
         fflush(stdout);

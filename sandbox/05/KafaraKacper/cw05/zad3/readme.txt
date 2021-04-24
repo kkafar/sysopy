@@ -1,0 +1,1 @@
+1. Numeracja linii w plikach jest od 0

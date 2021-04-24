@@ -39,7 +39,7 @@ int main(int argc, char * argv[])
     int bytes_read;
     while ( (bytes_read = fread(buf, sizeof(char), N, file) ) > 0)
     {   
-        printf("%s:id(%s): read from input file: %s\n", __FILE__, argv[ROW_NUM], buf);
+        // printf("%s:id(%s): read from input file: %s\n", __FILE__, argv[ROW_NUM], buf);
         if (bytes_read < N)
             for (int i = bytes_read; i < N; ++i) buf[i] = ' ';
         
