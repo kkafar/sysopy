@@ -8,7 +8,7 @@ LFLAGS := -O2 -Wall
 all: main
 
 
-main: main.o parser.o token.o util.o tokenlist.o
+main: main.o util.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^
 
 
@@ -23,8 +23,6 @@ main: main.o parser.o token.o util.o tokenlist.o
 %.o: %.c 
 	$(CC) $(CPPFLAGS) $(LFLAGS) -c -o $@ $<
 
-test: all
-	./main testcommands.txt
 
 clean: 
 	rm -v *.o 
@@ -34,4 +32,4 @@ clean_all:
 
 
 valtest: main
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes  ./main testconfig.txt
+	valgrind --leak-check=full --show-leak-kinds=all ./main 

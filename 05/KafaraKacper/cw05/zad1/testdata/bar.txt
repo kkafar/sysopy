@@ -1,0 +1,4 @@
+Pierwsza linia bar
+Druga linia bar
+Trzecia linia bar
+Czwarta linia bar
