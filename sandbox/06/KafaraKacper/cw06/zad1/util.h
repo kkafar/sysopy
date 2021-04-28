@@ -52,6 +52,4 @@ void syserr_noexit(const char errmsg[], const char file[], const char func[], in
  *         -1 indicates that buf==NULL || size <= 0
  */
 int clearbuf(char buf[], size_t size);
-
-
 #endif

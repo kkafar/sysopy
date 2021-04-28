@@ -47,6 +47,8 @@ void err_noexit(const char errmsg[], const char file[], const char func[], int l
     fprintf(stderr, "%s:%s:%d: %s\n", file, func, line, errmsg);
 }
 
+
+
 int clearbuf(char buf[], size_t size)
 {
     if (!buf || size <= 0) return -1;
