@@ -160,6 +160,7 @@ void handle_sigint(int signo)
         }
     }
     ssize_t msg_size;
+    // printf("client count %d\n", CLIENT_LIST->client_count);
     while (CLIENT_LIST->client_count > 0)
     {
         if ((msg_size = msgrcv(SRVR_PUB_Q_ID, &msg, MAX_MSG_LEN, MT_STOP, 0)) < 0) syserr("msgrcv", __FILE__, __func__, __LINE__);

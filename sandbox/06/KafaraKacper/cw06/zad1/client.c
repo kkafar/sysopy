@@ -19,11 +19,12 @@
 int CLIENT_Q_ID = -1;
 pid_t CPID      = -1;
 int SRVR_Q_ID   = -1;
-// pid_t CPID2     = -1;
-bool CHATTING   = false;
 int CHAT_QUEUE_ID = -1;
+int CLIENT_ID      = -1;
+// pid_t CPID2     = -1;
+// bool CHATTING   = false;
 // long CHAT_CLIENT_Q_ID = -1;
-int CHATPIPE[2];
+// int CHATPIPE[2];
 
 
 
@@ -85,6 +86,7 @@ int main(int argc, char * argv[])
     long myid;
     if ((myid = strtol(msg.buf, NULL, 10)) < 0) err("invalid id returned from server", __FILE__, __func__, __LINE__);
     printf("id assigned by server: %s\n", msg.buf);
+    CLIENT_ID = myid;
     
 
     // fd_set readfd; 
@@ -100,24 +102,16 @@ int main(int argc, char * argv[])
     create_listener(pipefd, CLIENT_Q_ID, &CPID);
 
 
-    struct pollfd stdinfd[3];
+    struct pollfd stdinfd[2];
     stdinfd[0].fd = STDIN_FILENO;
     stdinfd[0].events = POLLIN;
     stdinfd[1].fd = pipefd[0];
     stdinfd[1].events = POLLIN;
-    // stdinfd[2].fd = -1;
-    // stdinfd[2].events = POLLIN;
     int event_count, len;
     ssize_t read_bytes;
 
     while (true)
     {
-        // if (CPID2 <= 0) stdinfd[2].fd = -1;
-        // else 
-        // {
-        //     stdinfd[2].fd = CHATPIPE[0];
-        // }
-
         if ((event_count = poll(stdinfd, 2, -1)) < 0) syserr("poll failed", __FILE__, __func__, __LINE__);
             
         if (stdinfd[0].revents & POLLIN) 
@@ -139,13 +133,6 @@ int main(int argc, char * argv[])
             // printf("child: %s\n", buf);
             handle_queue_input(buf, read_bytes, server_q_id, myid);
         }
-
-        // if (stdinfd[2].fd != -1 && stdinfd[2].revents & POLLIN)
-        // {
-        //     clearbuf(buf, MAX_MSG_LEN);
-        //     if ((read_bytes = read(CHATPIPE[0], buf, MAX_MSG_LEN)) < 0) syserr("read", __FILE__, __func__, __LINE__);
-        //     printf("chat: %s\n", buf);
-        // }
     }
 
     if (close(pipefd[0]) < 0) syserr("close", __FILE__, __func__, __LINE__);
@@ -176,7 +163,9 @@ void cleanup(void)
     if (CPID != 0)
     {
         Message msg;
-        set_message(&msg, MT_STOP, "STOP");
+        char idbuf[10]; clearbuf(idbuf, 10);
+        sprintf(idbuf, "%d", CLIENT_ID);
+        set_message(&msg, MT_STOP, idbuf);
         if (msgsnd(SRVR_Q_ID, &msg, 10, 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
         remove_queue();
     } 
@@ -285,11 +274,11 @@ int handle_queue_input(char * buf, size_t size, long serverqid, long myid)
         }
         case MT_STOP:
         {        
-            char idbuf[10]; clearbuf(idbuf, 10);
-            sprintf(idbuf, "%ld", myid);
-            Message msg;
-            set_message(&msg, MT_STOP, idbuf);
-            if (msgsnd(serverqid, &msg, 10, 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
+            // char idbuf[10]; clearbuf(idbuf, 10);
+            // sprintf(idbuf, "%ld", myid);
+            // Message msg;
+            // set_message(&msg, MT_STOP, idbuf);
+            // if (msgsnd(serverqid, &msg, 10, 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
             exit(EXIT_SUCCESS);
             break;
         }
