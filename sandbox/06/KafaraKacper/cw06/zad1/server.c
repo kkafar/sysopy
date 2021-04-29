@@ -21,6 +21,7 @@ typedef struct Client
 {
     long queue_id; 
     bool busy;
+    int converser;
 }   Client;
 
 int client_init(Client * client, long qid);
@@ -33,6 +34,8 @@ typedef struct ClientList
     int client_count;
     Client ** clients;
 }   ClientList;
+
+ClientList * CLIENT_LIST = NULL;
 
 int cl_init(ClientList * cl);
 int cl_add(ClientList * cl, long qid);
@@ -48,6 +51,7 @@ int handle_init(char * buf, size_t size, ClientList * cl);
 int handle_list(char * buf, size_t size, ClientList * cl);
 int handle_stop(char * buf, size_t size, ClientList * cl);
 int handle_connect(char * buf, size_t size, ClientList * cl);
+int handle_disconnect(char * buf, size_t size, ClientList * cl);
 
 
 
@@ -81,12 +85,13 @@ int main(int argc, char * argv[])
 
 
     ClientList client_list; cl_init(&client_list);
+    CLIENT_LIST = &client_list;
 
     Message msg;
     size_t msg_size;
     while (true)
     {
-        if ((msg_size = msgrcv(SRVR_PUB_Q_ID, &msg, MAX_MSG_LEN, 0, 0)) < 0) syserr("msgrcv", __FILE__, __func__, __LINE__);
+        if ((msg_size = msgrcv(SRVR_PUB_Q_ID, &msg, MAX_MSG_LEN, -MT_CHAT, 0)) < 0) syserr("msgrcv", __FILE__, __func__, __LINE__);
 
         switch(msg.type)
         {
@@ -110,15 +115,18 @@ int main(int argc, char * argv[])
                 handle_connect(msg.buf, msg_size, &client_list);
                 break;
             }
+            case MT_DISCONNECT:
+            {
+                handle_disconnect(msg.buf, msg_size, &client_list);
+                break;
+            }
             default:
             {
                 printf("DEFAULT IN SWITCH\n");
             }
 
         }
-
-
-        printf("Received message: %s\n", msg.buf);
+        printf("received message: %s\n", msg.buf);
     }
 
     // free(fdset);
@@ -142,6 +150,21 @@ void remove_queue(void)
 void handle_sigint(int signo)
 {
     if (signo != SIGINT) return;
+    Message msg;
+    for (int i = 0; i < MAX_CLIENTS; ++i)
+    {
+        if (CLIENT_LIST->clients[i] != NULL)
+        {
+            set_message(&msg, MT_STOP, "STOP");
+            if (msgsnd(CLIENT_LIST->clients[i]->queue_id, &msg, strlen(msg.buf), 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
+        }
+    }
+    ssize_t msg_size;
+    while (CLIENT_LIST->client_count > 0)
+    {
+        if ((msg_size = msgrcv(SRVR_PUB_Q_ID, &msg, MAX_MSG_LEN, MT_STOP, 0)) < 0) syserr("msgrcv", __FILE__, __func__, __LINE__);
+        handle_stop(msg.buf, msg_size, CLIENT_LIST);    
+    }
     exit(EXIT_SUCCESS);
 }
 
@@ -286,7 +309,8 @@ int handle_connect(char * buf, size_t size, ClientList * cl)
     }
     long client_id = strtol(token1, NULL, 10);
     long client2_id = strtol(token2, NULL, 10);
-    if (is_busy(cl, client2_id) || is_busy(cl, client_id)) 
+    printf("connecting: client1: %ld, client2: %ld\n", client_id, client2_id);
+    if (is_busy(cl, client2_id) || is_busy(cl, client_id) || client2_id == client_id) 
     {
         err_noexit("invalid id received from client or one of them is busy", __FILE__, __func__, __LINE__);
         return -1;
@@ -303,6 +327,7 @@ int handle_connect(char * buf, size_t size, ClientList * cl)
     }
     set_message(&msg, MT_CONNECT, buf16);
     if (msgsnd(cl->clients[client_id]->queue_id, &msg, strlen(msg.buf), 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
+    // printf("wyslano do zleceniodawcy %ld: %s\n", cl->clients[client_id]->queue_id, msg.buf);
 
     clearbuf(buf16, 16);
     if (sprintf(buf16, "%ld", cl->clients[client_id]->queue_id) < 0) 
@@ -312,9 +337,11 @@ int handle_connect(char * buf, size_t size, ClientList * cl)
     }
     set_message(&msg, MT_CONNECT, buf16);
     if (msgsnd(cl->clients[client2_id]->queue_id, &msg, strlen(msg.buf), 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
-
+    // printf("wyslano do drugiego %ld: %s\n", cl->clients[client2_id]->queue_id, msg.buf);
     cl->clients[client_id]->busy = true;
+    cl->clients[client_id]->converser = client2_id;
     cl->clients[client2_id]->busy = true;
+    cl->clients[client2_id]->converser = client_id;
     return 0;
 }
 
@@ -327,4 +354,28 @@ bool is_busy(ClientList * cl, long cid)
 {
     if (!cl || !is_valid_id(cl, cid)) return false;
     return cl->clients[cid]->busy;
+}
+
+
+int handle_disconnect(char * buf, size_t size, ClientList * cl)
+{
+    if (!buf || size <= 0 || !cl) return -1;
+
+    long client_id = strtol(strtok(buf, " "), NULL, 10);
+    if (!is_valid_id(cl, client_id)) 
+    {
+        err_noexit("invalid id received from client", __FILE__, __func__, __LINE__);
+        return -1;
+    }
+
+    Message msg; 
+    set_message(&msg, MT_DISCONNECT, "DISCONNECT");
+    int converser = cl->clients[client_id]->converser;
+    if (msgsnd(cl->clients[converser]->queue_id, &msg, strlen(msg.buf), 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
+    cl->clients[client_id]->busy = false;
+    cl->clients[client_id]->converser = -1;
+    cl->clients[converser]->busy = false;
+    cl->clients[converser]->converser = -1;
+    return 0;
+
 }

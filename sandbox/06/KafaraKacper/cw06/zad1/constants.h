@@ -3,11 +3,12 @@
 
 #define MAX_CLIENTS     50
 #define MAX_MSG_LEN     512
-#define MT_CONNECT      1
-#define MT_INIT         2
+#define MT_CONNECT      5
+#define MT_INIT         4
 #define MT_LIST         3
-#define MT_DISCONNECT   4
-#define MT_STOP         5
+#define MT_DISCONNECT   2
+#define MT_STOP         1
+#define MT_CHAT         6
 
 #define FTOK_ID1         15
 #define FTOK_ID2         1
