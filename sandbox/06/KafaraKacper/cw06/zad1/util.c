@@ -55,3 +55,4 @@ int clearbuf(char buf[], size_t size)
     for (int i = 0; i < size; ++i) buf[i] = 0;
     return 0;
 }
+

@@ -4,19 +4,26 @@
 #include <string.h>
 #include <signal.h>
 #include <sys/msg.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <sys/types.h>
+#include <stdbool.h>
 #include <sys/select.h>
+#include <poll.h>
+#include <wait.h>
 #include "util.h"
 #include "constants.h"
 
 
 int CLIENT_Q_ID = -1;
+pid_t CPID      = -1;
 
 
 void cleanup(void);
 void remove_queue(void);
 void handle_sigint(int signo);
-
+int handle_input(char * buf, size_t size, long serverqid, long myid);
 
 
 
@@ -59,11 +66,83 @@ int main(int argc, char * argv[])
     Message msg;
     set_message(&msg, MT_INIT, buf);
     if (msgsnd(server_q_id, &msg, strlen(msg.buf), 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
+    clearbuf(msg.buf, MAX_MSG_LEN);
 
+    /* odbieramy swoje id od serwera */
+    long msgsize;
+    if ((msgsize = msgrcv(CLIENT_Q_ID, &msg, MAX_MSG_LEN, 0, 0)) < 0) syserr("msgrcv failed", __FILE__, __func__, __LINE__);
+
+    long myid;
+    if ((myid = strtol(msg.buf, NULL, 10)) < 0) err("invalid id returned from server", __FILE__, __func__, __LINE__);
+    printf("received from server: %s\n", msg.buf);
     
 
+    // fd_set readfd; 
+    // /* klient nigdy nie bedzie mial kolejki o kluczu 0 (STDIN_FILENO), poniewaz jest startowany
+    // po serwerze ==> jezeli zaczynamy naliczac od poczatku to klucz 0 dostanie serwer */
+    // FD_SET(STDIN_FILENO, &readfd);
+    // FD_SET(CLIENT_Q_ID, &readfd);
 
 
+    /* forkujemy sie, dziecko odpowiada za odbior komunikatow od serwera */
+    int pipefd[2];
+    if (pipe(pipefd) < 0) syserr("pipe", __FILE__, __func__, __LINE__);
+
+    // pid_t cpid;
+    if ((CPID = fork()) < 0) syserr("fork", __FILE__, __func__, __LINE__);
+    else if (CPID == 0)
+    {
+        if (close(pipefd[0]) < 0) syserr("close", __FILE__, __func__, __LINE__);
+
+        ssize_t written_bytes;
+        while (true)
+        {
+            if ((msgsize = msgrcv(CLIENT_Q_ID, &msg, MAX_MSG_LEN, 0, 0)) < 0) syserr("msgrcv in child", __FILE__, __func__, __LINE__);
+            if ((written_bytes = write(pipefd[1], msg.buf, msgsize)) <= 0) err("write failed in child", __FILE__, __func__, __LINE__);
+            clearbuf(msg.buf, MAX_MSG_LEN);
+        }
+
+        
+        if (close(pipefd[1]) < 0) syserr("close", __FILE__, __func__, __LINE__);
+        exit(EXIT_SUCCESS);
+    }
+    if (close(pipefd[1]) < 0) syserr("close", __FILE__, __func__, __LINE__);
+
+
+    struct pollfd stdinfd[2];
+    stdinfd[0].fd = STDIN_FILENO;
+    stdinfd[0].events = POLLIN;
+    stdinfd[1].fd = pipefd[0];
+    stdinfd[1].events = POLLIN;
+    int event_count;
+    ssize_t read_bytes;
+
+    while (true)
+    {
+        if ((event_count = poll(stdinfd, 2, -1)) < 0) syserr("poll failed", __FILE__, __func__, __LINE__);
+            
+        if (stdinfd[0].revents & POLLIN) 
+        {
+            printf("STDIN POLLIN\n");
+            if (fscanf(stdin, "%s", buf) <= 0) err("invalid input", __FILE__, __func__, __LINE__);
+            printf("read from stdin: %s\n", buf);
+            handle_input(buf, strlen(buf), server_q_id, myid);
+            clearbuf(buf, MAX_MSG_LEN);
+        }
+        
+
+        if (stdinfd[1].revents & POLLIN)
+        {
+            printf("CHILDREN NOTIFIED\n");
+            if ((read_bytes = read(pipefd[0], buf, MAX_MSG_LEN)) < 0) syserr("read", __FILE__, __func__, __LINE__);
+            printf("read from child: %s\n", buf);
+            clearbuf(buf, MAX_MSG_LEN);
+        }
+    }
+
+
+
+    if (close(pipefd[0]) < 0) syserr("close", __FILE__, __func__, __LINE__);
     exit(EXIT_SUCCESS);
 }
 
@@ -84,5 +163,50 @@ void handle_sigint(int signo)
 
 void cleanup(void)
 {
-    remove_queue();
+    if (CPID > 0) 
+        if (kill(CPID, SIGINT) < 0) syserr_noexit("failed to kill child", __FILE__, __func__, __LINE__);
+    if (CPID != 0) 
+        remove_queue();
+}
+
+
+int handle_input(char * buf, size_t size, long serverqid, long myid)
+{
+    if (!buf || size == 0 || serverqid < 0) return -1;
+    char * token = strtok(buf, " ");
+    if (!token) return -1;
+
+    Message msg;
+    char idbuf[10]; clearbuf(idbuf, 10);
+    sprintf(idbuf, "%ld", myid);
+
+    if (strcmp(token, "LIST") == 0) 
+    {
+        set_message(&msg, MT_LIST, idbuf);
+        if (msgsnd(serverqid, &msg, 10, 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
+    }
+    else if (strcmp(token, "STOP") == 0)
+    {
+        set_message(&msg, MT_STOP, idbuf);
+        if (msgsnd(serverqid, &msg, 10, 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
+        exit(EXIT_SUCCESS);
+    }
+    else if (strcmp(token, "CONNECT") == 0)
+    {
+        strcat(idbuf, " "); 
+        if ((token = strtok(NULL, " ")) == NULL) 
+        {
+            err_noexit("expected id after CONNECT; no action", __FILE__, __func__, __LINE__);
+            return -1;
+        }
+        strcat(idbuf, token);
+        set_message(&msg, MT_CONNECT, idbuf);
+        if (msgsnd(serverqid, &msg, 10, 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
+    }
+    else 
+    {
+        printf("unrecognized\n");
+    }
+    return 0;
+
 }
