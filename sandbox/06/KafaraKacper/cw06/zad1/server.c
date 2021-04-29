@@ -105,6 +105,11 @@ int main(int argc, char * argv[])
                 handle_stop(msg.buf, msg_size, &client_list);
                 break;
             }
+            case MT_CONNECT:
+            {
+                handle_connect(msg.buf, msg_size, &client_list);
+                break;
+            }
             default:
             {
                 printf("DEFAULT IN SWITCH\n");
@@ -296,7 +301,7 @@ int handle_connect(char * buf, size_t size, ClientList * cl)
         err_noexit("failed to convert qid to string", __FILE__, __func__, __LINE__);
         return -1;
     }
-    set_message(&msg, MT_CONNECT, token1);
+    set_message(&msg, MT_CONNECT, buf16);
     if (msgsnd(cl->clients[client_id]->queue_id, &msg, strlen(msg.buf), 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
 
     clearbuf(buf16, 16);
@@ -305,7 +310,11 @@ int handle_connect(char * buf, size_t size, ClientList * cl)
         err_noexit("failed to convert qid to string", __FILE__, __func__, __LINE__);
         return -1;
     }
+    set_message(&msg, MT_CONNECT, buf16);
     if (msgsnd(cl->clients[client2_id]->queue_id, &msg, strlen(msg.buf), 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
+
+    cl->clients[client_id]->busy = true;
+    cl->clients[client2_id]->busy = true;
     return 0;
 }
 

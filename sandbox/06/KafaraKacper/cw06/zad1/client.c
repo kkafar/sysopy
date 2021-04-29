@@ -18,12 +18,16 @@
 
 int CLIENT_Q_ID = -1;
 pid_t CPID      = -1;
+pid_t CPID2     = -1;
+bool CHATTING   = false;
+int CHAT_QUEUE_ID = -1;
 
 
 void cleanup(void);
 void remove_queue(void);
 void handle_sigint(int signo);
 int handle_input(char * buf, size_t size, long serverqid, long myid);
+int create_listener(int pipefd[2], long qid, pid_t * cpid);
 
 
 
@@ -89,58 +93,65 @@ int main(int argc, char * argv[])
     if (pipe(pipefd) < 0) syserr("pipe", __FILE__, __func__, __LINE__);
 
     // pid_t cpid;
-    if ((CPID = fork()) < 0) syserr("fork", __FILE__, __func__, __LINE__);
-    else if (CPID == 0)
-    {
-        if (close(pipefd[0]) < 0) syserr("close", __FILE__, __func__, __LINE__);
+    // if ((CPID = fork()) < 0) syserr("fork", __FILE__, __func__, __LINE__);
+    // else if (CPID == 0   )
+    // {
+    //     if (close(pipefd[0]) < 0) syserr("close", __FILE__, __func__, __LINE__);
 
-        ssize_t written_bytes;
-        while (true)
-        {
-            if ((msgsize = msgrcv(CLIENT_Q_ID, &msg, MAX_MSG_LEN, 0, 0)) < 0) syserr("msgrcv in child", __FILE__, __func__, __LINE__);
-            if ((written_bytes = write(pipefd[1], msg.buf, msgsize)) <= 0) err("write failed in child", __FILE__, __func__, __LINE__);
-            clearbuf(msg.buf, MAX_MSG_LEN);
-        }
-
+    //     ssize_t written_bytes;
+    //     while (true)
+    //     {
+    //         if ((msgsize = msgrcv(CLIENT_Q_ID, &msg, MAX_MSG_LEN, 0, 0)) < 0) syserr("msgrcv in child", __FILE__, __func__, __LINE__);
+    //         if ((written_bytes = write(pipefd[1], msg.buf, msgsize)) <= 0) err("write failed in child", __FILE__, __func__, __LINE__);
+    //         clearbuf(msg.buf, MAX_MSG_LEN);
+    //     }
         
-        if (close(pipefd[1]) < 0) syserr("close", __FILE__, __func__, __LINE__);
-        exit(EXIT_SUCCESS);
-    }
-    if (close(pipefd[1]) < 0) syserr("close", __FILE__, __func__, __LINE__);
+    //     if (close(pipefd[1]) < 0) syserr("close", __FILE__, __func__, __LINE__);
+    //     exit(EXIT_SUCCESS);
+    // }
+    // if (close(pipefd[1]) < 0) syserr("close", __FILE__, __func__, __LINE__);
+    create_listener(pipefd, CLIENT_Q_ID, &CPID);
 
 
-    struct pollfd stdinfd[2];
+    struct pollfd stdinfd[3];
     stdinfd[0].fd = STDIN_FILENO;
     stdinfd[0].events = POLLIN;
     stdinfd[1].fd = pipefd[0];
     stdinfd[1].events = POLLIN;
-    int event_count;
+    stdinfd[2].fd = -1;
+    stdinfd[2].events = POLLIN;
+    int event_count, len;
     ssize_t read_bytes;
 
     while (true)
     {
+        if (CPID2 <= 0) stdinfd[2].fd = -1;
         if ((event_count = poll(stdinfd, 2, -1)) < 0) syserr("poll failed", __FILE__, __func__, __LINE__);
             
         if (stdinfd[0].revents & POLLIN) 
         {
-            printf("STDIN POLLIN\n");
-            if (fscanf(stdin, "%s", buf) <= 0) err("invalid input", __FILE__, __func__, __LINE__);
+            // printf("STDIN POLLIN\n");
+            if ((read_bytes = read(STDIN_FILENO, buf, MAX_MSG_LEN)) <= 0) err("invalid input", __FILE__, __func__, __LINE__);
+            len = strlen(buf);
+            if (buf[len-1] == '\n') buf[len-1] = 0;
             printf("read from stdin: %s\n", buf);
             handle_input(buf, strlen(buf), server_q_id, myid);
             clearbuf(buf, MAX_MSG_LEN);
         }
-        
 
         if (stdinfd[1].revents & POLLIN)
         {
-            printf("CHILDREN NOTIFIED\n");
+            // printf("CHILDREN NOTIFIED\n");
             if ((read_bytes = read(pipefd[0], buf, MAX_MSG_LEN)) < 0) syserr("read", __FILE__, __func__, __LINE__);
-            printf("read from child: %s\n", buf);
+            printf("child: %s\n", buf);
             clearbuf(buf, MAX_MSG_LEN);
         }
+
+        if (stdinfd[2].fd != -1 && stdinfd[2].revents & POLLIN)
+        {
+            printf("CHATTING\n");
+        }
     }
-
-
 
     if (close(pipefd[0]) < 0) syserr("close", __FILE__, __func__, __LINE__);
     exit(EXIT_SUCCESS);
@@ -165,6 +176,8 @@ void cleanup(void)
 {
     if (CPID > 0) 
         if (kill(CPID, SIGINT) < 0) syserr_noexit("failed to kill child", __FILE__, __func__, __LINE__);
+    if (CPID2 > 0)
+        if (kill(CPID2, SIGINT) < 0) syserr_noexit("failed to kill child", __FILE__, __func__, __LINE__);
     if (CPID != 0) 
         remove_queue();
 }
@@ -202,11 +215,44 @@ int handle_input(char * buf, size_t size, long serverqid, long myid)
         strcat(idbuf, token);
         set_message(&msg, MT_CONNECT, idbuf);
         if (msgsnd(serverqid, &msg, 10, 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
+
+        /* czekamy na odeslanie informacji z serwera */
+        int msgsize;
+        if ((msgsize = msgrcv(CLIENT_Q_ID, &msg, MAX_MSG_LEN, MT_CONNECT, 0)) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
+        create_listener()
+
     }
     else 
     {
         printf("unrecognized\n");
     }
+    return 0;
+
+}
+
+
+int create_listener(int pipefd[2], long qid, pid_t * cpid) 
+{
+    ssize_t msgsize;
+    Message msg; 
+    clearbuf(msg.buf, MAX_MSG_LEN);
+    if ((*cpid = fork()) < 0) syserr("fork", __FILE__, __func__, __LINE__);
+    else if (*cpid == 0)
+    {
+        if (close(pipefd[0]) < 0) syserr("close", __FILE__, __func__, __LINE__);
+
+        ssize_t written_bytes;
+        while (true)
+        {
+            if ((msgsize = msgrcv(qid, &msg, MAX_MSG_LEN, 0, 0)) < 0) syserr("msgrcv in child", __FILE__, __func__, __LINE__);
+            if ((written_bytes = write(pipefd[1], msg.buf, msgsize)) <= 0) err("write failed in child", __FILE__, __func__, __LINE__);
+            clearbuf(msg.buf, MAX_MSG_LEN);
+        }
+        
+        if (close(pipefd[1]) < 0) syserr("close", __FILE__, __func__, __LINE__);
+        exit(EXIT_SUCCESS);
+    }
+    if (close(pipefd[1]) < 0) syserr("close", __FILE__, __func__, __LINE__);
     return 0;
 
 }
