@@ -61,7 +61,7 @@ int main(int argc, char * argv[])
     if (signal(SIGINT, handle_sigint) == SIG_ERR) syserr("singal", __FILE__, __func__, __LINE__);
 
 
-    /* stworzenie kolejki i wypisanie jej klucza na stdout */
+    /* stworzenie kolejki */
     SRVR_FTOK_KEY = FTOK_SERVER_ID;
     const char * ENV_HOME = getenv("HOME");
     if (!ENV_HOME) err("Failed to fetch $HOME variable", __FILE__, __func__, __LINE__);
@@ -91,7 +91,7 @@ int main(int argc, char * argv[])
     size_t msg_size;
     while (true)
     {
-        if ((msg_size = msgrcv(SRVR_PUB_Q_ID, &msg, MAX_MSG_LEN, -MT_CHAT, 0)) < 0) syserr("msgrcv", __FILE__, __func__, __LINE__);
+        if ((msg_size = msgrcv(SRVR_PUB_Q_ID, &msg, MAX_MSG_LEN, -MT_CHAT - 1, 0)) < 0) syserr("msgrcv", __FILE__, __func__, __LINE__);
 
         switch(msg.type)
         {

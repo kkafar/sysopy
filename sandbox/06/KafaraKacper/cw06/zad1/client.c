@@ -43,15 +43,16 @@ int main(int argc, char * argv[])
     if (atexit(cleanup) != 0) err("atexit failed", __FILE__, __func__, __LINE__);
     if (signal(SIGINT, handle_sigint) == SIG_ERR) syserr("signal", __FILE__, __func__, __LINE__);
 
-    if (argc != 2) err("bad arg count; expected only server's queue id", __FILE__, __func__, __LINE__);
-
-    long server_q_id = strtol(argv[1], NULL, 10);
-    SRVR_Q_ID = server_q_id;
-    if (server_q_id < 0) err("invalid server queue id; must be >= 0", __FILE__, __func__, __LINE__);
-
-    /* w jaki sposob mam wybrac klucz dla klienta?? */ 
     const char * ENV_HOME = getenv("HOME");
     if (!ENV_HOME) err("failed to fetch $HOME variable", __FILE__, __func__, __LINE__);
+
+    /* mozna sie dostac do id kolejki serwera znajac dane na podstawie ktorych id bylo wygenerowane */
+    // server_q_id = ftok(ENV_HOME, FTOK_SERVER_ID);
+    long server_q_id;
+    key_t server_q_key;
+    if ((server_q_key = ftok(ENV_HOME, FTOK_SERVER_ID)) < 0) syserr("ftok failed", __FILE__, __func__, __LINE__);
+    if ((server_q_id = msgget(server_q_key, 0)) < 0) syserr("failed to fetch server queue id", __FILE__, __func__, __LINE__);
+    SRVR_Q_ID = server_q_id;
 
     key_t ftok_proj_id = FTOK_ID1;
     key_t ftok_key;
@@ -116,21 +117,17 @@ int main(int argc, char * argv[])
             
         if (stdinfd[0].revents & POLLIN) 
         {
-            // printf("STDIN POLLIN\n");
             clearbuf(buf, MAX_MSG_LEN);
             if ((read_bytes = read(STDIN_FILENO, buf, MAX_MSG_LEN)) <= 0) err("invalid input", __FILE__, __func__, __LINE__);
             len = strlen(buf);
             if (buf[len-1] == '\n') buf[len-1] = 0;
-            // printf("read from stdin: %s\n", buf);
             handle_user_input(buf, strlen(buf), server_q_id, myid);
         }
 
         if (stdinfd[1].revents & POLLIN)
         {
             clearbuf(buf, MAX_MSG_LEN);
-            // printf("CHILDREN NOTIFIED\n");
             if ((read_bytes = read(pipefd[0], buf, MAX_MSG_LEN)) < 0) syserr("read", __FILE__, __func__, __LINE__);
-            // printf("child: %s\n", buf);
             handle_queue_input(buf, read_bytes, server_q_id, myid);
         }
     }
@@ -157,9 +154,11 @@ void handle_sigint(int signo)
 void cleanup(void)
 {
     if (CPID > 0) 
+    {
         if (kill(CPID, SIGINT) < 0) syserr_noexit("failed to kill child", __FILE__, __func__, __LINE__);
-    // if (CPID2 > 0)
-    //     if (kill(CPID2, SIGINT) < 0) syserr_noexit("failed to kill child", __FILE__, __func__, __LINE__);
+        while (waitpid(-1, NULL, 0) != -1);
+    }
+        
     if (CPID != 0)
     {
         Message msg;
@@ -189,8 +188,7 @@ int handle_user_input(char * buf, size_t size, long serverqid, long myid)
     }
     else if (strcmp(token, "STOP") == 0)
     {
-        set_message(&msg, MT_STOP, idbuf);
-        if (msgsnd(serverqid, &msg, 10, 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
+        // wiadomosc do serwera jest wysylana w funkcji zarejestrowanej w atexit
         exit(EXIT_SUCCESS);
     }
     else if (strcmp(token, "CONNECT") == 0)
@@ -274,11 +272,6 @@ int handle_queue_input(char * buf, size_t size, long serverqid, long myid)
         }
         case MT_STOP:
         {        
-            // char idbuf[10]; clearbuf(idbuf, 10);
-            // sprintf(idbuf, "%ld", myid);
-            // Message msg;
-            // set_message(&msg, MT_STOP, idbuf);
-            // if (msgsnd(serverqid, &msg, 10, 0) < 0) syserr("msgsnd failed", __FILE__, __func__, __LINE__);
             exit(EXIT_SUCCESS);
             break;
         }
