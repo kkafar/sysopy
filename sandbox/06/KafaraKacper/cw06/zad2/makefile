@@ -2,17 +2,17 @@
 
 CC := gcc
 CPPFLAGS := 
-CFLAGS := -O2 -Wall
-LFLAGS := -O2 -Wall -lrt
+CFLAGS := -O2 -Wall	
+LFLAGS := -O2 -Wall 
 
 all: server client
 
 server: server.o util.o constants.o
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^ -lrt
 
 
 client: client.o util.o constants.o
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^ -lrt
 
 
 %.o: %.c 

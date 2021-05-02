@@ -2,7 +2,8 @@
 #define __CONSTANTS_H__
 
 #define MAX_CLIENTS     50
-#define MAX_MSG_LEN     512
+#define MAX_MSG_LEN     9200
+#define MAX_QNAME_LEN   50
 #define MT_CONNECT      5
 #define MT_INIT         4
 #define MT_LIST         3

@@ -4,7 +4,6 @@
 #include <errno.h>
 #include <string.h>
 #include <signal.h>
-#include <time.h>
 #include <fcntl.h>
 #include <stdbool.h>
 #include <poll.h>
@@ -18,9 +17,10 @@ typedef struct Client
     long queue_id; 
     bool busy;
     int converser;
+    char qname[MAX_QNAME_LEN];
 }   Client;
 
-int client_init(Client * client, long qid);
+int client_init(Client * client, long qid, char * qname);
 Client * client_create();
 void client_delete(Client * client);
 
@@ -34,7 +34,7 @@ typedef struct ClientList
 ClientList * CLIENT_LIST = NULL;
 
 int cl_init(ClientList * cl);
-int cl_add(ClientList * cl, long qid);
+int cl_add(ClientList * cl, long qid, char * qname);
 void cl_clean(ClientList * cl);
 bool is_valid_id(ClientList * cl, long qid);
 bool is_busy(ClientList * cl, long cid);
@@ -51,27 +51,17 @@ int handle_disconnect(char * buf, size_t size, ClientList * cl);
 
 int main(int argc, char * argv[])
 {
-    /* generowanie nazw kolejek */
-    srand(time(NULL));
-
     if (atexit(cleanup) != 0) 
         syserr("atexit", __FILE__, __func__, __LINE__);
     if (signal(SIGINT, handle_sigint) == SIG_ERR) 
         syserr("singal", __FILE__, __func__, __LINE__);
 
     /* stworzenie kolejki */ 
-    if ((SERVER_Q_DES = mq_open(SERVER_QUEUE_NAME, O_CREAT | O_EXCL | O_RDONLY)) < 0)
+    if ((SERVER_Q_DES = mq_open(SERVER_QUEUE_NAME, O_CREAT, O_EXCL | 0666, NULL)) < 0)
         syserr("mq_open failed", __FILE__, __func__, __LINE__);
+
+    printf("server descriptor: %d\n", SERVER_Q_DES);
     
-    struct mq_attr qattr;
-    if (mq_getattr(SERVER_Q_DES, &qattr) < 0)
-        syserr("mq_getattr", __FILE__, __func__, __LINE__);
-        
-    qattr.mq_msgsize = MAX_MSG_LEN;
-
-    if (mq_setattr(SERVER_Q_DES, &qattr, NULL) < 0)
-        syserr("mq_setattr", __FILE__, __func__, __LINE__);
-
     ssize_t num_bytes;
     unsigned int prio;
     char buf[MAX_MSG_LEN]; clearbuf(buf, MAX_MSG_LEN);
@@ -84,29 +74,29 @@ int main(int argc, char * argv[])
         if ((num_bytes = mq_receive(SERVER_Q_DES, buf, MAX_MSG_LEN, &prio)) < 0)
             syserr("mq_receive", __FILE__, __func__, __LINE__);
 
-        switch (prio)
+        switch (MT_UBOUND - prio)
         {
-            case MT_UBOUND - MT_INIT:
+            case MT_INIT:
             {
                 handle_init(buf, num_bytes, CLIENT_LIST);
                 break;
             }
-            case MT_UBOUND - MT_STOP:
+            case MT_STOP:
             {
                 handle_stop(buf, num_bytes, CLIENT_LIST);
                 break;
             }
-            case MT_UBOUND - MT_LIST:
+            case MT_LIST:
             {
                 handle_list(buf, num_bytes, CLIENT_LIST);
                 break;
             }
-            case MT_UBOUND - MT_CONNECT:
+            case MT_CONNECT:
             {
                 handle_connect(buf, num_bytes, CLIENT_LIST);
                 break;
             }
-            case MT_UBOUND - MT_DISCONNECT:
+            case MT_DISCONNECT:
             {
                 handle_disconnect(buf, num_bytes, CLIENT_LIST);
                 break;
@@ -151,8 +141,8 @@ void cleanup(void)
             if (mq_send(CLIENT_LIST->clients[i]->queue_id, buf, 6, MT_UBOUND - MT_STOP) < 0) 
                 syserr("mq_send", __FILE__, __func__, __LINE__);
 
-            // if (mq_close(CLIENT_LIST->clients[i]->queue_id) < 0)
-            //     syserr("mq_close", __FILE__, __func__, __LINE__);
+            if (mq_close(CLIENT_LIST->clients[i]->queue_id) < 0)
+                syserr("mq_close", __FILE__, __func__, __LINE__);
         }
 
     }
@@ -160,7 +150,7 @@ void cleanup(void)
     ssize_t msg_size;
     while (CLIENT_LIST->client_count > 0)
     {
-        if (mq_receive(SERVER_Q_DES, buf, 19, MT_UBOUND - MT_STOP) < 0)
+        if ((msg_size = mq_receive(SERVER_Q_DES, buf, 19, NULL)) < 0)
                 syserr("mq_receive", __FILE__, __func__, __LINE__);
 
         handle_stop(buf, msg_size, CLIENT_LIST);    
@@ -170,11 +160,13 @@ void cleanup(void)
 
 
 
-int client_init(Client * client, long qid)
+int client_init(Client * client, long qid, char * qname)
 {
     if (!client) return -1;
     client->busy = false;
     client->queue_id = qid;
+    strcpy(client->qname, qname);
+    clearbuf(client->qname, MAX_QNAME_LEN);
     return 0;
 }
 
@@ -205,8 +197,7 @@ void cl_clear(ClientList * cl)
     free(cl->clients);
 }
 
-
-int cl_add(ClientList * cl, long qid)
+int cl_add(ClientList * cl, long qid, char * qname)
 {
     if (!cl || qid <= 0 || cl->client_count >= MAX_CLIENTS) return -1;
     Client * new_client = client_create();
@@ -216,7 +207,7 @@ int cl_add(ClientList * cl, long qid)
     {
         if ((cl->clients[i]) == NULL)
         {
-            client_init(new_client, qid);
+            client_init(new_client, qid, qname);
             cl->clients[i] = new_client;
             cl->client_count++;
             return i;
@@ -239,14 +230,25 @@ bool is_busy(ClientList * cl, long cid)
 int handle_init(char * buf, size_t size, ClientList * cl)
 {
     if (!buf || size <= 0) return -1;
-    long client_queue_id = strtol(buf, NULL, 10);
+    // char qname_buf[MAX_QNAME_LEN]; 
+    long client_queue_id;
+    if ((client_queue_id = mq_open(buf, O_WRONLY)) < 0)
+        syserr("failed to open client's queue", __FILE__, __func__, __LINE__);
+
     if (client_queue_id <= 0) return -1;
 
     long client_id;
-    if ((client_id = cl_add(cl, client_queue_id)) < 0) err("failed to add client", __FILE__, __func__, __LINE__);
+    if ((client_id = cl_add(cl, client_queue_id, buf)) < 0) 
+    {
+        err_noexit("failed to add client", __FILE__, __func__, __LINE__);
+        return -1;
+    }
+
+    printf("added new client; id: %ld, ds: %ld\n", client_id, client_queue_id);
 
     char buf2[MAX_MSG_LEN]; clearbuf(buf2, MAX_MSG_LEN);
-    if (sprintf(buf2, "%ld", client_id) <= 0) err("failed to convert client id to string, sprintf", __FILE__, __func__, __LINE__);
+    if (sprintf(buf2, "%ld", client_id) <= 0) 
+        err("failed to convert client id to string, sprintf", __FILE__, __func__, __LINE__);
 
     if (mq_send(client_queue_id, buf2, strlen(buf2), MT_UBOUND - MT_INIT) < 0) 
         syserr("mq_send", __FILE__, __func__, __LINE__);
@@ -280,6 +282,7 @@ int handle_list(char * buf, size_t size, ClientList * cl)
             strcat(buf2, buf16);
         }
     }
+    printf("responding LIST to %ld, des: %ld\n", client_id, cl->clients[client_id]->queue_id);
     if (mq_send(cl->clients[client_id]->queue_id, buf2, strlen(buf2), MT_UBOUND - MT_LIST) < 0)
         syserr("mq_send", __FILE__, __func__, __LINE__);
 
@@ -324,24 +327,32 @@ int handle_connect(char * buf, size_t size, ClientList * cl)
         return -1;
     }
 
-    char buf16[16]; clearbuf(buf16, 16);
-    if (sprintf(buf16, "%ld", cl->clients[client2_id]->queue_id) < 0) 
-    {
-        err_noexit("failed to convert qid to string", __FILE__, __func__, __LINE__);
-        return -1;
-    }
+    // char buf50[MAX_QNAME_LEN]; clearbuf(buf50, MAX_QNAME_LEN);
+    // if (sprintf(buf50, "%ld", cl->clients[client2_id]->queue_id) < 0) 
+    // {
+    //     err_noexit("failed to convert qid to string", __FILE__, __func__, __LINE__);
+    //     return -1;
+    // }
 
-    if (mq_send(cl->clients[client_id]->queue_id, buf16, strlen(buf16), MT_UBOUND - MT_CONNECT) < 0)
+    if (mq_send(
+            cl->clients[client_id]->queue_id, 
+            cl->clients[client2_id]->qname, 
+            strlen(cl->clients[client2_id]->qname), 
+            MT_UBOUND - MT_CONNECT) < 0)
         syserr("mq_send", __FILE__, __func__, __LINE__);
 
-    clearbuf(buf16, 16);
-    if (sprintf(buf16, "%ld", cl->clients[client_id]->queue_id) < 0) 
-    {
-        err_noexit("failed to convert qid to string", __FILE__, __func__, __LINE__);
-        return -1;
-    }
+    // clearbuf(buf50, MAX_QNAME_LEN);
+    // if (sprintf(buf50, "%ld", cl->clients[client_id]->queue_id) < 0) 
+    // {
+    //     err_noexit("failed to convert qid to string", __FILE__, __func__, __LINE__);
+    //     return -1;
+    // }
 
-    if (mq_send(cl->clients[client2_id]->queue_id, buf16, strlen(buf16), MT_UBOUND - MT_CONNECT) < 0)
+    if (mq_send(
+            cl->clients[client2_id]->queue_id,
+            cl->clients[client_id]->qname, 
+            strlen(cl->clients[client_id]->qname), 
+            MT_UBOUND - MT_CONNECT) < 0)
         syserr("mq_send", __FILE__, __func__, __LINE__);
     
     cl->clients[client_id]->busy = true;
@@ -366,11 +377,10 @@ int handle_disconnect(char * buf, size_t size, ClientList * cl)
     int converser = cl->clients[client_id]->converser;
     if (mq_send(cl->clients[converser]->queue_id, "DISCONNECT", 12, MT_UBOUND - MT_DISCONNECT) < 0)
         syserr("mq_send", __FILE__, __func__, __LINE__);
-        
+
     cl->clients[client_id]->busy = false;
     cl->clients[client_id]->converser = -1;
     cl->clients[converser]->busy = false;
     cl->clients[converser]->converser = -1;
     return 0;
-
 }
