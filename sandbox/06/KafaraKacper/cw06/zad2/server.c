@@ -165,8 +165,8 @@ int client_init(Client * client, long qid, char * qname)
     if (!client) return -1;
     client->busy = false;
     client->queue_id = qid;
-    strcpy(client->qname, qname);
     clearbuf(client->qname, MAX_QNAME_LEN);
+    strcpy(client->qname, qname);
     return 0;
 }
 
@@ -199,7 +199,12 @@ void cl_clear(ClientList * cl)
 
 int cl_add(ClientList * cl, long qid, char * qname)
 {
-    if (!cl || qid <= 0 || cl->client_count >= MAX_CLIENTS) return -1;
+    if (!cl || qid <= 0 || cl->client_count >= MAX_CLIENTS || !qname) 
+    {
+        err_noexit("cl_add", __FILE__, __func__, __LINE__);
+        return -1;
+    }
+
     Client * new_client = client_create();
     if (!new_client) syserr("calloc failed to allocate memory for new client", __FILE__, __func__, __LINE__);
 
@@ -230,7 +235,7 @@ bool is_busy(ClientList * cl, long cid)
 int handle_init(char * buf, size_t size, ClientList * cl)
 {
     if (!buf || size <= 0) return -1;
-    // char qname_buf[MAX_QNAME_LEN]; 
+    // printf("adding client with queue: %s\n", buf);
     long client_queue_id;
     if ((client_queue_id = mq_open(buf, O_WRONLY)) < 0)
         syserr("failed to open client's queue", __FILE__, __func__, __LINE__);
@@ -244,7 +249,7 @@ int handle_init(char * buf, size_t size, ClientList * cl)
         return -1;
     }
 
-    printf("added new client; id: %ld, ds: %ld\n", client_id, client_queue_id);
+    printf("added new client; id: %ld, ds: %ld, queue: %s\n", client_id, client_queue_id, buf);
 
     char buf2[MAX_MSG_LEN]; clearbuf(buf2, MAX_MSG_LEN);
     if (sprintf(buf2, "%ld", client_id) <= 0) 
@@ -333,7 +338,7 @@ int handle_connect(char * buf, size_t size, ClientList * cl)
     //     err_noexit("failed to convert qid to string", __FILE__, __func__, __LINE__);
     //     return -1;
     // }
-
+    printf("sending 1: %s\n", cl->clients[client2_id]->qname);
     if (mq_send(
             cl->clients[client_id]->queue_id, 
             cl->clients[client2_id]->qname, 
@@ -348,6 +353,7 @@ int handle_connect(char * buf, size_t size, ClientList * cl)
     //     return -1;
     // }
 
+    printf("sending 2: %s\n", cl->clients[client_id]->qname);
     if (mq_send(
             cl->clients[client2_id]->queue_id,
             cl->clients[client_id]->qname, 

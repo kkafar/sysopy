@@ -111,7 +111,8 @@ int main(int argc, char * argv[])
                 err("failed to convert prio into string", __FILE__, __func__, __LINE__);
 
             strcat(buf, msgtype_buf);
-            handle_queue_input(buf, read_bytes, SERVER_Q_DS, CLIENT_ID);
+            printf("buf in main loop: %s\n", buf);
+            handle_queue_input(buf, read_bytes + strlen(msgtype_buf), SERVER_Q_DS, CLIENT_ID);
         }
     }
     exit(EXIT_SUCCESS);
@@ -191,8 +192,10 @@ int handle_user_input(char * buf, size_t size, long serverqid, long myid)
     }
     else if (strcmp(token, "DISCONNECT") == 0 && CHAT_QUEUE_DS != -1)
     {
+        printf("before sending message in disconnect\n");
         if (mq_send(serverqid, idbuf, 10, MT_UBOUND - MT_DISCONNECT) < 0)
             syserr("mq_send", __FILE__, __func__, __LINE__);
+        printf("after sending message in disconnect\n");
         clearbuf(CHAT_QNAME, MAX_MSG_LEN);
         fprintf(stdout, "disconnected\n");
     }
@@ -211,8 +214,10 @@ int handle_user_input(char * buf, size_t size, long serverqid, long myid)
 
 int handle_queue_input(char * buf, size_t size, long serverqid, long myid)
 {
+    printf("hci: %s\n", buf);
     char * message = strtok(buf, " ");
     char * msgtype_buf = strtok(NULL, " ");
+    printf("%s, %s\n", message, msgtype_buf);
     if (!msgtype_buf || !message) return -1;
     long msgtype = strtol(msgtype_buf, NULL, 10);
 
@@ -221,6 +226,7 @@ int handle_queue_input(char * buf, size_t size, long serverqid, long myid)
     {
         case MT_CONNECT:
         {
+            printf("connecting\n");
             clearbuf(CHAT_QNAME, MAX_QNAME_LEN);
             strcpy(CHAT_QNAME, message);
             if ((CHAT_QUEUE_DS = mq_open(CHAT_QNAME, O_WRONLY)) < 0) 
