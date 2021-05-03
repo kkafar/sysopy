@@ -133,7 +133,7 @@ void cleanup(void)
 {
     if (SERVER_Q_DES == -1) return;
 
-    char buf[20] = "STOP";
+    char buf[MAX_MSG_LEN] = "STOP";
     for (int i = 0; i < MAX_CLIENTS; ++i)
     {
         if (CLIENT_LIST->clients[i] != NULL)
@@ -150,7 +150,7 @@ void cleanup(void)
     ssize_t msg_size;
     while (CLIENT_LIST->client_count > 0)
     {
-        if ((msg_size = mq_receive(SERVER_Q_DES, buf, 19, NULL)) < 0)
+        if ((msg_size = mq_receive(SERVER_Q_DES, buf, MAX_MSG_LEN, NULL)) < 0)
                 syserr("mq_receive", __FILE__, __func__, __LINE__);
 
         handle_stop(buf, msg_size, CLIENT_LIST);    
