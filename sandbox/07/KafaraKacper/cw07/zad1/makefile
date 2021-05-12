@@ -18,7 +18,7 @@ clean:
 	rm -v *.o 
 
 clean_all:
-	rm -v *.o server client 
+	rm -v *.o main 
 
 
 # valtest: main
