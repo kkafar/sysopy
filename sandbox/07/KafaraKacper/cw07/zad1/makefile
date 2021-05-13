@@ -3,7 +3,7 @@
 CC := gcc
 CPPFLAGS := 
 CFLAGS := -O2 -Wall
-LFLAGS := -O2 -Wall
+LFLAGS := -O2 -Wall -lrt -lpthread
 
 all: main
 
