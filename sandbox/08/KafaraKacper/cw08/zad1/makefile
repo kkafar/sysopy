@@ -5,15 +5,9 @@ CPPFLAGS :=
 CFLAGS := -O2 -Wall
 LFLAGS := -O2 -Wall -lrt -lpthread
 
-all: main cook delivery
+all: main
 
 main: main.o util.o 
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^
-
-cook: cook.o util.o 
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^
-
-delivery: delivery.o util.o 
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $^
 
 %.o: %.c 
@@ -23,8 +17,7 @@ clean:
 	rm -v *.o 
 
 clean_all:
-	rm -v *.o main cook delivery 
-
+	rm -v *.o main
 
 # valtest: main
 # 	valgrind --leak-check=full --show-leak-kinds=all ./main 
