@@ -227,6 +227,7 @@ int main(int argc, char * argv[])
         if ((value.val = semctl(TABLE_SEM_ID, 1, GETVAL)) < 0)
             syserr("semctl", __FILE__, __func__, __LINE__);
 
+        clock_gettime(CLOCK_REALTIME, &ts_curtime);
         printf(
             "%d:(%ld:%ld):cook: Umieszczam pizze %d na stole, obecnie na stole %d\n", 
             cook_id, 
