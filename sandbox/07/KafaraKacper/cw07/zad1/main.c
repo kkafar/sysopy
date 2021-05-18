@@ -43,9 +43,6 @@ void launch_cook();
 void launch_delivery();
 void handle_sigint(int signo);
 void cleanup();
-int find_empty_index(int arr[], int size);
-int find_busy_index(int arr[], int size);
-int find_next_empty_cell(int arr[], int size, int start);
 
 
 int main(int argc, char * argv[])

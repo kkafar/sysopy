@@ -28,7 +28,7 @@ void handle_sigint(int signo);
 int handle_user_input(char * buf, size_t size, long serverqid, long myid);
 int handle_queue_input(char * buf, size_t size, long serverqid, long myid);
 int create_listener(int pipefd[2], long qid, pid_t * cpid);
-void generate_qname(char * buf, size_t bufsize);
+void generate_string(char * buf, size_t bufsize);
 
 
 
@@ -41,14 +41,14 @@ int main(int argc, char * argv[])
     if (signal(SIGINT, handle_sigint) == SIG_ERR) syserr("signal", __FILE__, __func__, __LINE__);
 
     /* stworzenie kolejki */ 
-    generate_qname(QNAME_BUF, MAX_QNAME_LEN - 1);
+    generate_string(QNAME_BUF, MAX_QNAME_LEN - 1);
     int attempts = 0;
     while ((CLIENT_Q_DS = mq_open(QNAME_BUF, O_CREAT, O_EXCL | 0666, NULL)) < 0 && attempts < 50)
     {
         if (errno == EEXIST) 
         {
             err_noexit("queue with given name already exists; trying with new name...", __FILE__, __func__, __LINE__);
-            generate_qname(QNAME_BUF, MAX_QNAME_LEN - 1);
+            generate_string(QNAME_BUF, MAX_QNAME_LEN - 1);
             ++attempts;
         }
         else
@@ -256,7 +256,7 @@ int handle_queue_input(char * buf, size_t size, long serverqid, long myid)
     return 0;
 }
 
-void generate_qname(char * buf, size_t bufsize)
+void generate_string(char * buf, size_t bufsize)
 {
     static char base[] = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm123456789";
     buf[0] = '/';
