@@ -18,6 +18,7 @@ void handle_sigint(int signo);
 void cleanup();
 int find_busy_index(int arr[], int size);
 int find_next_empty_cell(int arr[], int size, int start);
+void logger(char msg[]);
 
 // sem_t * sem_owen_ptr = NULL;
 sem_t * sem_table_ptr = NULL;
@@ -61,25 +62,26 @@ int main(int argc, char * argv[])
     ts_retry_penalty.tv_sec = 0;
     ts_retry_penalty.tv_nsec = (long)(5e+8);
     ts_delivery_time.tv_sec = 4;   
-    int busy_index, pizza_type, pizza_on_table, pizzas_left;
+    int busy_index, pizza_type, empty_slots, pizzas_left;
 
-    printf("%d:delivery started\n", getpid());
     sleep(8);
-    printf("%d:delivery after sleeping\n", getpid());
 
     while (1)
     {
         // probójemy dostać się do stolu
         while (1) 
         {
+            // logger("czekam na otwarcie stolu");
             if (sem_wait(sem_table_ptr) < 0)
                 syserr("sem_wait", __FILE__, __func__, __LINE__); 
 
-            pizza_on_table = shm_table_ptr[PZ_TABLE_SIZE];
+            // logger("zajmuje stol");
+            empty_slots = shm_table_ptr[PZ_TABLE_SIZE];
             pizzas_left = shm_table_ptr[PZ_TABLE_SIZE + 1];
 
-            if (pizza_on_table == PZ_TABLE_SIZE)
+            if (empty_slots == PZ_TABLE_SIZE)
             {
+
                 if (sem_post(sem_table_ptr) < 0)
                     syserr("sem_post", __FILE__, __func__, __LINE__); 
 
@@ -89,15 +91,18 @@ int main(int argc, char * argv[])
                 if (nanosleep(&ts_retry_penalty, NULL) < 0)
                     err_noexit("cook: nanosleep failed.", __FILE__, __func__, __LINE__);
 
+                // logger("na stole nie ma pizzy");
                 continue;
             }
+            // logger("jakas pizza jest na stole");
+            break;
         }
 
         // dostaliśmy się do stołu oraz stół nie jest pusty
         busy_index = find_busy_index(shm_table_ptr, PZ_TABLE_SIZE);
         pizza_type = shm_table_ptr[busy_index];
         shm_table_ptr[busy_index] = -1;
-        shm_table_ptr[PZ_TABLE_SIZE]--;
+        shm_table_ptr[PZ_TABLE_SIZE]++;
         shm_table_ptr[PZ_TABLE_SIZE + 1]--;
 
         clock_gettime(CLOCK_REALTIME, &ts_curtime);
@@ -119,6 +124,11 @@ int main(int argc, char * argv[])
             
         clock_gettime(CLOCK_REALTIME, &ts_curtime);
         printf("%d:(%ld:%ld):delivery: Dostarczenie pizzy %d\n", getpid(), ts_curtime.tv_sec, ts_curtime.tv_nsec / CLOCK_CONV, pizza_type);
+
+        // powrót
+        ts_delivery_time.tv_nsec = rand() % (int)(1e8);
+        if (nanosleep(&ts_delivery_time, NULL) < 0)
+            err_noexit("delivery: nanosleep failed.", __FILE__, __func__, __LINE__);
     }
 
     exit(EXIT_SUCCESS);
@@ -163,4 +173,11 @@ void cleanup()
         // if (shm_unlink(SHM_TABLE_NAME) < 0)
         //     syserr("shm_unlink table", __FILE__, __func__, __LINE__);
     }
+}
+
+void logger(char msg[])
+{
+    static struct timespec ts_curtime;
+    clock_gettime(CLOCK_REALTIME, &ts_curtime);
+    printf("%d:(%ld:%ld):delivery: %s\n", getpid(), ts_curtime.tv_sec, ts_curtime.tv_nsec / CLOCK_CONV, msg);
 }

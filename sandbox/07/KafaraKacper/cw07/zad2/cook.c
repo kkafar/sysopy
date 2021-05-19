@@ -17,6 +17,7 @@ void handle_sigint(int signo);
 void cleanup();
 int find_busy_index(int arr[], int size);
 int find_next_empty_cell(int arr[], int size, int start);
+void logger(char msg[]);
 
 sem_t * sem_owen_ptr = NULL;
 sem_t * sem_table_ptr = NULL;
@@ -97,15 +98,17 @@ int main(int argc, char * argv[])
         ts_sleeptime2.tv_nsec = rand() % (long)(1e8);
         if (nanosleep(&ts_sleeptime2, NULL) < 0)
             syserr("cook: nanosleep failed.", __FILE__, __func__, __LINE__);
+        
+        // logger("pizza przygotowana");
 
         // próbujemy dostać się do pieca
         while (1)
         {
-            printf("cook inner loop\n");
+            // logger("czekam na otwarcie pieca");
             if (sem_wait(sem_owen_ptr) < 0) 
                 syserr("sem_wait", __FILE__, __func__, __LINE__); 
             
-            printf("opened owen\n");
+            // logger("piec otworzony");
             empty_slots = &shm_owen_ptr[PZ_OWEN_SIZE];
             // dostaliśmy się, sprawdzamy czy jest miejsce
             if (*empty_slots <= 0) 
@@ -116,8 +119,11 @@ int main(int argc, char * argv[])
 
                 if (nanosleep(&ts_retry_penalty, NULL) < 0)
                     err_noexit("cook: nanosleep failed.", __FILE__, __func__, __LINE__);
+                // logger("nie ma wolnych miejsc w piecu");
                 continue;
             }
+            // logger("jest wolne miejsce w piecu");
+            break;
         }
         /**
          * W piecu jest miejsce
@@ -168,6 +174,7 @@ int main(int argc, char * argv[])
         // teraz próbujemy wstawić pizzę na stół
         while (1)
         {
+            // logger("czekam na otwarcie stolu");
             if (sem_wait(sem_table_ptr) < 0)
                 syserr("sem_wait", __FILE__, __func__, __LINE__); 
 
@@ -181,6 +188,7 @@ int main(int argc, char * argv[])
                     syserr("nanosleep", __FILE__, __func__, __LINE__); 
                 continue;
             }
+            break;
         }
 
         // jest miejsce na stole
@@ -260,4 +268,11 @@ int find_busy_index(int arr[], int size)
         if (arr[i] != -1)
             return i;
     return -1;
+}
+
+void logger(char msg[])
+{
+    static struct timespec ts_curtime;
+    clock_gettime(CLOCK_REALTIME, &ts_curtime);
+    printf("%d:(%ld:%ld):cook: %s\n", getpid(), ts_curtime.tv_sec, ts_curtime.tv_nsec / CLOCK_CONV, msg);
 }

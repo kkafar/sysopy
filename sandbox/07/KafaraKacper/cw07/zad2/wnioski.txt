@@ -1,0 +1,501 @@
+Udalo sie uzyskac pozadany efekt synchronizacyjny -- w danym momencie do zasobow wspoldzielonych ma tylko jeden proces.
+
+
+Nieprawidlowa kolejnosc wyciagania / wkladania na stol jest kwesita IO systemowego. Jezeli popatrzymy na timestampy, 
+to wszystko sie zgadza.
+
+
+// wywolanie dla 3 kucharzy, 4 dostawcow
+63038:cook: Started
+63038:(1621435688:343):cook: Przygotowuje 3
+63038:(1621435690:368):cook: Dodaje pizze 3, liczba pizz w piecu 1
+63038:(1621435694:399):cook: Wyciagam pizze 3, pozostalo w piecu 2
+63038:(1621435694:399):cook: Umieszczam pizze 3 na stole, obecnie na stole 1
+63038:(1621435694:399):cook: Przygotowuje 9
+63038:(1621435696:402):cook: Dodaje pizze 9, liczba pizz w piecu 1
+63038:(1621435700:449):cook: Wyciagam pizze 9, pozostalo w piecu 2
+63038:(1621435700:449):cook: Umieszczam pizze 9 na stole, obecnie na stole 1
+63038:(1621435700:449):cook: Przygotowuje 6
+63038:(1621435702:509):cook: Dodaje pizze 6, liczba pizz w piecu 1
+63038:(1621435706:516):cook: Wyciagam pizze 6, pozostalo w piecu 2
+63038:(1621435706:516):cook: Umieszczam pizze 6 na stole, obecnie na stole 1
+63038:(1621435706:516):cook: Przygotowuje 9
+63038:(1621435708:578):cook: Dodaje pizze 9, liczba pizz w piecu 1
+63038:(1621435712:607):cook: Wyciagam pizze 9, pozostalo w piecu 2
+63038:(1621435712:607):cook: Umieszczam pizze 9 na stole, obecnie na stole 1
+63036:cook: Started
+63036:(1621435688:343):cook: Przygotowuje 7
+63036:(1621435690:398):cook: Dodaje pizze 7, liczba pizz w piecu 2
+63036:(1621435694:410):cook: Wyciagam pizze 7, pozostalo w piecu 1
+63036:(1621435694:410):cook: Umieszczam pizze 7 na stole, obecnie na stole 2
+63036:(1621435694:410):cook: Przygotowuje 6
+63036:(1621435696:474):cook: Dodaje pizze 6, liczba pizz w piecu 2
+63036:(1621435700:555):cook: Wyciagam pizze 6, pozostalo w piecu 1
+63036:(1621435700:555):cook: Umieszczam pizze 6 na stole, obecnie na stole 2
+63036:(1621435700:555):cook: Przygotowuje 8
+63036:(1621435702:627):cook: Dodaje pizze 8, liczba pizz w piecu 2
+63036:(1621435706:630):cook: Wyciagam pizze 8, pozostalo w piecu 1
+63036:(1621435706:630):cook: Umieszczam pizze 8 na stole, obecnie na stole 2
+63036:(1621435706:630):cook: Przygotowuje 7
+63036:(1621435708:657):cook: Dodaje pizze 7, liczba pizz w piecu 2
+63036:(1621435712:702):cook: Wyciagam pizze 7, pozostalo w piecu 1
+63036:(1621435712:702):cook: Umieszczam pizze 7 na stole, obecnie na stole 2
+63037:cook: Started
+63037:(1621435688:343):cook: Przygotowuje 1
+63037:(1621435690:414):cook: Dodaje pizze 1, liczba pizz w piecu 3
+63037:(1621435694:480):cook: Wyciagam pizze 1, pozostalo w piecu 0
+63037:(1621435694:480):cook: Umieszczam pizze 1 na stole, obecnie na stole 3
+63037:(1621435694:480):cook: Przygotowuje 7
+63037:(1621435696:532):cook: Dodaje pizze 7, liczba pizz w piecu 3
+63037:(1621435700:618):cook: Wyciagam pizze 7, pozostalo w piecu 0
+63037:(1621435700:618):cook: Umieszczam pizze 7 na stole, obecnie na stole 3
+63037:(1621435700:618):cook: Przygotowuje 7
+63037:(1621435702:628):cook: Dodaje pizze 7, liczba pizz w piecu 3
+63037:(1621435706:693):cook: Wyciagam pizze 7, pozostalo w piecu 0
+63037:(1621435706:693):cook: Umieszczam pizze 7 na stole, obecnie na stole 3
+63037:(1621435706:693):cook: Przygotowuje 9
+63037:(1621435708:746):cook: Dodaje pizze 9, liczba pizz w piecu 3
+63037:(1621435712:845):cook: Wyciagam pizze 9, pozostalo w piecu 0
+63037:(1621435712:845):cook: Umieszczam pizze 9 na stole, obecnie na stole 3
+63039:(1621435696:343):delivery: Pobranie pizzy 3, ze stolu, na stole zostaje 2, ogolnie pozostalo 11
+63039:(1621435700:348):delivery: Dostarczenie pizzy 3
+63039:(1621435704:395):delivery: Pobranie pizzy 6, ze stolu, na stole zostaje 1, ogolnie pozostalo 7
+63039:(1621435708:476):delivery: Dostarczenie pizzy 6
+63039:(1621435712:491):delivery: Pobranie pizzy 7, ze stolu, na stole zostaje 0, ogolnie pozostalo 3
+63039:(1621435716:549):delivery: Dostarczenie pizzy 7
+63042:(1621435696:343):delivery: Pobranie pizzy 7, ze stolu, na stole zostaje 1, ogolnie pozostalo 10
+63042:(1621435700:348):delivery: Dostarczenie pizzy 7
+63042:(1621435704:395):delivery: Pobranie pizzy 7, ze stolu, na stole zostaje 0, ogolnie pozostalo 6
+63042:(1621435708:476):delivery: Dostarczenie pizzy 7
+63042:(1621435712:991):delivery: Pobranie pizzy 9, ze stolu, na stole zostaje 2, ogolnie pozostalo 2
+63042:(1621435717:49):delivery: Dostarczenie pizzy 9
+63041:(1621435696:343):delivery: Pobranie pizzy 1, ze stolu, na stole zostaje 0, ogolnie pozostalo 9
+63041:(1621435700:348):delivery: Dostarczenie pizzy 1
+63041:(1621435706:895):delivery: Pobranie pizzy 6, ze stolu, na stole zostaje 2, ogolnie pozostalo 5
+63041:(1621435710:977):delivery: Dostarczenie pizzy 6
+63041:(1621435714:992):delivery: Pobranie pizzy 7, ze stolu, na stole zostaje 1, ogolnie pozostalo 1
+63041:(1621435719:50):delivery: Dostarczenie pizzy 7
+63040:(1621435700:844):delivery: Pobranie pizzy 9, ze stolu, na stole zostaje 2, ogolnie pozostalo 8
+63040:(1621435704:849):delivery: Dostarczenie pizzy 9
+63040:(1621435708:896):delivery: Pobranie pizzy 8, ze stolu, na stole zostaje 1, ogolnie pozostalo 4
+63040:(1621435712:978):delivery: Dostarczenie pizzy 8
+63040:(1621435716:993):delivery: Pobranie pizzy 9, ze stolu, na stole zostaje 0, ogolnie pozostalo 0
+63040:(1621435721:50):delivery: Dostarczenie pizzy 9
+MAIN: PID: 63035
+length value passed to ftruncate 24
+MAIN: Waiting for all children to finish...
+MAIN: 63038 finished
+MAIN: 63036 finished
+MAIN: 63037 finished
+MAIN: 63039 finished
+MAIN: 63042 finished
+MAIN: 63041 finished
+MAIN: 63040 finished
+MAIN: all children have finished
+
+
+// wywolanie dla 15 kucharzy, 10 dostawcow
+63347:cook: Started
+63347:(1621435875:540):cook: Przygotowuje 0
+63347:(1621435886:108):cook: Dodaje pizze 0, liczba pizz w piecu 5
+63347:(1621435890:193):cook: Wyciagam pizze 0, pozostalo w piecu 4
+63347:(1621435890:193):cook: Umieszczam pizze 0 na stole, obecnie na stole 4
+63347:(1621435890:193):cook: Przygotowuje 3
+63347:(1621435893:758):cook: Dodaje pizze 3, liczba pizz w piecu 5
+63347:(1621435897:781):cook: Wyciagam pizze 3, pozostalo w piecu 4
+63347:(1621435897:781):cook: Umieszczam pizze 3 na stole, obecnie na stole 1
+63347:(1621435897:781):cook: Przygotowuje 8
+63347:(1621435902:783):cook: Dodaje pizze 8, liczba pizz w piecu 5
+63347:(1621435906:793):cook: Wyciagam pizze 8, pozostalo w piecu 4
+63347:(1621435906:793):cook: Umieszczam pizze 8 na stole, obecnie na stole 5
+63347:(1621435906:793):cook: Przygotowuje 0
+63347:(1621435910:392):cook: Dodaje pizze 0, liczba pizz w piecu 5
+63347:(1621435914:486):cook: Wyciagam pizze 0, pozostalo w piecu 4
+63347:(1621435914:486):cook: Umieszczam pizze 0 na stole, obecnie na stole 2
+63334:cook: Started
+63334:(1621435875:540):cook: Przygotowuje 6
+63334:(1621435885:608):cook: Dodaje pizze 6, liczba pizz w piecu 5
+63334:(1621435889:701):cook: Wyciagam pizze 6, pozostalo w piecu 4
+63334:(1621435889:701):cook: Umieszczam pizze 6 na stole, obecnie na stole 2
+63334:(1621435889:701):cook: Przygotowuje 8
+63334:(1621435893:754):cook: Dodaje pizze 8, liczba pizz w piecu 4
+63334:(1621435897:819):cook: Wyciagam pizze 8, pozostalo w piecu 4
+63334:(1621435897:819):cook: Umieszczam pizze 8 na stole, obecnie na stole 2
+63334:(1621435897:819):cook: Przygotowuje 1
+63334:(1621435901:894):cook: Dodaje pizze 1, liczba pizz w piecu 5
+63334:(1621435905:955):cook: Wyciagam pizze 1, pozostalo w piecu 4
+63334:(1621435905:955):cook: Umieszczam pizze 1 na stole, obecnie na stole 1
+63334:(1621435905:955):cook: Przygotowuje 5
+63334:(1621435910:508):cook: Dodaje pizze 5, liczba pizz w piecu 5
+63334:(1621435914:589):cook: Wyciagam pizze 5, pozostalo w piecu 3
+63334:(1621435914:589):cook: Umieszczam pizze 5 na stole, obecnie na stole 3
+63341:cook: Started
+63341:(1621435875:540):cook: Przygotowuje 7
+63341:(1621435877:542):cook: Dodaje pizze 7, liczba pizz w piecu 1
+63341:(1621435881:586):cook: Wyciagam pizze 7, pozostalo w piecu 3
+63341:(1621435881:586):cook: Umieszczam pizze 7 na stole, obecnie na stole 3
+63341:(1621435881:586):cook: Przygotowuje 0
+63341:(1621435894:119):cook: Dodaje pizze 0, liczba pizz w piecu 5
+63341:(1621435898:180):cook: Wyciagam pizze 0, pozostalo w piecu 4
+63341:(1621435898:180):cook: Umieszczam pizze 0 na stole, obecnie na stole 3
+63341:(1621435898:180):cook: Przygotowuje 0
+63341:(1621435902:186):cook: Dodaje pizze 0, liczba pizz w piecu 5
+63341:(1621435906:266):cook: Wyciagam pizze 0, pozostalo w piecu 4
+63341:(1621435906:266):cook: Umieszczam pizze 0 na stole, obecnie na stole 2
+63341:(1621435906:266):cook: Przygotowuje 9
+63341:(1621435910:852):cook: Dodaje pizze 9, liczba pizz w piecu 5
+63341:(1621435914:914):cook: Wyciagam pizze 9, pozostalo w piecu 4
+63341:(1621435914:914):cook: Umieszczam pizze 9 na stole, obecnie na stole 4
+63338:cook: Started
+63338:(1621435875:540):cook: Przygotowuje 3
+63338:(1621435881:599):cook: Dodaje pizze 3, liczba pizz w piecu 5
+63338:(1621435885:663):cook: Wyciagam pizze 3, pozostalo w piecu 3
+63338:(1621435885:663):cook: Umieszczam pizze 3 na stole, obecnie na stole 4
+63338:(1621435885:663):cook: Przygotowuje 3
+63338:(1621435889:711):cook: Dodaje pizze 3, liczba pizz w piecu 5
+63338:(1621435893:717):cook: Wyciagam pizze 3, pozostalo w piecu 3
+63338:(1621435893:717):cook: Umieszczam pizze 3 na stole, obecnie na stole 2
+63338:(1621435893:717):cook: Przygotowuje 5
+63338:(1621435902:265):cook: Dodaje pizze 5, liczba pizz w piecu 5
+63338:(1621435906:319):cook: Wyciagam pizze 5, pozostalo w piecu 4
+63338:(1621435906:319):cook: Umieszczam pizze 5 na stole, obecnie na stole 3
+63338:(1621435906:319):cook: Przygotowuje 1
+63338:(1621435910:835):cook: Dodaje pizze 1, liczba pizz w piecu 5
+63338:(1621435914:921):cook: Wyciagam pizze 1, pozostalo w piecu 3
+63338:(1621435914:921):cook: Umieszczam pizze 1 na stole, obecnie na stole 5
+63340:cook: Started
+63340:(1621435875:540):cook: Przygotowuje 9
+63340:(1621435890:635):cook: Dodaje pizze 9, liczba pizz w piecu 5
+63340:(1621435894:656):cook: Wyciagam pizze 9, pozostalo w piecu 4
+63340:(1621435894:656):cook: Umieszczam pizze 9 na stole, obecnie na stole 1
+63340:(1621435894:656):cook: Przygotowuje 0
+63340:(1621435898:727):cook: Dodaje pizze 0, liczba pizz w piecu 5
+63340:(1621435902:739):cook: Wyciagam pizze 0, pozostalo w piecu 4
+63340:(1621435902:739):cook: Umieszczam pizze 0 na stole, obecnie na stole 2
+63340:(1621435902:739):cook: Przygotowuje 6
+63340:(1621435906:311):cook: Dodaje pizze 6, liczba pizz w piecu 5
+63340:(1621435910:409):cook: Wyciagam pizze 6, pozostalo w piecu 4
+63340:(1621435910:409):cook: Umieszczam pizze 6 na stole, obecnie na stole 2
+63340:(1621435910:409):cook: Przygotowuje 4
+63340:(1621435914:949):cook: Dodaje pizze 4, liczba pizz w piecu 4
+63340:(1621435919:37):cook: Wyciagam pizze 4, pozostalo w piecu 4
+63340:(1621435919:37):cook: Umieszczam pizze 4 na stole, obecnie na stole 1
+63337:cook: Started
+63337:(1621435875:540):cook: Przygotowuje 3
+63337:(1621435881:619):cook: Dodaje pizze 3, liczba pizz w piecu 5
+63337:(1621435885:641):cook: Wyciagam pizze 3, pozostalo w piecu 4
+63337:(1621435885:641):cook: Umieszczam pizze 3 na stole, obecnie na stole 3
+63337:(1621435885:641):cook: Przygotowuje 3
+63337:(1621435889:665):cook: Dodaje pizze 3, liczba pizz w piecu 5
+63337:(1621435893:705):cook: Wyciagam pizze 3, pozostalo w piecu 4
+63337:(1621435893:705):cook: Umieszczam pizze 3 na stole, obecnie na stole 1
+63337:(1621435893:705):cook: Przygotowuje 0
+63337:(1621435902:729):cook: Dodaje pizze 0, liczba pizz w piecu 5
+63337:(1621435906:737):cook: Wyciagam pizze 0, pozostalo w piecu 4
+63337:(1621435906:737):cook: Umieszczam pizze 0 na stole, obecnie na stole 4
+63337:(1621435906:737):cook: Przygotowuje 0
+63337:(1621435915:247):cook: Dodaje pizze 0, liczba pizz w piecu 5
+63337:(1621435919:271):cook: Wyciagam pizze 0, pozostalo w piecu 3
+63337:(1621435919:271):cook: Umieszczam pizze 0 na stole, obecnie na stole 2
+63343:cook: Started
+63343:(1621435875:540):cook: Przygotowuje 0
+63343:(1621435877:567):cook: Dodaje pizze 0, liczba pizz w piecu 5
+63343:(1621435881:662):cook: Wyciagam pizze 0, pozostalo w piecu 4
+63343:(1621435881:662):cook: Umieszczam pizze 0 na stole, obecnie na stole 5
+63343:(1621435881:662):cook: Przygotowuje 7
+63343:(1621435885:706):cook: Dodaje pizze 7, liczba pizz w piecu 4
+63343:(1621435889:765):cook: Wyciagam pizze 7, pozostalo w piecu 4
+63343:(1621435889:765):cook: Umieszczam pizze 7 na stole, obecnie na stole 3
+63343:(1621435889:765):cook: Przygotowuje 7
+63343:(1621435897:790):cook: Dodaje pizze 7, liczba pizz w piecu 5
+63343:(1621435901:832):cook: Wyciagam pizze 7, pozostalo w piecu 4
+63343:(1621435901:832):cook: Umieszczam pizze 7 na stole, obecnie na stole 1
+63343:(1621435901:832):cook: Przygotowuje 7
+63343:(1621435918:357):cook: Dodaje pizze 7, liczba pizz w piecu 5
+63343:(1621435922:412):cook: Wyciagam pizze 7, pozostalo w piecu 4
+63343:(1621435922:412):cook: Umieszczam pizze 7 na stole, obecnie na stole 1
+63344:cook: Started
+63344:(1621435875:541):cook: Przygotowuje 2
+63344:(1621435877:561):cook: Dodaje pizze 2, liczba pizz w piecu 4
+63344:(1621435881:615):cook: Wyciagam pizze 2, pozostalo w piecu 4
+63344:(1621435881:615):cook: Umieszczam pizze 2 na stole, obecnie na stole 4
+63344:(1621435881:615):cook: Przygotowuje 8
+63344:(1621435885:623):cook: Dodaje pizze 8, liczba pizz w piecu 5
+63344:(1621435889:639):cook: Wyciagam pizze 8, pozostalo w piecu 4
+63344:(1621435889:639):cook: Umieszczam pizze 8 na stole, obecnie na stole 1
+63344:(1621435889:639):cook: Przygotowuje 5
+63344:(1621435898:181):cook: Dodaje pizze 5, liczba pizz w piecu 5
+63344:(1621435902:264):cook: Wyciagam pizze 5, pozostalo w piecu 4
+63344:(1621435902:264):cook: Umieszczam pizze 5 na stole, obecnie na stole 1
+63344:(1621435902:264):cook: Przygotowuje 9
+63344:(1621435918:820):cook: Dodaje pizze 9, liczba pizz w piecu 4
+63344:(1621435922:836):cook: Wyciagam pizze 9, pozostalo w piecu 4
+63344:(1621435922:836):cook: Umieszczam pizze 9 na stole, obecnie na stole 2
+63342:cook: Started
+63342:(1621435875:540):cook: Przygotowuje 0
+63342:(1621435877:545):cook: Dodaje pizze 0, liczba pizz w piecu 2
+63342:(1621435881:553):cook: Wyciagam pizze 0, pozostalo w piecu 4
+63342:(1621435881:553):cook: Umieszczam pizze 0 na stole, obecnie na stole 1
+63342:(1621435881:553):cook: Przygotowuje 0
+63342:(1621435894:631):cook: Dodaje pizze 0, liczba pizz w piecu 5
+63342:(1621435898:650):cook: Wyciagam pizze 0, pozostalo w piecu 4
+63342:(1621435898:650):cook: Umieszczam pizze 0 na stole, obecnie na stole 4
+63342:(1621435898:650):cook: Przygotowuje 7
+63342:(1621435910:203):cook: Dodaje pizze 7, liczba pizz w piecu 5
+63342:(1621435914:247):cook: Wyciagam pizze 7, pozostalo w piecu 4
+63342:(1621435914:247):cook: Umieszczam pizze 7 na stole, obecnie na stole 1
+63342:(1621435914:247):cook: Przygotowuje 9
+63342:(1621435918:837):cook: Dodaje pizze 9, liczba pizz w piecu 5
+63342:(1621435922:925):cook: Wyciagam pizze 9, pozostalo w piecu 4
+63342:(1621435922:925):cook: Umieszczam pizze 9 na stole, obecnie na stole 3
+63335:cook: Started
+63335:(1621435875:540):cook: Przygotowuje 3
+63335:(1621435882:85):cook: Dodaje pizze 3, liczba pizz w piecu 5
+63335:(1621435886:145):cook: Wyciagam pizze 3, pozostalo w piecu 4
+63335:(1621435886:145):cook: Umieszczam pizze 3 na stole, obecnie na stole 1
+63335:(1621435886:145):cook: Przygotowuje 4
+63335:(1621435890:244):cook: Dodaje pizze 4, liczba pizz w piecu 5
+63335:(1621435894:299):cook: Wyciagam pizze 4, pozostalo w piecu 4
+63335:(1621435894:299):cook: Umieszczam pizze 4 na stole, obecnie na stole 2
+63335:(1621435894:299):cook: Przygotowuje 2
+63335:(1621435906:320):cook: Dodaje pizze 2, liczba pizz w piecu 5
+63335:(1621435910:376):cook: Wyciagam pizze 2, pozostalo w piecu 4
+63335:(1621435910:376):cook: Umieszczam pizze 2 na stole, obecnie na stole 1
+63335:(1621435910:376):cook: Przygotowuje 5
+63335:(1621435919:406):cook: Dodaje pizze 5, liczba pizz w piecu 4
+63335:(1621435923:419):cook: Wyciagam pizze 5, pozostalo w piecu 4
+63335:(1621435923:419):cook: Umieszczam pizze 5 na stole, obecnie na stole 4
+63345:cook: Started
+63345:(1621435875:540):cook: Przygotowuje 3
+63345:(1621435881:574):cook: Dodaje pizze 3, liczba pizz w piecu 5
+63345:(1621435885:623):cook: Wyciagam pizze 3, pozostalo w piecu 4
+63345:(1621435885:623):cook: Umieszczam pizze 3 na stole, obecnie na stole 2
+63345:(1621435885:623):cook: Przygotowuje 5
+63345:(1621435898:690):cook: Dodaje pizze 5, liczba pizz w piecu 5
+63345:(1621435902:726):cook: Wyciagam pizze 5, pozostalo w piecu 4
+63345:(1621435902:726):cook: Umieszczam pizze 5 na stole, obecnie na stole 1
+63345:(1621435902:726):cook: Przygotowuje 7
+63345:(1621435906:751):cook: Dodaje pizze 7, liczba pizz w piecu 5
+63345:(1621435910:835):cook: Wyciagam pizze 7, pozostalo w piecu 4
+63345:(1621435910:835):cook: Umieszczam pizze 7 na stole, obecnie na stole 1
+63345:(1621435910:835):cook: Przygotowuje 1
+63345:(1621435919:408):cook: Dodaje pizze 1, liczba pizz w piecu 5
+63345:(1621435923:489):cook: Wyciagam pizze 1, pozostalo w piecu 3
+63345:(1621435923:489):cook: Umieszczam pizze 1 na stole, obecnie na stole 5
+63336:cook: Started
+63336:(1621435875:540):cook: Przygotowuje 5
+63336:(1621435886:610):cook: Dodaje pizze 5, liczba pizz w piecu 5
+63336:(1621435890:631):cook: Wyciagam pizze 5, pozostalo w piecu 4
+63336:(1621435890:631):cook: Umieszczam pizze 5 na stole, obecnie na stole 5
+63336:(1621435890:631):cook: Przygotowuje 9
+63336:(1621435894:677):cook: Dodaje pizze 9, liczba pizz w piecu 5
+63336:(1621435898:718):cook: Wyciagam pizze 9, pozostalo w piecu 4
+63336:(1621435898:718):cook: Umieszczam pizze 9 na stole, obecnie na stole 5
+63336:(1621435898:718):cook: Przygotowuje 2
+63336:(1621435906:816):cook: Dodaje pizze 2, liczba pizz w piecu 5
+63336:(1621435910:843):cook: Wyciagam pizze 2, pozostalo w piecu 4
+63336:(1621435910:843):cook: Umieszczam pizze 2 na stole, obecnie na stole 2
+63336:(1621435910:843):cook: Przygotowuje 8
+63336:(1621435922:418):cook: Dodaje pizze 8, liczba pizz w piecu 5
+63336:(1621435926:424):cook: Wyciagam pizze 8, pozostalo w piecu 3
+63336:(1621435926:424):cook: Umieszczam pizze 8 na stole, obecnie na stole 1
+63346:cook: Started
+63346:(1621435875:540):cook: Przygotowuje 3
+63346:(1621435881:591):cook: Dodaje pizze 3, liczba pizz w piecu 4
+63346:(1621435885:596):cook: Wyciagam pizze 3, pozostalo w piecu 4
+63346:(1621435885:596):cook: Umieszczam pizze 3 na stole, obecnie na stole 1
+63346:(1621435885:596):cook: Przygotowuje 0
+63346:(1621435890:101):cook: Dodaje pizze 0, liczba pizz w piecu 5
+63346:(1621435894:118):cook: Wyciagam pizze 0, pozostalo w piecu 4
+63346:(1621435894:118):cook: Umieszczam pizze 0 na stole, obecnie na stole 1
+63346:(1621435894:118):cook: Przygotowuje 7
+63346:(1621435914:714):cook: Dodaje pizze 7, liczba pizz w piecu 4
+63346:(1621435918:735):cook: Wyciagam pizze 7, pozostalo w piecu 4
+63346:(1621435918:735):cook: Umieszczam pizze 7 na stole, obecnie na stole 1
+63346:(1621435918:735):cook: Przygotowuje 4
+63346:(1621435923:236):cook: Dodaje pizze 4, liczba pizz w piecu 5
+63346:(1621435927:274):cook: Wyciagam pizze 4, pozostalo w piecu 1
+63346:(1621435927:274):cook: Umieszczam pizze 4 na stole, obecnie na stole 1
+63333:cook: Started
+63333:(1621435875:540):cook: Przygotowuje 1
+63333:(1621435877:554):cook: Dodaje pizze 1, liczba pizz w piecu 3
+63333:(1621435881:586):cook: Wyciagam pizze 1, pozostalo w piecu 4
+63333:(1621435881:586):cook: Umieszczam pizze 1 na stole, obecnie na stole 2
+63333:(1621435881:586):cook: Przygotowuje 3
+63333:(1621435906:143):cook: Dodaje pizze 3, liczba pizz w piecu 5
+63333:(1621435910:195):cook: Wyciagam pizze 3, pozostalo w piecu 4
+63333:(1621435910:195):cook: Umieszczam pizze 3 na stole, obecnie na stole 1
+63333:(1621435910:195):cook: Przygotowuje 6
+63333:(1621435914:719):cook: Dodaje pizze 6, liczba pizz w piecu 5
+63333:(1621435918:807):cook: Wyciagam pizze 6, pozostalo w piecu 3
+63333:(1621435918:807):cook: Umieszczam pizze 6 na stole, obecnie na stole 2
+63333:(1621435918:807):cook: Przygotowuje 9
+63333:(1621435923:818):cook: Dodaje pizze 9, liczba pizz w piecu 4
+63333:(1621435927:833):cook: Wyciagam pizze 9, pozostalo w piecu 0
+63333:(1621435927:833):cook: Umieszczam pizze 9 na stole, obecnie na stole 1
+63339:cook: Started
+63339:(1621435875:540):cook: Przygotowuje 8
+63339:(1621435898:141):cook: Dodaje pizze 8, liczba pizz w piecu 5
+63339:(1621435902:179):cook: Wyciagam pizze 8, pozostalo w piecu 4
+63339:(1621435902:179):cook: Umieszczam pizze 8 na stole, obecnie na stole 2
+63339:(1621435902:179):cook: Przygotowuje 0
+63339:(1621435914:261):cook: Dodaje pizze 0, liczba pizz w piecu 5
+63339:(1621435918:338):cook: Wyciagam pizze 0, pozostalo w piecu 4
+63339:(1621435918:338):cook: Umieszczam pizze 0 na stole, obecnie na stole 1
+63339:(1621435918:338):cook: Przygotowuje 5
+63339:(1621435922:845):cook: Dodaje pizze 5, liczba pizz w piecu 5
+63339:(1621435926:851):cook: Wyciagam pizze 5, pozostalo w piecu 2
+63339:(1621435926:851):cook: Umieszczam pizze 5 na stole, obecnie na stole 1
+63339:(1621435926:851):cook: Przygotowuje 5
+63339:(1621435928:888):cook: Dodaje pizze 5, liczba pizz w piecu 1
+63339:(1621435932:944):cook: Wyciagam pizze 5, pozostalo w piecu 0
+63339:(1621435932:944):cook: Umieszczam pizze 5 na stole, obecnie na stole 1
+63352:(1621435883:541):delivery: Pobranie pizzy 7, ze stolu, na stole zostaje 2, ogolnie pozostalo 57
+63352:(1621435887:545):delivery: Dostarczenie pizzy 7
+63352:(1621435891:592):delivery: Pobranie pizzy 8, ze stolu, na stole zostaje 1, ogolnie pozostalo 46
+63352:(1621435895:674):delivery: Dostarczenie pizzy 8
+63352:(1621435899:689):delivery: Pobranie pizzy 0, ze stolu, na stole zostaje 1, ogolnie pozostalo 36
+63352:(1621435903:746):delivery: Dostarczenie pizzy 0
+63352:(1621435907:771):delivery: Pobranie pizzy 5, ze stolu, na stole zostaje 1, ogolnie pozostalo 26
+63352:(1621435911:791):delivery: Dostarczenie pizzy 5
+63352:(1621435915:841):delivery: Pobranie pizzy 5, ze stolu, na stole zostaje 4, ogolnie pozostalo 19
+63352:(1621435919:937):delivery: Dostarczenie pizzy 5
+63352:(1621435924:27):delivery: Pobranie pizzy 9, ze stolu, na stole zostaje 4, ogolnie pozostalo 9
+63352:(1621435928:52):delivery: Dostarczenie pizzy 9
+63349:(1621435883:541):delivery: Pobranie pizzy 0, ze stolu, na stole zostaje 4, ogolnie pozostalo 59
+63349:(1621435887:545):delivery: Dostarczenie pizzy 0
+63349:(1621435891:592):delivery: Pobranie pizzy 6, ze stolu, na stole zostaje 4, ogolnie pozostalo 49
+63349:(1621435895:674):delivery: Dostarczenie pizzy 6
+63349:(1621435899:688):delivery: Pobranie pizzy 8, ze stolu, na stole zostaje 4, ogolnie pozostalo 39
+63349:(1621435903:746):delivery: Dostarczenie pizzy 8
+63349:(1621435907:771):delivery: Pobranie pizzy 8, ze stolu, na stole zostaje 3, ogolnie pozostalo 28
+63349:(1621435911:791):delivery: Dostarczenie pizzy 8
+63349:(1621435915:841):delivery: Pobranie pizzy 0, ze stolu, na stole zostaje 3, ogolnie pozostalo 18
+63349:(1621435919:937):delivery: Dostarczenie pizzy 0
+63349:(1621435924:27):delivery: Pobranie pizzy 5, ze stolu, na stole zostaje 3, ogolnie pozostalo 8
+63349:(1621435928:52):delivery: Dostarczenie pizzy 5
+63354:(1621435883:541):delivery: Pobranie pizzy 0, ze stolu, na stole zostaje 0, ogolnie pozostalo 55
+63354:(1621435887:545):delivery: Dostarczenie pizzy 0
+63354:(1621435891:592):delivery: Pobranie pizzy 7, ze stolu, na stole zostaje 0, ogolnie pozostalo 45
+63354:(1621435895:674):delivery: Dostarczenie pizzy 7
+63354:(1621435899:689):delivery: Pobranie pizzy 9, ze stolu, na stole zostaje 0, ogolnie pozostalo 35
+63354:(1621435903:746):delivery: Dostarczenie pizzy 9
+63354:(1621435907:771):delivery: Pobranie pizzy 0, ze stolu, na stole zostaje 0, ogolnie pozostalo 25
+63354:(1621435911:791):delivery: Dostarczenie pizzy 0
+63354:(1621435915:841):delivery: Pobranie pizzy 7, ze stolu, na stole zostaje 1, ogolnie pozostalo 16
+63354:(1621435919:937):delivery: Dostarczenie pizzy 7
+63354:(1621435924:27):delivery: Pobranie pizzy 7, ze stolu, na stole zostaje 0, ogolnie pozostalo 5
+63354:(1621435928:52):delivery: Dostarczenie pizzy 7
+63350:(1621435883:541):delivery: Pobranie pizzy 1, ze stolu, na stole zostaje 3, ogolnie pozostalo 58
+63350:(1621435887:545):delivery: Dostarczenie pizzy 1
+63350:(1621435891:592):delivery: Pobranie pizzy 0, ze stolu, na stole zostaje 3, ogolnie pozostalo 48
+63350:(1621435895:674):delivery: Dostarczenie pizzy 0
+63350:(1621435899:688):delivery: Pobranie pizzy 0, ze stolu, na stole zostaje 2, ogolnie pozostalo 37
+63350:(1621435903:746):delivery: Dostarczenie pizzy 0
+63350:(1621435907:771):delivery: Pobranie pizzy 0, ze stolu, na stole zostaje 2, ogolnie pozostalo 27
+63350:(1621435911:791):delivery: Dostarczenie pizzy 0
+63350:(1621435915:841):delivery: Pobranie pizzy 1, ze stolu, na stole zostaje 0, ogolnie pozostalo 15
+63350:(1621435919:937):delivery: Dostarczenie pizzy 1
+63350:(1621435924:27):delivery: Pobranie pizzy 1, ze stolu, na stole zostaje 2, ogolnie pozostalo 7
+63350:(1621435928:52):delivery: Dostarczenie pizzy 1
+63348:(1621435883:541):delivery: Pobranie pizzy 2, ze stolu, na stole zostaje 1, ogolnie pozostalo 56
+63348:(1621435887:545):delivery: Dostarczenie pizzy 2
+63348:(1621435891:592):delivery: Pobranie pizzy 5, ze stolu, na stole zostaje 2, ogolnie pozostalo 47
+63348:(1621435895:674):delivery: Dostarczenie pizzy 5
+63348:(1621435899:688):delivery: Pobranie pizzy 3, ze stolu, na stole zostaje 3, ogolnie pozostalo 38
+63348:(1621435903:746):delivery: Dostarczenie pizzy 3
+63348:(1621435907:771):delivery: Pobranie pizzy 1, ze stolu, na stole zostaje 4, ogolnie pozostalo 29
+63348:(1621435911:791):delivery: Dostarczenie pizzy 1
+63348:(1621435915:841):delivery: Pobranie pizzy 9, ze stolu, na stole zostaje 2, ogolnie pozostalo 17
+63348:(1621435919:937):delivery: Dostarczenie pizzy 9
+63348:(1621435924:27):delivery: Pobranie pizzy 9, ze stolu, na stole zostaje 1, ogolnie pozostalo 6
+63348:(1621435928:52):delivery: Dostarczenie pizzy 9
+63351:(1621435886:41):delivery: Pobranie pizzy 3, ze stolu, na stole zostaje 2, ogolnie pozostalo 53
+63351:(1621435890:46):delivery: Dostarczenie pizzy 3
+63351:(1621435894:93):delivery: Pobranie pizzy 3, ze stolu, na stole zostaje 1, ogolnie pozostalo 44
+63351:(1621435898:175):delivery: Dostarczenie pizzy 3
+63351:(1621435902:190):delivery: Pobranie pizzy 8, ze stolu, na stole zostaje 1, ogolnie pozostalo 34
+63351:(1621435906:248):delivery: Dostarczenie pizzy 8
+63351:(1621435910:272):delivery: Pobranie pizzy 3, ze stolu, na stole zostaje 0, ogolnie pozostalo 24
+63351:(1621435914:292):delivery: Dostarczenie pizzy 3
+63351:(1621435918:342):delivery: Pobranie pizzy 0, ze stolu, na stole zostaje 0, ogolnie pozostalo 14
+63351:(1621435922:438):delivery: Dostarczenie pizzy 0
+63351:(1621435926:528):delivery: Pobranie pizzy 8, ze stolu, na stole zostaje 0, ogolnie pozostalo 4
+63351:(1621435930:554):delivery: Dostarczenie pizzy 8
+63353:(1621435886:41):delivery: Pobranie pizzy 3, ze stolu, na stole zostaje 3, ogolnie pozostalo 54
+63353:(1621435890:46):delivery: Dostarczenie pizzy 3
+63353:(1621435894:93):delivery: Pobranie pizzy 3, ze stolu, na stole zostaje 0, ogolnie pozostalo 43
+63353:(1621435898:175):delivery: Dostarczenie pizzy 3
+63353:(1621435902:190):delivery: Pobranie pizzy 7, ze stolu, na stole zostaje 0, ogolnie pozostalo 33
+63353:(1621435906:248):delivery: Dostarczenie pizzy 7
+63353:(1621435910:772):delivery: Pobranie pizzy 6, ze stolu, na stole zostaje 1, ogolnie pozostalo 23
+63353:(1621435914:792):delivery: Dostarczenie pizzy 6
+63353:(1621435918:842):delivery: Pobranie pizzy 7, ze stolu, na stole zostaje 1, ogolnie pozostalo 13
+63353:(1621435922:939):delivery: Dostarczenie pizzy 7
+63353:(1621435927:29):delivery: Pobranie pizzy 5, ze stolu, na stole zostaje 0, ogolnie pozostalo 3
+63353:(1621435931:54):delivery: Dostarczenie pizzy 5
+63356:(1621435886:42):delivery: Pobranie pizzy 3, ze stolu, na stole zostaje 1, ogolnie pozostalo 52
+63356:(1621435890:46):delivery: Dostarczenie pizzy 3
+63356:(1621435894:593):delivery: Pobranie pizzy 0, ze stolu, na stole zostaje 1, ogolnie pozostalo 42
+63356:(1621435898:675):delivery: Dostarczenie pizzy 0
+63356:(1621435902:690):delivery: Pobranie pizzy 5, ze stolu, na stole zostaje 0, ogolnie pozostalo 32
+63356:(1621435906:748):delivery: Dostarczenie pizzy 5
+63356:(1621435910:772):delivery: Pobranie pizzy 2, ze stolu, na stole zostaje 0, ogolnie pozostalo 22
+63356:(1621435914:792):delivery: Dostarczenie pizzy 2
+63356:(1621435918:842):delivery: Pobranie pizzy 6, ze stolu, na stole zostaje 0, ogolnie pozostalo 12
+63356:(1621435922:939):delivery: Dostarczenie pizzy 6
+63356:(1621435927:529):delivery: Pobranie pizzy 4, ze stolu, na stole zostaje 0, ogolnie pozostalo 2
+63356:(1621435931:554):delivery: Dostarczenie pizzy 4
+63355:(1621435886:42):delivery: Pobranie pizzy 3, ze stolu, na stole zostaje 0, ogolnie pozostalo 51
+63355:(1621435890:47):delivery: Dostarczenie pizzy 3
+63355:(1621435894:594):delivery: Pobranie pizzy 4, ze stolu, na stole zostaje 0, ogolnie pozostalo 41
+63355:(1621435898:676):delivery: Dostarczenie pizzy 4
+63355:(1621435903:191):delivery: Pobranie pizzy 0, ze stolu, na stole zostaje 1, ogolnie pozostalo 31
+63355:(1621435907:248):delivery: Dostarczenie pizzy 0
+63355:(1621435911:273):delivery: Pobranie pizzy 7, ze stolu, na stole zostaje 1, ogolnie pozostalo 21
+63355:(1621435915:293):delivery: Dostarczenie pizzy 7
+63355:(1621435919:343):delivery: Pobranie pizzy 4, ze stolu, na stole zostaje 1, ogolnie pozostalo 11
+63355:(1621435923:439):delivery: Dostarczenie pizzy 4
+63355:(1621435928:29):delivery: Pobranie pizzy 9, ze stolu, na stole zostaje 0, ogolnie pozostalo 1
+63355:(1621435932:54):delivery: Dostarczenie pizzy 9
+63357:(1621435886:544):delivery: Pobranie pizzy 3, ze stolu, na stole zostaje 0, ogolnie pozostalo 50
+63357:(1621435890:549):delivery: Dostarczenie pizzy 3
+63357:(1621435895:96):delivery: Pobranie pizzy 9, ze stolu, na stole zostaje 0, ogolnie pozostalo 40
+63357:(1621435899:178):delivery: Dostarczenie pizzy 9
+63357:(1621435903:193):delivery: Pobranie pizzy 5, ze stolu, na stole zostaje 0, ogolnie pozostalo 30
+63357:(1621435907:250):delivery: Dostarczenie pizzy 5
+63357:(1621435911:275):delivery: Pobranie pizzy 2, ze stolu, na stole zostaje 0, ogolnie pozostalo 20
+63357:(1621435915:295):delivery: Dostarczenie pizzy 2
+63357:(1621435919:345):delivery: Pobranie pizzy 0, ze stolu, na stole zostaje 0, ogolnie pozostalo 10
+63357:(1621435923:441):delivery: Dostarczenie pizzy 0
+63357:(1621435933:33):delivery: Pobranie pizzy 5, ze stolu, na stole zostaje 0, ogolnie pozostalo 0
+63357:(1621435937:58):delivery: Dostarczenie pizzy 5
+MAIN: PID: 63332
+length value passed to ftruncate 24
+MAIN: Waiting for all children to finish...
+MAIN: 63347 finished
+MAIN: 63334 finished
+MAIN: 63341 finished
+MAIN: 63338 finished
+MAIN: 63340 finished
+MAIN: 63337 finished
+MAIN: 63343 finished
+MAIN: 63344 finished
+MAIN: 63342 finished
+MAIN: 63335 finished
+MAIN: 63345 finished
+MAIN: 63336 finished
+MAIN: 63346 finished
+MAIN: 63333 finished
+MAIN: 63339 finished
+MAIN: 63349 finished
+MAIN: 63352 finished
+MAIN: 63354 finished
+MAIN: 63350 finished
+MAIN: 63348 finished
+MAIN: 63351 finished
+MAIN: 63353 finished
+MAIN: 63356 finished
+MAIN: 63355 finished
+MAIN: 63357 finished
+MAIN: all children have finished

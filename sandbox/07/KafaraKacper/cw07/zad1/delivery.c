@@ -148,12 +148,17 @@ int main(int argc, char * argv[])
             syserr("semop", __FILE__, __func__, __LINE__);
         
             
-        ts_delivery_time.tv_nsec = rand() % (int)(1e8);
+        ts_delivery_time.tv_nsec = rand() % (long)(1e8);
         if (nanosleep(&ts_delivery_time, NULL) < 0)
             err_noexit("delivery: nanosleep failed.", __FILE__, __func__, __LINE__);
             
         clock_gettime(CLOCK_REALTIME, &ts_curtime);
         printf("%d:(%ld:%ld):delivery: Dostarczenie pizzy %d\n", getpid(), ts_curtime.tv_sec, ts_curtime.tv_nsec / CLOCK_CONV, pizza_type);
+
+        // powrót
+        ts_delivery_time.tv_nsec = rand() % (long)(1e8);
+        if (nanosleep(&ts_delivery_time, NULL) < 0)
+            err_noexit("delivery: nanosleep failed.", __FILE__, __func__, __LINE__);
     }
     exit(EXIT_SUCCESS);
 }

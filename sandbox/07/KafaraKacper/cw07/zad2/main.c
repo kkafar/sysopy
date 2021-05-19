@@ -103,8 +103,8 @@ int main(int argc, char * argv[])
         launch_cook();
 
     // /* tworzymy dostawców */
-    // for (int i = 0; i < M; ++i)
-    //     launch_delivery();
+    for (int i = 0; i < M; ++i)
+        launch_delivery();
 
     printf("MAIN: Waiting for all children to finish...\n");
     pid_t cpid;
