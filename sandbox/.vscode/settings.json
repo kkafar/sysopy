@@ -10,5 +10,8 @@
         "errno.h": "c",
         "errno-base.h": "c",
         "features.h": "c"
+    },
+    "files.watcherExclude": {
+        "**/target": true
     }
 }

@@ -15,6 +15,7 @@
 
 #define SEM_OWEN_NAME "/semowen"
 #define SEM_TABLE_NAME "/semtable"
-
+#define SHM_OWEN_NAME "/shmowen"
+#define SHM_TABLE_NAME "/shmtable"
 
 #endif
