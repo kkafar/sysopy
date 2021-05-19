@@ -27,7 +27,6 @@ int fd_shm_table = -1;
 
 int main(int argc, char * argv[])
 {
-
     if (atexit(cleanup) < 0)
         syserr("atexit failed", __FILE__, __func__, __LINE__);
 
@@ -77,7 +76,7 @@ int main(int argc, char * argv[])
     printf("%d:cook: Started\n", getpid());
     pid_t cook_id = getpid();
     srand(cook_id);
-    int pizza_type, *empty_slots, empty_index = 0;
+    int pizza_type, *empty_slots, empty_index = 0, table_empty_index = 0;
     struct timespec ts_sleeptime, ts_sleeptime2, ts_curtime, ts_retry_penalty;
     ts_sleeptime2.tv_sec = 2;
     ts_sleeptime.tv_sec = 4;
@@ -95,16 +94,18 @@ int main(int argc, char * argv[])
             ts_curtime.tv_nsec / CLOCK_CONV, 
             pizza_type);   
 
-        ts_sleeptime.tv_nsec = rand() % (int)(1e8);
+        ts_sleeptime2.tv_nsec = rand() % (long)(1e8);
         if (nanosleep(&ts_sleeptime2, NULL) < 0)
-            err_noexit("cook: nanosleep failed.", __FILE__, __func__, __LINE__);
+            syserr("cook: nanosleep failed.", __FILE__, __func__, __LINE__);
 
         // próbujemy dostać się do pieca
         while (1)
         {
+            printf("cook inner loop\n");
             if (sem_wait(sem_owen_ptr) < 0) 
-                syserr("sem_wati", __FILE__, __func__, __LINE__); 
+                syserr("sem_wait", __FILE__, __func__, __LINE__); 
             
+            printf("opened owen\n");
             empty_slots = &shm_owen_ptr[PZ_OWEN_SIZE];
             // dostaliśmy się, sprawdzamy czy jest miejsce
             if (*empty_slots <= 0) 
@@ -180,10 +181,24 @@ int main(int argc, char * argv[])
                     syserr("nanosleep", __FILE__, __func__, __LINE__); 
                 continue;
             }
-
-            // jest miejsce na stole
-            
         }
+
+        // jest miejsce na stole
+        table_empty_index = find_next_empty_cell(shm_table_ptr, PZ_TABLE_SIZE, table_empty_index);
+        /* wstawiamy pizzę i zmniejszamy liczbę wolnych miejsc w piecu */
+        shm_table_ptr[table_empty_index] = pizza_type;
+        shm_table_ptr[PZ_TABLE_SIZE]--; 
+        clock_gettime(CLOCK_REALTIME, &ts_curtime);
+        printf(
+            "%d:(%ld:%ld):cook: Umieszczam pizze %d na stole, obecnie na stole %d\n", 
+            cook_id, 
+            ts_curtime.tv_sec, ts_curtime.tv_nsec / CLOCK_CONV,
+            pizza_type,
+            PZ_TABLE_SIZE - shm_table_ptr[PZ_TABLE_SIZE]);
+
+        // zamykamy stół
+        if (sem_post(sem_table_ptr) < 0)
+            syserr("sem_post", __FILE__, __func__, __LINE__); 
     }
 
     exit(EXIT_SUCCESS);

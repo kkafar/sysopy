@@ -9,3 +9,6 @@ organizacja.md
 
 sandbox/mailsort.png
 05/KafaraKacper-cw05.tar.gz
+sandbox/.metals/metals.log
+sandbox/.metals/metals.lock.db
+.gitignore
